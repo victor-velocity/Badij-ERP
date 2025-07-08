@@ -24,14 +24,53 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  const redirectToDashboard = async (userId) => {
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching user role for redirection:', profileError.message);
+      toast.error('Could not determine user role. Please log in again.');
+      await supabase.auth.signOut();
+      router.push('/login');
+      return;
+    }
+
+    const userRole = profileData?.role;
+    switch (userRole) {
+      case 'hr_manager':
+        router.push('/humanResources');
+        break;
+      // Add more cases for other roles
+      // case 'sales_manager':
+      //     router.push('/salesDashboard');
+      //     break;
+      // case 'admin_manager':
+      //     router.push('/adminDashboard');
+      //     break;
+      // case 'it_manager':
+      //     router.push('/itDashboard');
+      //     break;
+      // case 'super_admin':
+      //     router.push('/superAdminDashboard');
+      //     break;
+      default:
+        router.push('/dashboard');
+        break;
+    }
+  };
+
   useEffect(() => {
-    const checkUser = async () => {
+    const checkUserSession = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        router.push('/dashboard');
+        await redirectToDashboard(user.id);
       }
     };
-    checkUser();
+    checkUserSession();
   }, [router, supabase]);
 
   const togglePasswordVisibility = () => {
@@ -70,12 +109,17 @@ export default function LoginPage() {
 
     if (error) {
       setShowCredentialErrorBox(true);
+      toast.error(error.message || 'Login failed. Please check your credentials.');
     } else if (data.user) {
       toast.success("Successfully signed in!");
       console.log("User logged in:", data.user);
-      router.push("/dashboard");
+      // Now, redirect based on the user's role
+      await redirectToDashboard(data.user.id);
     } else {
+      // This else block might be redundant if error is always populated on failure,
+      // but it's a safe guard.
       setShowCredentialErrorBox(true);
+      toast.error('Login failed. Please check your credentials.');
     }
 
     setLoading(false);
@@ -110,9 +154,8 @@ export default function LoginPage() {
                   if (isEmailInvalid) setIsEmailInvalid(false);
                   setShowCredentialErrorBox(false);
                 }}
-                className={`border border-solid ${
-                  isEmailInvalid ? "border-red-500" : "border-[#DDD9D9]"
-                } p-2 text-sm rounded-lg w-full mt-2 mb-4 pr-10 focus:ring focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b]`}
+                className={`border border-solid ${isEmailInvalid ? "border-red-500" : "border-[#DDD9D9]"
+                  } p-2 text-sm rounded-lg w-full mt-2 mb-4 pr-10 focus:ring focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b]`}
               />
               <label htmlFor="password">
                 Password <span className="text-red-600">*</span>
@@ -129,9 +172,8 @@ export default function LoginPage() {
                     if (isPasswordInvalid) setIsPasswordInvalid(false);
                     setShowCredentialErrorBox(false);
                   }}
-                  className={`border border-solid focus:ring focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] ${
-                    isPasswordInvalid ? "border-red-500" : "border-[#DDD9D9]"
-                  } p-2 text-sm rounded-lg w-full mt-2 mb-3 pr-10 `}
+                  className={`border border-solid focus:ring focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] ${isPasswordInvalid ? "border-red-500" : "border-[#DDD9D9]"
+                    } p-2 text-sm rounded-lg w-full mt-2 mb-3 pr-10 `}
                 />
                 <span
                   onClick={togglePasswordVisibility}
@@ -141,9 +183,8 @@ export default function LoginPage() {
                 </span>
               </div>
 
-              <div className={`border border-solid border-[#ff3b30] mb-4 rounded-lg bg-[#FF3B300F] ${
-                showCredentialErrorBox ? '' : 'hidden'
-              }`}>
+              <div className={`border border-solid border-[#ff3b30] mb-4 rounded-lg bg-[#FF3B300F] ${showCredentialErrorBox ? '' : 'hidden'
+                }`}>
                 <span className="font-medium text-[#FF3B30] text-[13px] px-2 py-3 flex justify-center items-center gap-2 flex-nowrap">
                   <FontAwesomeIcon icon={faInfoCircle} />
                   <span>The email or password entered is incorrect. Please check your details and try again.</span>
