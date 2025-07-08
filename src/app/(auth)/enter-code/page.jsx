@@ -228,11 +228,11 @@ export default function EnterCodePage() {
                             </div>
                         </div>
                         {/* Pagination dots */}
-                        <div className='pagination flex gap-4 justify-center items-center mt-8'>
-                            <div className='w-[15px] h-[15px] bg-[#ddd9d9] rounded-full'></div>
-                            <div className='w-[15px] h-[15px] bg-[#b88b1b] rounded-full'></div>
-                            <div className='w-[15px] h-[15px] bg-[#ddd9d9] rounded-full'></div>
-                            <div className='w-[15px] h-[15px] bg-[#ddd9d9] rounded-full'></div>
+                        <div className='pagination flex gap-3 justify-center items-center mt-8'>
+                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
+                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
+                            <div className='w-[12px] h-[12px] bg-[#b88b1b] rounded-full'></div>
+                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
                         </div>
                     </div>
                 </div>

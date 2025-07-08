@@ -85,7 +85,7 @@ export default function LoginPage() {
     <section className="flex justify-center items-center h-[100vh]">
       <div className="flex justify-center items-center flex-nowrap gap-7 w-full max-w-[1200px] banner-width p-5">
         <LoginBanner />
-        <div className="w-1/2 login-div">
+        <div className="w-1/2 login-div h-full">
           <h4 className="text-xl font-medium text-[#cd9e27]">Madison Jay</h4>
           <div className="my-4">
             <h2 className="text-2xl font-bold">Sign In</h2>
