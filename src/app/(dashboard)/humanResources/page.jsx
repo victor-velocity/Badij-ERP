@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardCard from '@/components/humanResources/DashboardCard';
 import Attendance from '@/components/humanResources/AttendanceTable';
+import ShiftManagement from '@/components/humanResources/ShiftsTable';
 
 export default function HRManagerDashboardPage() {
     const [currentDateTime, setCurrentDateTime] = useState('');
@@ -70,6 +71,7 @@ export default function HRManagerDashboardPage() {
                 />
             </div>
             <Attendance />
+            <ShiftManagement />
         </div>
     );
 }

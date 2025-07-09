@@ -121,7 +121,7 @@ const Attendance = () => {
         <div className="bg-white p-6 rounded-lg border-[0.5px] border-solid border-[#DDD9D9] shadow-sm mx-auto my-8 font-inter">
             {/* Header section with title and 'See all' button */}
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-800">Attendance</h2>
+                <h2 className="text-2xl font-semibold text-gray-800">Attendance</h2>
                 <button className="text-[#A09D9D] text-sm font-medium hover:text-black transition-all cursor-pointer rounded-md px-3 py-1">See all</button>
             </div>
 
