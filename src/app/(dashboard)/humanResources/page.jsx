@@ -4,6 +4,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faBriefcase, faChartLine, faClipboardList } from '@fortawesome/free-solid-svg-icons';
+import Attendance from '@/components/humanResources/AttendanceTable';
 
 export default function HRManagerDashboardPage() {
     return (
@@ -52,9 +53,7 @@ export default function HRManagerDashboardPage() {
                 </div>
             </div>
 
-            <div className="mt-12 text-center">
-                <p className="text-gray-500">Welcome to your HR Management Portal. Use the navigation above to access different sections.</p>
-            </div>
+            <Attendance />
         </div>
     );
 }
