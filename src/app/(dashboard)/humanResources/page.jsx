@@ -32,8 +32,8 @@ export default function HRManagerDashboardPage() {
     }, []);
 
     return (
-        <div className="">
-            <div className='flex justify-between items-center my-5 p-4 gap-5'>
+        <div>
+            <div className='flex justify-between items-center my-5'>
                 <div>
                     <h1 className='text-2xl font-bold '>HR Dashboard</h1>
                     <p className='text-[#A09D9D] font-medium mt-2'>Welcome to Madison Jay dashboard</p>
@@ -70,8 +70,14 @@ export default function HRManagerDashboardPage() {
                     changedetails='+12 since last month'
                 />
             </div>
-            <Attendance />
-            <ShiftManagement />
+            <div className="flex flex-wrap lg:flex-nowrap gap-6 w-full">
+                <div className="w-full lg:w-3/5">
+                    <Attendance />
+                </div>
+                <div className="w-full lg:w-2/5">
+                    <ShiftManagement />
+                </div>
+            </div>
         </div>
     );
 }

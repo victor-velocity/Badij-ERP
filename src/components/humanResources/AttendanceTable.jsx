@@ -48,6 +48,10 @@ const EmployeeRow = ({ employee, getStatusColor }) => {
 
     return (
         <tr>
+            {/* Kept whitespace-nowrap here for the employee name/email to stay on one line,
+                but the overflow-x-auto on the parent div will handle scrolling if it's too wide.
+                If you want the email to wrap, you'd remove whitespace-nowrap and ensure the inner div handles wrapping.
+                For now, let's keep it consistent with the "FirstTimersTable" pattern. */}
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden">
@@ -60,6 +64,7 @@ const EmployeeRow = ({ employee, getStatusColor }) => {
                     </div>
                     <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                        {/* If you want email to potentially wrap, you could add a max-width and no whitespace-nowrap here */}
                         <div className="text-sm text-gray-500">{employee.email}</div>
                     </div>
                 </div>
@@ -91,6 +96,8 @@ const Attendance = () => {
                 filteredData = employeesData.slice(0, displayLimit);
                 break;
             case 'Week':
+                // Note: These slices are still fixed for demonstration.
+                // In a real app, you'd likely fetch/filter data based on actual dates.
                 filteredData = employeesData.slice(5, 5 + displayLimit);
                 break;
             case 'Month':
@@ -100,25 +107,25 @@ const Attendance = () => {
                 filteredData = employeesData.slice(0, displayLimit);
         }
         setDisplayedEmployees(filteredData);
-    }, [filterType]); 
+    }, [filterType]);
 
     const { onTime, late, absent } = getAttendanceSummary(displayedEmployees);
 
     const getStatusColor = (status) => {
         switch (status) {
             case 'On-time':
-                return 'text-green-600';
+                return 'bg-green-100 text-green-800';
             case 'Late':
-                return 'text-red-600';
+                return 'bg-red-100 text-red-800';
             case 'Absent':
-                return 'text-orange-600';
+                return 'bg-orange-100 text-orange-800';
             default:
-                return 'text-gray-800';
+                return 'bg-gray-100 text-gray-800';
         }
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg border-[0.5px] border-solid border-[#DDD9D9] shadow-sm mx-auto my-8 font-inter">
+        <div className="bg-white p-6 rounded-lg border-[0.5px] border-solid border-[#DDD9D9] shadow-sm my-8 font-inter">
             {/* Header section with title and 'See all' button */}
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800">Attendance</h2>
@@ -166,10 +173,13 @@ const Attendance = () => {
             </div>
 
             {/* Attendance Table */}
-            <div className="overflow-x-auto rounded-lg border border-gray-200 w-[100%] md:w-full">
-                <table className="w-full divide-y divide-gray-200">
+            {/* Added overflow-x-auto and shadow-md sm:rounded-lg to the wrapper div, similar to FirstTimersTable */}
+            <div className="overflow-x-auto shadow-md sm:rounded-lg rounded-lg border border-gray-200">
+                {/* Changed table-fixed to min-w-full */}
+                <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
+                            {/* Removed explicit w-* classes from th, letting content dictate width */}
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Employee
                             </th>
@@ -199,4 +209,3 @@ const Attendance = () => {
 };
 
 export default Attendance;
-
