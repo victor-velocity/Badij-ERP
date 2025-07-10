@@ -77,7 +77,8 @@ export default function ShiftManagement() {
             </div>
 
             {/* Shift List */}
-            <div className="space-y-4">
+            {/* Added maxHeight and overflowY for scrolling */}
+            <div className="space-y-4" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                 {filteredShifts.length > 0 ? (
                     filteredShifts.map(shift => (
                         <div key={shift.id} className="flex items-center p-3 rounded-lg border border-gray-100">

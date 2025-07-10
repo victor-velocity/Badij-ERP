@@ -44,10 +44,9 @@ export default function LoginPage() {
       case 'hr_manager':
         router.push('/humanResources');
         break;
-      // Add more cases for other roles
-      // case 'sales_manager':
-      //     router.push('/salesDashboard');
-      //     break;
+      case 'employee':
+          router.push('/employee');
+          break;
       // case 'admin_manager':
       //     router.push('/adminDashboard');
       //     break;
