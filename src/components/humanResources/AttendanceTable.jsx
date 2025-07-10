@@ -48,6 +48,10 @@ const EmployeeRow = ({ employee, getStatusColor }) => {
 
     return (
         <tr>
+            {/* Kept whitespace-nowrap here for the employee name/email to stay on one line,
+                but the overflow-x-auto on the parent div will handle scrolling if it's too wide.
+                If you want the email to wrap, you'd remove whitespace-nowrap and ensure the inner div handles wrapping.
+                For now, let's keep it consistent with the "FirstTimersTable" pattern. */}
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden">
@@ -60,6 +64,7 @@ const EmployeeRow = ({ employee, getStatusColor }) => {
                     </div>
                     <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                        {/* If you want email to potentially wrap, you could add a max-width and no whitespace-nowrap here */}
                         <div className="text-sm text-gray-500">{employee.email}</div>
                     </div>
                 </div>
@@ -91,6 +96,8 @@ const Attendance = () => {
                 filteredData = employeesData.slice(0, displayLimit);
                 break;
             case 'Week':
+                // Note: These slices are still fixed for demonstration.
+                // In a real app, you'd likely fetch/filter data based on actual dates.
                 filteredData = employeesData.slice(5, 5 + displayLimit);
                 break;
             case 'Month':
@@ -118,35 +125,85 @@ const Attendance = () => {
     };
 
     return (
-        // Add max-h-screen or a specific max-height, and overflow-y-auto
-        // Corrected max-w-[80vw] typo
-        <div className="overflow-x-auto overflow-y-auto max-h-[500px] my-8 shadow-md sm:rounded-lg rounded-lg border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200 table-auto">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Employee
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Time in
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Time out
-                        </th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {displayedEmployees.map((employee) => (
-                        <EmployeeRow key={employee.id} employee={employee} getStatusColor={getStatusColor} />
-                    ))}
-                </tbody>
-            </table>
-            {displayedEmployees.length === 0 && (
-                <p className="text-center py-4 text-gray-500">No attendance data for this period.</p>
-            )}
+        <div className="bg-white p-6 rounded-lg border-[0.5px] border-solid border-[#DDD9D9] shadow-sm my-8 font-inter">
+            {/* Header section with title and 'See all' button */}
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-gray-800">Attendance</h2>
+                <button className="text-[#A09D9D] text-sm font-medium hover:text-black transition-all cursor-pointer rounded-md px-3 py-1">See all</button>
+            </div>
+
+            {/* Summary Cards and Time Filters */}
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                {/* Summary Cards */}
+                <div className='flex justify-around items-center w-full md:w-1/2'>
+                    <div className="text-center">
+                        <p className="text-4xl font-bold text-gray-900 mb-2">{onTime}</p>
+                        <p className="text-gray-500 text-sm">On time</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-4xl font-bold text-gray-900 mb-2">{late}</p>
+                        <p className="text-gray-500 text-sm">Late</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-4xl font-bold text-gray-900 mb-2">{absent}</p>
+                        <p className="text-gray-500 text-sm">Absent</p>
+                    </div>
+                </div>
+                {/* Time Filters */}
+                <div className="flex space-x-2 mt-4 md:mt-0">
+                    <button
+                        className={`px-4 py-2 rounded-md border border-gray-300 text-sm transition-colors ${filterType === 'Day' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                        onClick={() => setFilterType('Day')}
+                    >
+                        Day
+                    </button>
+                    <button
+                        className={`px-4 py-2 rounded-md border border-gray-300 text-sm transition-colors ${filterType === 'Week' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                        onClick={() => setFilterType('Week')}
+                    >
+                        Week
+                    </button>
+                    <button
+                        className={`px-4 py-2 rounded-md border border-gray-300 text-sm transition-colors ${filterType === 'Month' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                        onClick={() => setFilterType('Month')}
+                    >
+                        Month
+                    </button>
+                </div>
+            </div>
+
+            {/* Attendance Table */}
+            {/* Added overflow-x-auto and shadow-md sm:rounded-lg to the wrapper div, similar to FirstTimersTable */}
+            <div className="overflow-x-auto shadow-md sm:rounded-lg rounded-lg border border-gray-200">
+                {/* Changed table-fixed to min-w-full */}
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            {/* Removed explicit w-* classes from th, letting content dictate width */}
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Employee
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Time in
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Time out
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {displayedEmployees.map((employee) => (
+                            <EmployeeRow key={employee.id} employee={employee} getStatusColor={getStatusColor} />
+                        ))}
+                    </tbody>
+                </table>
+                {displayedEmployees.length === 0 && (
+                    <p className="text-center py-4 text-gray-500">No attendance data for this period.</p>
+                )}
+            </div>
         </div>
     );
 };
