@@ -125,7 +125,7 @@ const Attendance = () => {
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg border-[0.5px] border-solid border-[#DDD9D9] shadow-sm my-8 font-inter">
+        <div className="bg-white p-6 rounded-lg border-[0.5px] border-solid border-[#DDD9D9] shadow-sm my-8 ">
             {/* Header section with title and 'See all' button */}
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800">Attendance</h2>
@@ -174,7 +174,7 @@ const Attendance = () => {
 
             {/* Attendance Table */}
             {/* Added overflow-x-auto and shadow-md sm:rounded-lg to the wrapper div, similar to FirstTimersTable */}
-            <div className="overflow-x-auto shadow-md sm:rounded-lg rounded-lg border border-gray-200">
+            <div className=" shadow-md sm:rounded-lg rounded-lg border border-gray-200">
                 {/* Changed table-fixed to min-w-full */}
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
