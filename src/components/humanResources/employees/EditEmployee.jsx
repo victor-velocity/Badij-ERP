@@ -255,7 +255,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                             />
                         </div>
                         {/* Email (Disabled) */}
-                        <div className="md:col-span-2">
+                        <div>
                             <label htmlFor="email" className="block text-sm font-medium text-black mb-1">
                                 Email
                             </label>
