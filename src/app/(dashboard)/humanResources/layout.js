@@ -12,9 +12,9 @@ export default function HRManagerLayout({ children }) {
     const supabase = createClient();
     const router = useRouter();
 
-    const [loading, setLoading] = useState(false); // Set to false for now to bypass auth check during testing
-    const [isHRManager, setIsHRManager] = useState(true); // Set to true for now to bypass auth check during testing
-    const [profile, setProfile] = useState(null); // Keep profile state for completeness
+    const [loading, setLoading] = useState(false);
+    const [isHRManager, setIsHRManager] = useState(true);
+    const [profile, setProfile] = useState(null); 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const [isDesktopSidebarExpanded, setIsDesktopSidebarExpanded] = useState(() => {
@@ -31,8 +31,6 @@ export default function HRManagerLayout({ children }) {
         }
     }, [isDesktopSidebarExpanded]);
 
-    // Uncomment and use this useEffect for actual authentication and role checking
-    /*
     useEffect(() => {
         async function checkUserAndRole() {
             setLoading(true);
@@ -78,7 +76,6 @@ export default function HRManagerLayout({ children }) {
 
         checkUserAndRole();
     }, [supabase, router]);
-    */
 
     const handleMobileMenuToggle = () => {
         setIsMobileMenuOpen(prev => !prev);
@@ -92,8 +89,6 @@ export default function HRManagerLayout({ children }) {
         setIsDesktopSidebarExpanded(prev => !prev);
     };
 
-    // Uncomment these blocks for actual loading and access control
-    /*
     if (loading) {
         return <Loading />;
     }
@@ -105,7 +100,6 @@ export default function HRManagerLayout({ children }) {
             </div>
         );
     }
-    */
 
     return (
         <div className='flex flex-nowrap h-screen'>
@@ -116,11 +110,9 @@ export default function HRManagerLayout({ children }) {
                 isDesktopSidebarExpanded={isDesktopSidebarExpanded}
                 toggleDesktopSidebar={handleDesktopSidebarToggle}
             />
-            {/* Main content area: uses flex-1 to take remaining horizontal space */}
-            {/* Added overflow-x-auto to handle horizontal scrolling within this main content area */}
             <div className="flex-1 flex flex-col overflow-x-auto">
                 <TopNavBar />
-                <div className="py-4 px-7 flex-1 overflow-y-auto"> {/* Added flex-1 and overflow-y-auto for content scrolling */}
+                <div className="py-4 px-7 flex-1 overflow-y-auto">
                     {children}
                 </div>
             </div>
