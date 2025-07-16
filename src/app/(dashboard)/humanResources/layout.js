@@ -35,42 +35,38 @@ export default function HRManagerLayout({ children }) {
         async function checkUserAndRole() {
             setLoading(true);
             const { data: { user: authUser } } = await supabase.auth.getUser();
-
             if (!authUser) {
+                router.replace('/login');
                 toast.error('You must be logged in to access this page.');
-                router.replace('/login');
                 setLoading(false);
                 return;
             }
 
-            const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('username, full_name, avatar_url, role')
-                .eq('id', authUser.id)
-                .single();
+            const userRole = authUser.user_metadata?.role;
+            const userFullName = authUser.user_metadata?.full_name || "User"; 
+            const userAvatarUrl = authUser.user_metadata?.avatar_url || "/default-profile.png";
+            const username = authUser.user_metadata?.username || "user";
 
-            if (profileError) {
-                console.error('Error fetching user profile:', profileError.message);
-                toast.error('Failed to load user profile. Please try again.');
-                router.replace('/login');
-                setLoading(false);
-                return;
-            }
+            if (userRole) {
+                setProfile({
+                    username: username,
+                    full_name: userFullName,
+                    avatar_url: userAvatarUrl,
+                    role: userRole
+                });
 
-            if (profileData) {
-                setProfile(profileData);
-                if (profileData.role === 'hr_manager') {
+                if (userRole === 'hr_manager') {
                     setIsHRManager(true);
                 } else {
                     toast.error('Access Denied: You do not have HR Manager privileges.');
-                    router.replace('/dashboard');
+                    router.replace('/login');
                 }
             } else {
-                console.warn('No profile found for authenticated user:', authUser.id);
-                setProfile({ username: 'Guest', full_name: 'Guest User', avatar_url: null, role: 'user' });
-                toast.info('Please complete your profile information.');
-                router.replace('/dashboard');
+                console.error('Error: User role not found in user metadata.');
+                toast.error('Failed to load user profile. Role not found.');
+                router.replace('/login');
             }
+            
             setLoading(false);
         }
 
@@ -103,7 +99,6 @@ export default function HRManagerLayout({ children }) {
 
     return (
         <div className='flex flex-nowrap h-screen'>
-            {/* NavBar component */}
             <SideNavBar
                 isMobileMenuOpen={isMobileMenuOpen}
                 onCloseMobileMenu={handleCloseMobileMenu}
@@ -111,7 +106,10 @@ export default function HRManagerLayout({ children }) {
                 toggleDesktopSidebar={handleDesktopSidebarToggle}
             />
             <div className="flex-1 flex flex-col overflow-x-auto">
-                <TopNavBar />
+                <TopNavBar
+                profile={profile}
+                onMobileMenuToggle={handleMobileMenuToggle}
+                />
                 <div className="py-4 px-7 flex-1 overflow-y-auto">
                     {children}
                 </div>

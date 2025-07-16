@@ -59,7 +59,7 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
             >
                 <div className={`flex items-center p-4 h-[79.4px] ${isDesktopSidebarExpanded ? 'justify-between' : 'justify-center'} shadow-sm`}>
                     {isDesktopSidebarExpanded && (
-                        <Image src="/madison-logo-gold.jpeg" width={150} height={20} />
+                        <Image src="/madisonjayng_logo.png" alt="madisonjay logo" width={150} height={20} />
                     )}
                     <button
                         onClick={toggleDesktopSidebar}
@@ -119,7 +119,7 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
                     w-64 bg-gray-800 shadow-lg text-white md:hidden flex flex-col`}
             >
                 <div className="p-4 flex justify-between items-center border-b border-gray-700">
-                    <Image src="/madison-logo-gold.jpeg" width={150} height={20} />
+                    <Image src="/madisonjayng_logo.png" alt="madisonjay logo" width={150} height={20} />
                     <button
                         onClick={onCloseMobileMenu}
                         className="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"

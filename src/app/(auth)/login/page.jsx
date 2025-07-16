@@ -24,23 +24,9 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const redirectToDashboard = async (userId) => {
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .single();
+  const redirectToDashboard = async (user) => {
 
-    if (profileError) {
-      console.error('Error fetching user role for redirection:', profileError.message);
-      // toast.error('Could not determine user role. Please log in again.');
-      // await supabase.auth.signOut();
-      // router.push('/login');
-      router.push('/humanResources');
-      return;
-    }
-
-    const userRole = profileData?.role || 'hr_manager';
+    const userRole = user?.user_metadata?.role;
     switch (userRole) {
       case 'hr_manager':
         router.push('/humanResources');
@@ -58,7 +44,9 @@ export default function LoginPage() {
       //     router.push('/superAdminDashboard');
       //     break;
       default:
-        router.push('/dashboard');
+        toast.error("Role no found. Try logging in.")
+        await supabase.auth.signOut();
+        router.push('/login');
         break;
     }
   };
@@ -67,7 +55,7 @@ export default function LoginPage() {
     const checkUserSession = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await redirectToDashboard(user.id);
+        await redirectToDashboard(user);
       }
     };
     checkUserSession();
@@ -112,12 +100,8 @@ export default function LoginPage() {
       toast.error(error.message || 'Login failed. Please check your credentials.');
     } else if (data.user) {
       toast.success("Successfully signed in!");
-      console.log("User logged in:", data.user);
-      // Now, redirect based on the user's role
-      await redirectToDashboard(data.user.id);
+      await redirectToDashboard(data.user);
     } else {
-      // This else block might be redundant if error is always populated on failure,
-      // but it's a safe guard.
       setShowCredentialErrorBox(true);
       toast.error('Login failed. Please check your credentials.');
     }

@@ -9,34 +9,35 @@ const LoginBanner = () => {
     <div className="bg-[#b88b1b] w-1/2 h-[604px] rounded-3xl relative login-banner p-8"> 
       <Image
         src="/Ellipse 11.png"
+        alt="Ellipse 11"
         width={50}
         height={50}
-        alt=""
         className="absolute w-full h-full left-0 right-0"
       />
       <Image
         src="/triangle-1.png"
         width={400}
         height={300}
-        alt=""
+        alt="triangle-1"
         className="absolute left-[15%] top-[10%] triangle-1"
       />
       <Image
         src="/triangle-2.png"
         width={400}
         height={300}
-        alt=""
+        alt="triangle-2"
         className="absolute bottom-[13%] right-[15%] triangle-2"
       />
       <Image
         src="/madisonjayng_logo.png"
         width={200}
         height={50}
-        alt=""
+        alt="madisonjayng_logo"
         className="absolute madison-logo right-[50%] bottom-[57%] left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[9999] white-effect"
       />
       <Image
         src="/login-img-01.png"
+        alt="login-img-01 "
         width={80}
         height={100}
         className="absolute left-[25%] top-[20%] translate-x-[-50%] translate-y-[-50%] login-img-01"
@@ -47,6 +48,7 @@ const LoginBanner = () => {
       </div>
       <Image
         src="/login-img-02.png"
+        alt="login-img-02"
         width={80}
         height={100}
         className="absolute right-[10%] top-[20%] translate-x-[-50%] translate-y-[-50%] login-img-02"
@@ -57,6 +59,7 @@ const LoginBanner = () => {
       </div>
       <Image
         src="/login-img-03.png"
+        alt="login-img-03"
         width={80}
         height={100}
         className="absolute left-[14%] top-[50%] bottom-[50%] translate-x-[-50%] translate-y-[-55%] login-img-03"
@@ -67,6 +70,7 @@ const LoginBanner = () => {
       </div>
       <Image
         src="/login-img-04.png"
+        alt="login-img-04"
         width={80}
         height={100}
         className="absolute right-[1%] top-[50%] bottom-[50%] translate-x-[-50%] translate-y-[-64%] login-img-04"
@@ -77,6 +81,7 @@ const LoginBanner = () => {
       </div>
       <Image
         src="/login-img-05.png"
+        alt="login-img-05"
         width={80}
         height={100}
         className="absolute left-[25%] bottom-[7%] translate-x-[-50%] translate-y-[-50%] login-img-05"
@@ -87,6 +92,7 @@ const LoginBanner = () => {
       </div>
       <Image
         src="/login-img-06.png"
+        alt="login-img-06"
         width={80}
         height={100}
         className="absolute right-[10%] bottom-[8%] translate-x-[-50%] translate-y-[-50%] login-img-06"

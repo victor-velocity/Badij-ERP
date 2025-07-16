@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-const DEFAULT_AVATAR = 'https://placehold.co/40x40/cccccc/000000?text=👤';
+const DEFAULT_AVATAR = '/default-profile.png';
 
 const formatDate = (isoString) => {
     if (!isoString) return '—';
