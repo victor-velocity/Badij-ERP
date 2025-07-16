@@ -3,8 +3,6 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 
 export async function middleware(request) {
-  // Initialize a response object. This is what you will return at the end.
-  // The cookies will be set on *this* response object.
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -19,10 +17,8 @@ export async function middleware(request) {
         getAll() {
           return request.cookies.getAll();
         },
-        // IMPORTANT: Use response.cookies.set() here, not request.cookies.set()
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            // Set cookies on the *outgoing response*
             response.cookies.set({ name, value, ...options });
           });
         },
