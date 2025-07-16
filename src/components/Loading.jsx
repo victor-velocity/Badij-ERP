@@ -1,21 +1,20 @@
+// src/components/Loading.jsx
+"use client"
+
 import React from 'react';
+import Image from 'next/image';
 
 export default function Loading() {
     return (
-        <div className="flex justify-center items-center h-screen">
-            <div className="spinnerContainer">
-                <div className="spinner"></div>
-                <div className="loader">
-                    <p>loading</p>
-                    <div className="words">
-                        <span className="word">cards</span>
-                        <span className="word">data</span>
-                        <span className="word">page</span>
-                        <span className="word">resources</span>
-                        <span className="word">contents</span>
-                    </div>
-                </div>
-            </div>
+        <div className='flex justify-center items-center h-screen'>
+            <Image
+                src="/madisonjayng_logo.png"
+                width={250}
+                height={250}
+                alt='madisonjay logo'
+                priority
+                className='zoomAnimation'
+            />
         </div>
     );
 }

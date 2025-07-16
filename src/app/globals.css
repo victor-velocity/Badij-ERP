@@ -116,70 +116,17 @@ img.white-effect {
   filter: grayscale(100%) brightness(200%);
 }
 
-
-
-.spinnerContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.zoomAnimation {
+  animation: zoom 2s infinite alternate ease-in-out;
 }
 
-.spinner {
-  width: 56px;
-  height: 56px;
-  display: grid;
-  border: 4px solid #0000;
-  border-radius: 50%;
-  border-right-color: #b88b1b;
-  animation: tri-spinner 1s infinite linear;
-}
-
-.spinner::before,
-.spinner::after {
-  content: "";
-  grid-area: 1/1;
-  margin: 2px;
-  border: inherit;
-  border-radius: 50%;
-  animation: tri-spinner 2s infinite;
-}
-
-.spinner::after {
-  margin: 8px;
-  animation-duration: 3s;
-}
-
-@keyframes tri-spinner {
-  100% {
-    transform: rotate(1turn);
+@keyframes zoom {
+  from {
+    transform: scale(1);
   }
-}
-
-.loader {
-  color: #4a4a4a;
-  font-weight: 500;
-  font-size: 25px;
-  -webkit-box-sizing: content-box;
-  box-sizing: content-box;
-  height: 40px;
-  padding: 10px 10px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  border-radius: 8px;
-}
-
-.words {
-  overflow: hidden;
-}
-
-.word {
-  display: block;
-  height: 100%;
-  padding-left: 6px;
-  color: #b88b1b;
-  animation: cycle-words 5s infinite;
+  to {
+    transform: scale(1.1);
+  }
 }
 
 @keyframes cycle-words {
