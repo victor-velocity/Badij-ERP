@@ -44,9 +44,9 @@ export default function LoginPage() {
       //     router.push('/superAdminDashboard');
       //     break;
       default:
-        router.push('/login');
         toast.error("Role no found. Try logging in.")
         await supabase.auth.signOut();
+        router.push('/login');
         break;
     }
   };
@@ -55,7 +55,7 @@ export default function LoginPage() {
     const checkUserSession = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await redirectToDashboard(user.id);
+        await redirectToDashboard(user);
       }
     };
     checkUserSession();
@@ -101,7 +101,7 @@ export default function LoginPage() {
     } else if (data.user) {
       toast.success("Successfully signed in!");
       console.log("User logged in:", data.user);
-      await redirectToDashboard(data.user.id);
+      await redirectToDashboard(data.user);
     } else {
       setShowCredentialErrorBox(true);
       toast.error('Login failed. Please check your credentials.');

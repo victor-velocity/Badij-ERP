@@ -6,7 +6,6 @@ import AddEmployeeModal from '@/components/hr/employees/AddEmployee';
 import EmployeeDetailModal from '@/components/hr/employees/EmployeeDetails';
 import EditEmployeeModal from '@/components/hr/employees/EditEmployee';
 import { toast } from 'react-hot-toast';
-import { useRouter } from 'next/navigation'; // Import useRouter
 
 const DEFAULT_AVATAR = 'https://placehold.co/40x40/cccccc/000000?text=👤';
 
@@ -17,7 +16,7 @@ const formatDate = (isoString) => {
     return date.toLocaleDateString('en-US', options).replace(/(\w+) (\d+), (\d+)/, '$2 of $1 $3');
 };
 
-const EmployeeRow = ({ employee, onEdit, onView, router, onTerminateSuccess }) => { // Add router and onTerminateSuccess
+const EmployeeRow = ({ employee, onEdit, onView }) => {
     const [imgSrc, setImgSrc] = useState(employee.avatar_url || DEFAULT_AVATAR);
 
     const handleImageError = () => {
@@ -100,10 +99,9 @@ const EmployeeRow = ({ employee, onEdit, onView, router, onTerminateSuccess }) =
                     onClick={async () => {
                         if (window.confirm(`Are you sure you want to terminate ${employee.first_name} ${employee.last_name}?`)) {
                             try {
-                                // Pass the router instance to apiService.deleteEmployee
-                                await apiService.deleteEmployee(employee.id, router);
+                                await apiService.deleteEmployee(employee.id);
                                 toast.success("Employee terminated successfully!");
-                                onTerminateSuccess(); // Trigger a re-fetch or removal from state
+                                window.location.reload();
                             } catch (error) {
                                 toast.error(`Error terminating employee: ${error.message}`);
                             }
@@ -122,7 +120,6 @@ const EmployeeRow = ({ employee, onEdit, onView, router, onTerminateSuccess }) =
 };
 
 const EmployeeListTable = () => {
-    const router = useRouter(); // Initialize useRouter
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [employees, setEmployees] = useState([]);
@@ -144,16 +141,23 @@ const EmployeeListTable = () => {
         setLoading(true);
         setError(null);
         try {
-            // Pass the router instance to the API service
-            const data = await apiService.getEmployees(router);
-            setEmployees(data || []);
+            const data = await apiService.getEmployees();
+            // The API response for GET /employees might not have nested position/department objects
+            // It looks like it directly returns 'department' field.
+            // If your API returns more details about position/department, you might need to adjust this.
+            // For now, assuming API returns: { id, first_name, last_name, email, department, employment_status, ... }
+            setEmployees(data || []); // API returns an array directly
         } catch (err) {
             console.error("Error fetching employees:", err);
             setError(`Failed to fetch employees: ${err.message}. Please check your connection and authentication.`);
+            // If the error is due to authentication, you might want to redirect to login
+            if (err.message.includes("No authenticated session")) {
+                // Example: router.push('/login'); // If using Next.js router
+            }
         } finally {
             setLoading(false);
         }
-    }, [router]); // Add router to dependency array
+    }, []);
 
     useEffect(() => {
         fetchEmployees();
@@ -181,10 +185,6 @@ const EmployeeListTable = () => {
         toast.success('Employee details updated successfully!');
     };
 
-    const handleEmployeeTerminated = () => {
-        fetchEmployees(); // Re-fetch all employees after termination
-    };
-
     const filteredEmployees = useMemo(() => {
         if (!searchTerm) {
             return employees;
@@ -194,7 +194,7 @@ const EmployeeListTable = () => {
             employee.first_name?.toLowerCase().includes(lowercasedSearchTerm) ||
             employee.last_name?.toLowerCase().includes(lowercasedSearchTerm) ||
             employee.email?.toLowerCase().includes(lowercasedSearchTerm) ||
-            employee.phone_number?.includes(lowercasedSearchTerm)
+            employee.phone_number?.includes(lowercasedSearchTerm) // If phone_number is present in API response
         );
     }, [searchTerm, employees]);
 
@@ -333,7 +333,7 @@ const EmployeeListTable = () => {
                             <tr>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile no</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role/Department</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role/Department</th> {/* Changed to reflect new API */}
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of birth</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joining date</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -347,8 +347,6 @@ const EmployeeListTable = () => {
                                     employee={employee}
                                     onEdit={handleEdit}
                                     onView={handleView}
-                                    router={router} // Pass the router instance
-                                    onTerminateSuccess={handleEmployeeTerminated} // Pass callback for re-fetching
                                 />
                             ))}
                         </tbody>
@@ -381,7 +379,6 @@ const EmployeeListTable = () => {
                 isOpen={isAddEmployeeModalOpen}
                 onClose={() => setIsAddEmployeeModalOpen(false)}
                 onEmployeeAdded={handleEmployeeAdded}
-                router={router} // Pass router to modal if it uses apiService for authenticated calls
             />
 
             {/* Employee Detail Modal */}
@@ -389,7 +386,6 @@ const EmployeeListTable = () => {
                 isOpen={isViewEmployeeModalOpen}
                 onClose={() => setIsViewEmployeeModalOpen(false)}
                 employee={selectedEmployee}
-                router={router} // Pass router to modal if it uses apiService for authenticated calls
             />
 
             {/* Edit Employee Modal */}
@@ -398,7 +394,6 @@ const EmployeeListTable = () => {
                 onClose={() => setIsEditEmployeeModalOpen(false)}
                 onEmployeeUpdated={handleEmployeeUpdated}
                 employee={selectedEmployeeForEdit}
-                router={router} // Pass router to modal if it uses apiService for authenticated calls
             />
         </div>
     );
