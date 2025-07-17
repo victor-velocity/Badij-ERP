@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import TaskCard from "@/components/hr/tasks/TaskCard";
 import TaskTable from "@/components/hr/tasks/TasksTable";
 import AddTaskModal from "@/components/hr/tasks/AddTaskModal";
-import ViewTaskModal from "@/components/hr/tasks/viewTaskMoodal";
+import ViewTaskModal from "@/components/hr/tasks/ViewTaskModal";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
