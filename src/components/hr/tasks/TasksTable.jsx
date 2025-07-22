@@ -1,17 +1,22 @@
-// components/hr/tasks/TasksTable.js
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import DeleteConfirmationModal from './DeleteTaskModal';
+import UpdateTaskModal from './UpdateTaskModal';
 
-// Accept tasks, searchTerm, and onViewTask as props
-const TaskTable = ({ tasks, searchTerm, onViewTask }) => {
+const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask, onDeleteTask }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDeleteId, setTaskToDeleteId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Reset to first page when search term or tasks change
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [taskToUpdate, setTaskToUpdate] = useState(null);
+
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, tasks]);
@@ -33,6 +38,10 @@ const TaskTable = ({ tasks, searchTerm, onViewTask }) => {
         bgColorClass = 'bg-red-100';
         textColorClass = 'text-red-800';
         break;
+      case 'Pending':
+        bgColorClass = 'bg-blue-100';
+        textColorClass = 'text-blue-800';
+        break;
       default:
         bgColorClass = 'bg-gray-100';
         textColorClass = 'text-gray-800';
@@ -53,11 +62,10 @@ const TaskTable = ({ tasks, searchTerm, onViewTask }) => {
     const PageButton = ({ page, isActive, onClick }) => (
       <button
         onClick={onClick}
-        className={`px-3 py-1 rounded-md text-sm font-medium ${
-          isActive
+        className={`px-3 py-1 rounded-md text-sm font-medium ${isActive
             ? 'bg-[#b88b1b] text-white'
             : 'text-gray-700 hover:bg-gray-100'
-        }`}
+          }`}
       >
         {page}
       </button>
@@ -146,12 +154,11 @@ const TaskTable = ({ tasks, searchTerm, onViewTask }) => {
     );
   };
 
-  // Filter tasks based on the searchTerm prop
   const filteredTasks = tasks.filter(task =>
-    task.assignedTo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    task.assignedTo.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    task.taskTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    task.department.toLowerCase().includes(searchTerm.toLowerCase())
+    (task.assigned_to?.first_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (task.assigned_to?.last_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (task.assigned_to?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (task.title || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredTasks.length / itemsPerPage);
@@ -164,114 +171,216 @@ const TaskTable = ({ tasks, searchTerm, onViewTask }) => {
     setCurrentPage(page);
   };
 
+  const handleDeleteClick = (taskId) => {
+    setTaskToDeleteId(taskId);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await onDeleteTask(taskToDeleteId);
+      setShowDeleteModal(false);
+      setTaskToDeleteId(null);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setTaskToDeleteId(null);
+  };
+
+  const handleUpdateClick = (task) => {
+    setTaskToUpdate(task);
+    setShowUpdateModal(true);
+  };
+
+  const handleSaveUpdatedTask = async (updatedTask) => {
+    try {
+      await onUpdateTask(updatedTask);
+      setShowUpdateModal(false);
+      setTaskToUpdate(null);
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
+  const handleCancelUpdate = () => {
+    setShowUpdateModal(false);
+    setTaskToUpdate(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white border border-solid border-[#DDD9D9] rounded-lg overflow-hidden py-10 text-center">
+        Loading tasks...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white border border-solid border-[#DDD9D9] rounded-lg overflow-hidden py-10 text-center text-red-600">
+        Error: {error}
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white border border-solid border-[#DDD9D9] rounded-lg overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Assigned to
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Start date
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Due date
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Task title
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Department
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Status
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {currentTasks.length > 0 ? (
-              currentTasks.map((task) => (
-                <tr key={task.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <Image
-                          className="h-10 w-10 rounded-full object-cover"
-                          src={task.assignedTo.avatar || '/default-profile.png'}
-                          alt={task.assignedTo.name}
-                          width={40}
-                          height={40}
-                        />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{task.assignedTo.name}</div>
-                        <div className="text-sm text-gray-500">{task.assignedTo.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {task.startDate}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {task.dueDate}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {task.taskTitle}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {task.department}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-left">
-                    {renderBadge(task.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                    <button
-                      onClick={() => onViewTask(task)}
-                      className="text-gray-500 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100"
-                    >
-                      <FontAwesomeIcon icon={faEye} className="h-5 w-5" aria-hidden="true" />
-                    </button>
+    <div>
+      <div className="bg-white border border-solid border-[#DDD9D9] rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Assigned to
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Start date
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  End date
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Task title
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Created By
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Status
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {currentTasks.length > 0 ? (
+                currentTasks.map((task) => {
+                  const avatarSrc = task.assigned_to?.avatar;
+                  const placeholderText = `${task.assigned_to?.first_name?.charAt(0) || ''}${task.assigned_to?.last_name?.charAt(0) || ''}`;
+                  const placeholderUrl = `https://placehold.co/32x32/F0F0F0/000000?text=${placeholderText}`;
+
+                  return (
+                    <tr key={task.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            {avatarSrc ? (
+                              <Image
+                                className="h-10 w-10 rounded-full object-cover"
+                                src={avatarSrc}
+                                alt={`${task.assigned_to?.first_name || ''} ${task.assigned_to?.last_name || ''}`}
+                                width={40}
+                                height={40}
+                              />
+                            ) : (
+                              <img
+                                className="h-10 w-10 rounded-full object-cover"
+                                src={placeholderUrl}
+                                alt={`${task.assigned_to?.first_name || ''} ${task.assigned_to?.last_name || ''}`}
+                              />
+                            )}
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{`${task.assigned_to?.first_name || ''} ${task.assigned_to?.last_name || ''}`}</div>
+                            <div className="text-sm text-gray-500">{task.assigned_to?.email || ''}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {task.start_date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {task.end_date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {task.title}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {task.created_by?.first_name} {task.created_by?.last_name || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-left">
+                        {renderBadge(task.status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button
+                          onClick={() => onViewTask(task)}
+                          className="text-gray-500 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100"
+                        >
+                          <FontAwesomeIcon icon={faEye} className="h-5 w-5" aria-hidden="true" />
+                        </button>
+                        <button
+                          onClick={() => handleUpdateClick(task)}
+                          className="text-gray-500 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 ml-2"
+                        >
+                          <FontAwesomeIcon icon={faEdit} className="h-5 w-5" aria-hidden="true" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(task.id)}
+                          className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 ml-2"
+                        >
+                          <FontAwesomeIcon icon={faTrashAlt} className="h-5 w-5" aria-hidden="true" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                    No tasks found.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                  No tasks found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
       {renderPagination(currentPage, totalPages, handlePageChange)}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        show={showDeleteModal}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Update Task Modal */}
+      <UpdateTaskModal
+        show={showUpdateModal}
+        task={taskToUpdate}
+        onSave={handleSaveUpdatedTask}
+        onCancel={handleCancelUpdate}
+      />
     </div>
   );
 };

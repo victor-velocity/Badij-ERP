@@ -77,8 +77,8 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
     if (!isOpen || !employee) return null;
 
     return (
-        <div className="fixed inset-0 bg-[#000000aa] max-h-[90vh] overflow-y-auto flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-8 transform transition-all duration-300 scale-100 opacity-100">
+        <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl max-h-[90vh] overflow-y-auto shadow-2xl w-full max-w-lg p-8 transform transition-all duration-300 scale-100 opacity-100">
                 <h2 className="text-3xl font-extrabold text-gray-900 mb-6 text-center">Edit Payroll for <span className="text-[#b88b1b]">{employee.name}</span></h2>
 
                 <div className="space-y-6 mb-8">

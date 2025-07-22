@@ -1,4 +1,3 @@
-// pages/TaskPage.js (or wherever your main TaskPage component is)
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -7,153 +6,22 @@ import TaskTable from "@/components/hr/tasks/TasksTable";
 import AddTaskModal from "@/components/hr/tasks/AddTaskModal";
 import ViewTaskModal from "@/components/hr/tasks/ViewTaskModal";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import apiService from "@/app/lib/apiService";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function TaskPage() {
     const [currentDateTime, setCurrentDateTime] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
-    const [isViewTaskModalOpen, setIsViewTaskModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
+    const [allTasks, setAllTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const [allTasks, setAllTasks] = useState([
-        {
-            id: '1',
-            assignedTo: { name: 'John Doe', email: 'john@madisonjay.com' },
-            startDate: 'Jul 5, 2025',
-            dueDate: 'Aug 5, 2025',
-            taskTitle: 'Staff training',
-            department: 'HR',
-            status: 'Completed',
-        },
-        {
-            id: '2',
-            assignedTo: { name: 'Fuad Abdulrauf', email: 'fuad@madisonjay.com' },
-            startDate: 'Jul 5, 2025',
-            dueDate: 'Aug 1, 2025',
-            taskTitle: 'Designing of landing page',
-            department: 'IT',
-            status: 'Completed',
-        },
-        {
-            id: '3',
-            assignedTo: { name: 'Victor Oluwatobi', email: 'victor@madisonjay.com' },
-            startDate: 'Jul 5, 2025',
-            dueDate: 'Aug 30, 2025',
-            taskTitle: 'Development of landing page',
-            department: 'IT',
-            status: 'In-progress',
-        },
-        {
-            id: '4',
-            assignedTo: { name: 'Mary Smith', email: 'mary@madisonjay.com' },
-            startDate: 'Jul 1, 2025',
-            dueDate: 'Jul 10, 2025',
-            taskTitle: 'Team meting setup',
-            department: 'Sales',
-            status: 'Overdue',
-        },
-        {
-            id: '5',
-            assignedTo: { name: 'Isreal Inene', email: 'isreal@madisonjay.com' },
-            startDate: 'Jul 5, 2025',
-            dueDate: 'Aug 30, 2025',
-            taskTitle: 'Development of landing page',
-            department: 'IT',
-            status: 'In-progress',
-        },
-        {
-            id: '6',
-            assignedTo: { name: 'Esther John', email: 'esther@madisonjay.com' },
-            startDate: 'Jul 5, 2025',
-            dueDate: 'Aug 5, 2025',
-            taskTitle: 'Staff training',
-            department: 'HR',
-            status: 'Completed',
-        },
-        {
-            id: '7',
-            assignedTo: { name: 'Victor Bakare', email: 'victor@madisonjay.com' },
-            startDate: 'Jul 5, 2025',
-            dueDate: 'Aug 5, 2025',
-            taskTitle: 'Staff training',
-            department: 'HR',
-            status: 'Overdue',
-        },
-        {
-            id: '8',
-            assignedTo: { name: 'Gabriel Timothy', email: 'gabriel@madisonjay.com' },
-            startDate: 'Jul 5, 2025',
-            dueDate: 'Aug 5, 2025',
-            taskTitle: 'Staff training',
-            department: 'HR',
-            status: 'Completed',
-        },
-        {
-            id: '9',
-            assignedTo: { name: 'Gabriel Timothy', email: 'gabriel@madisonjay.com' },
-            startDate: 'Jul 5, 2025',
-            dueDate: 'Aug 5, 2025',
-            taskTitle: 'Staff training',
-            department: 'HR',
-            status: 'Completed',
-        },
-        {
-            id: '10',
-            assignedTo: { name: 'Sophia Lee', email: 'sophia@madisonjay.com' },
-            startDate: 'Jul 10, 2025',
-            dueDate: 'Aug 20, 2025',
-            taskTitle: 'Marketing Campaign Setup',
-            department: 'Marketing',
-            status: 'In-progress',
-        },
-        {
-            id: '11',
-            assignedTo: { name: 'Daniel Kim', email: 'daniel@madisonjay.com' },
-            startDate: 'Jul 1, 2025',
-            dueDate: 'Jul 15, 2025',
-            taskTitle: 'Bug Fixing Sprint',
-            department: 'IT',
-            status: 'Completed',
-        },
-        {
-            id: '12',
-            assignedTo: { name: 'Olivia Chen', email: 'olivia@madisonjay.com' },
-            startDate: 'Jun 25, 2025',
-            dueDate: 'Jul 5, 2025',
-            taskTitle: 'Client Onboarding',
-            department: 'Sales',
-            status: 'Overdue',
-        },
-        {
-            id: '13',
-            assignedTo: { name: 'Michael Brown', email: 'michael@madisonjay.com' },
-            startDate: 'Aug 1, 2025',
-            dueDate: 'Sep 1, 2025',
-            taskTitle: 'New Feature Research',
-            department: 'R&D',
-            status: 'In-progress',
-        },
-        {
-            id: '14',
-            assignedTo: { name: 'Emily White', email: 'emily@madisonjay.com' },
-            startDate: 'Jul 8, 2025',
-            dueDate: 'Jul 25, 2025',
-            taskTitle: 'Content Creation',
-            department: 'Marketing',
-            status: 'Completed',
-        },
-        {
-            id: '15',
-            assignedTo: { name: 'Chris Green', email: 'chris@madisonjay.com' },
-            startDate: 'Jul 12, 2025',
-            dueDate: 'Aug 12, 2025',
-            taskTitle: 'System Maintenance',
-            department: 'IT',
-            status: 'Completed',
-        },
-    ]);
-
+    const router = useRouter();
 
     useEffect(() => {
         const updateDateTime = () => {
@@ -177,17 +45,71 @@ export default function TaskPage() {
         return () => clearInterval(intervalId);
     }, []);
 
+    const fetchTasks = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const tasks = await apiService.getTasks(router);
+            setAllTasks(tasks);
+        } catch (err) {
+            console.error("Failed to fetch tasks:", err);
+            setError(err.message || "Failed to load tasks.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTasks();
+    }, [router]);
+
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
     };
 
-    const handleAddTask = (newTask) => {
-        setAllTasks((prevTasks) => [newTask, ...prevTasks]);
-    };
-
     const handleViewTask = (task) => {
         setSelectedTask(task);
-        setIsViewTaskModalOpen(true);
+        setIsViewModalOpen(true);
+    };
+
+    const handleCloseViewModal = () => {
+        setIsViewModalOpen(false);
+        setSelectedTask(null);
+    };
+
+    const handleAddTask = async (newTaskData) => {
+        try {
+            const createdTask = await apiService.addTask(newTaskData, router);
+            setAllTasks(prevTasks => [...prevTasks, createdTask]);
+            toast.success("Task added successfully!");
+        } catch (error) {
+            console.error("Failed to add task:", error);
+            toast.error("Failed to add task. Try again");
+        }
+    };
+
+    const handleUpdateTask = async (updatedTask) => {
+        try {
+            const response = await apiService.updateTask(updatedTask.id, updatedTask, router);
+            setAllTasks(prevTasks => prevTasks.map(task =>
+                task.id === updatedTask.id ? response : task
+            ));
+            toast.success("Task updated successfully!");
+        } catch (err) {
+            console.error("Failed to update task:", err);
+            toast.error("Failed to update task. Try again");
+        }
+    };
+
+    const handleDeleteTask = async (taskId) => {
+        try {
+            await apiService.deleteTask(taskId, router);
+            setAllTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+            toast.success("Task deleted successfully!");
+        } catch (err) {
+            console.error("Failed to delete task:", err);
+            toast.error("Failed to delete task. Try again");
+        }
     };
 
     const renderSearchBar = (placeholder = 'Search...', value, onChange) => {
@@ -221,7 +143,7 @@ export default function TaskPage() {
                 </span>
             </div>
             <div className="flex flex-wrap gap-5 items-center justify-between mb-14">
-                <TaskCard title="All task" no={allTasks.length} /> {/* Update counts dynamically */}
+                <TaskCard title="All task" no={allTasks.length} />
                 <TaskCard title="Pending" no={allTasks.filter(t => t.status === 'Pending').length} />
                 <TaskCard title="In progress" no={allTasks.filter(t => t.status === 'In-progress').length} />
                 <TaskCard title="Completed" no={allTasks.filter(t => t.status === 'Completed').length} />
@@ -241,17 +163,25 @@ export default function TaskPage() {
                 </div>
             </div>
 
-            <TaskTable tasks={allTasks} searchTerm={searchTerm} onViewTask={handleViewTask} />
+            <TaskTable
+                tasks={allTasks}
+                searchTerm={searchTerm}
+                onViewTask={handleViewTask}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+                loading={loading}
+                error={error}
+            />
 
             <AddTaskModal
                 isOpen={isAddTaskModalOpen}
                 onClose={() => setIsAddTaskModalOpen(false)}
-                onAddTask={handleAddTask}
+                onTaskAdded={handleAddTask}
             />
 
             <ViewTaskModal
-                isOpen={isViewTaskModalOpen}
-                onClose={() => setIsViewTaskModalOpen(false)}
+                isOpen={isViewModalOpen}
+                onClose={handleCloseViewModal}
                 task={selectedTask}
             />
         </div>

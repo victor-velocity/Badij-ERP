@@ -80,7 +80,6 @@ const callApi = async (endpoint, method = "GET", data = null, router = null) => 
 };
 
 const apiService = {
-    // Employee APIs
     getEmployees: async (router) => {
         return callApi("/employees", "GET", null, router);
     },
@@ -97,24 +96,60 @@ const apiService = {
         return callApi(`/employees/${employeeId}`, "PUT", employeeData, router);
     },
 
+    deleteEmployee: async (employeeId, employeeData, router) => {
+        return callApi(`/employees/${employeeId}`, "DELETE", employeeData, router);
+    },
+
     getLeaves: async (router) => {
-        return callApi("/leaves", "GET", null, router);
+        return callApi("/leave_requests", "GET", null, router);
     },
 
     getLeaveById: async (leaveId, router) => {
-        return callApi(`/leaves/${leaveId}`, "GET", null, router);
-    },
-
-    createLeave: async (leaveData, router) => {
-        return callApi("/leaves", "POST", leaveData, router);
+        return callApi(`/leave_requests/${leaveId}`, "GET", null, router);
     },
 
     updateLeave: async (leaveId, leaveData, router) => {
-        return callApi(`/leaves/${leaveId}`, "PUT", leaveData, router);
+        return callApi(`/leave_requests/${leaveId}`, "PUT", leaveData, router);
     },
 
-    deleteLeave: async (leaveId, router) => {
-        return callApi(`/leaves/${leaveId}`, "DELETE", null, router);
+    getTasks: async (router) => {
+        return callApi("/tasks", "GET", null, router);
+    },
+
+    createTask: async (taskData, router) => {
+        return callApi("/tasks", "POST", taskData, router);
+    },
+
+    getTaskById: async (taskId, router) => {
+        return callApi(`/tasks/${taskId}`, "GET", null, router);
+    },
+
+    updateTask: async (taskId, taskData, router) => {
+        return callApi(`/tasks/${taskId}`, "PUT", taskData, router);
+    },
+
+    deleteTask: async (taskId, router) => {
+        return callApi(`/tasks/${taskId}`, "DELETE", null, router);
+    },
+
+    getShifts: async (router) => {
+        return callApi("/shift_type", "GET", null, router);
+    },
+
+    getShiftById: async (shiftId, router) => {
+        return callApi(`/shift_type/${shiftId}`, "GET", null, router);
+    },
+
+    createShift: async (shiftData, router) => {
+        return callApi("/shift_type", "POST", shiftData, router);
+    },
+
+    updateShift: async (shiftId, shiftData, router) => {
+        return callApi(`/shift_type/${shiftId}`, "PUT", shiftData, router);
+    },
+
+    deleteShift: async (shiftId, router) => {
+        return callApi(`/shift_type/${shiftId}`, "DELETE", null, router);
     },
 };
 

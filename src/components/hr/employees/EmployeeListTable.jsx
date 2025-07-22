@@ -11,7 +11,7 @@ const formatDate = (isoString) => {
     return date.toLocaleDateString('en-US', options).replace(/(\w+) (\d+), (\d+)/, '$2 of $1 $3');
 };
 
-const EmployeeRow = ({ employee, onEdit, onView }) => {
+const EmployeeRow = ({ employee, onEdit, onView, onDelete }) => { // Add onDelete to props
     const [imgSrc, setImgSrc] = useState(employee.avatar_url || DEFAULT_AVATAR);
 
     const handleImageError = () => {
@@ -19,7 +19,7 @@ const EmployeeRow = ({ employee, onEdit, onView }) => {
     };
 
     const getStatusColor = (status) => {
-        switch (status) {
+        switch (status?.toLowerCase()) { // Ensure status is lowercase for consistent matching
             case 'active':
                 return 'bg-green-100 text-green-800';
             case 'probation':
@@ -57,7 +57,7 @@ const EmployeeRow = ({ employee, onEdit, onView }) => {
                 {employee.phone_number || '—'}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                { employee.department || 'N/A'}
+                { employee.position || 'N/A'}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {formatDate(employee.date_of_birth)}
@@ -70,7 +70,7 @@ const EmployeeRow = ({ employee, onEdit, onView }) => {
                     {employee.employment_status}
                 </span>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center">
                 <button
                     onClick={() => onView(employee)}
                     className="text-gray-600 hover:text-gray-800 mr-2 p-1 rounded-md hover:bg-gray-50"
@@ -88,6 +88,16 @@ const EmployeeRow = ({ employee, onEdit, onView }) => {
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.38-2.828-2.829z" />
+                    </svg>
+                </button>
+                <button
+                    onClick={() => onDelete(employee)}
+                    className="text-red-600 hover:text-red-800 p-1 rounded-md hover:bg-red-50"
+                    title="Delete"
+                >
+                    {/* Delete Icon SVG */}
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                 </button>
             </td>

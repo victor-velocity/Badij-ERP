@@ -6,6 +6,7 @@ import AddEmployeeModal from '@/components/hr/employees/AddEmployee';
 import EmployeeDetailModal from '@/components/hr/employees/EmployeeDetails';
 import EditEmployeeModal from '@/components/hr/employees/EditEmployee';
 import EmployeeRow from '@/components/hr/employees/EmployeeListTable';
+import DeleteEmployeeModal from '@/components/hr/employees/DeleteEmployeeModal';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
@@ -14,9 +15,9 @@ const EmployeeListTable = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [employees, setEmployees] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [successMessage, _setSuccessMessage] = useState('');
+    const [_successMessage, _setSuccessMessage] = useState('');
+    const [loading, setLoading] = useState(true);
     const employeesPerPage = 10;
     const [currentDateTime, setCurrentDateTime] = useState('');
 
@@ -26,6 +27,9 @@ const EmployeeListTable = () => {
 
     const [isEditEmployeeModalOpen, setIsEditEmployeeModalOpen] = useState(false);
     const [selectedEmployeeForEdit, setSelectedEmployeeForEdit] = useState(null);
+
+    const [isDeleteEmployeeModalOpen, setIsDeleteEmployeeModalOpen] = useState(false);
+    const [selectedEmployeeForDelete, setSelectedEmployeeForDelete] = useState(null);
 
     const fetchEmployees = useCallback(async () => {
         setLoading(true);
@@ -55,6 +59,11 @@ const EmployeeListTable = () => {
         setIsViewEmployeeModalOpen(true);
     };
 
+    const handleDelete = (employeeData) => {
+        setSelectedEmployeeForDelete(employeeData);
+        setIsDeleteEmployeeModalOpen(true);
+    };
+
     const handleEmployeeAdded = () => {
         fetchEmployees();
         setIsAddEmployeeModalOpen(false);
@@ -67,24 +76,35 @@ const EmployeeListTable = () => {
         toast.success('Employee details updated successfully!');
     };
 
+    const handleEmployeeDeleted = () => {
+        fetchEmployees();
+        setIsDeleteEmployeeModalOpen(false);
+    };
 
-    const filteredEmployees = useMemo(() => {
-        if (!searchTerm) {
-            return employees;
+    const sortedAndFilteredEmployees = useMemo(() => {
+        let filtered = employees;
+
+        if (searchTerm) {
+            const lowercasedSearchTerm = searchTerm.toLowerCase();
+            filtered = employees.filter(employee =>
+                employee.first_name?.toLowerCase().includes(lowercasedSearchTerm) ||
+                employee.last_name?.toLowerCase().includes(lowercasedSearchTerm) ||
+                employee.email?.toLowerCase().includes(lowercasedSearchTerm) ||
+                employee.phone_number?.includes(lowercasedSearchTerm)
+            );
         }
-        const lowercasedSearchTerm = searchTerm.toLowerCase();
-        return employees.filter(employee =>
-            employee.first_name?.toLowerCase().includes(lowercasedSearchTerm) ||
-            employee.last_name?.toLowerCase().includes(lowercasedSearchTerm) ||
-            employee.email?.toLowerCase().includes(lowercasedSearchTerm) ||
-            employee.phone_number?.includes(lowercasedSearchTerm)
-        );
+
+        return [...filtered].sort((a, b) => {
+            const nameA = a.first_name?.toLowerCase() || '';
+            const nameB = b.first_name?.toLowerCase() || '';
+            return nameA.localeCompare(nameB);
+        });
     }, [searchTerm, employees]);
 
     const indexOfLastEmployee = currentPage * employeesPerPage;
     const indexOfFirstEmployee = indexOfLastEmployee - employeesPerPage;
-    const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
-    const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
+    const currentEmployees = sortedAndFilteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+    const totalPages = Math.ceil(sortedAndFilteredEmployees.length / employeesPerPage);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -189,17 +209,19 @@ const EmployeeListTable = () => {
                 </div>
             </div>
 
-            {successMessage && (
-                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <strong className="font-bold">Success!</strong>
-                    <span className="block sm:inline"> {successMessage}</span>
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                    <strong className="font-bold">Error!</strong>
+                    <span className="block sm:inline"> {error}</span>
                 </div>
             )}
+
             {loading ? (
-                <div className="text-center py-8 text-gray-500">Loading employees...</div>
-            ) : error ? (
-                <div className="text-center py-8 text-red-500">{error}</div>
-            ) : filteredEmployees.length === 0 ? (
+                <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b88b1b]"></div>
+                    <p className="ml-4 text-gray-600">Loading employees...</p>
+                </div>
+            ) : sortedAndFilteredEmployees.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">No employees found matching your search.</div>
             ) : (
                 <div className="overflow-x-auto shadow-md sm:rounded-lg rounded-lg border border-gray-200">
@@ -208,7 +230,7 @@ const EmployeeListTable = () => {
                             <tr>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile no</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of birth</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employment Date</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -222,6 +244,7 @@ const EmployeeListTable = () => {
                                     employee={employee}
                                     onEdit={handleEdit}
                                     onView={handleView}
+                                    onDelete={handleDelete}
                                 />
                             ))}
                         </tbody>
@@ -229,7 +252,7 @@ const EmployeeListTable = () => {
                 </div>
             )}
 
-            {filteredEmployees.length > 0 && (
+            {sortedAndFilteredEmployees.length > 0 && !loading && (
                 <div className="flex justify-center items-center mt-6 space-x-2">
                     <button
                         onClick={() => paginate(currentPage - 1)}
@@ -249,7 +272,6 @@ const EmployeeListTable = () => {
                 </div>
             )}
 
-            {/* Add Employee Multi-Step Modal */}
             <AddEmployeeModal
                 isOpen={isAddEmployeeModalOpen}
                 onClose={() => setIsAddEmployeeModalOpen(false)}
@@ -257,7 +279,6 @@ const EmployeeListTable = () => {
                 router={router}
             />
 
-            {/* Employee Detail Modal */}
             <EmployeeDetailModal
                 isOpen={isViewEmployeeModalOpen}
                 onClose={() => setIsViewEmployeeModalOpen(false)}
@@ -265,12 +286,19 @@ const EmployeeListTable = () => {
                 router={router}
             />
 
-            {/* Edit Employee Modal */}
             <EditEmployeeModal
                 isOpen={isEditEmployeeModalOpen}
                 onClose={() => setIsEditEmployeeModalOpen(false)}
                 onEmployeeUpdated={handleEmployeeUpdated}
                 employee={selectedEmployeeForEdit}
+                router={router}
+            />
+
+            <DeleteEmployeeModal
+                isOpen={isDeleteEmployeeModalOpen}
+                onClose={() => setIsDeleteEmployeeModalOpen(false)}
+                employee={selectedEmployeeForDelete}
+                onEmployeeDeleted={handleEmployeeDeleted}
                 router={router}
             />
         </div>

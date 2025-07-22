@@ -23,7 +23,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
         country: 'Nigeria',
         date_of_birth: '',
         hire_date: '',
-        employment_status: 'Active',
+        employment_status: 'active',
         position: '',
         department_id: '',
         location_id: '',
@@ -291,7 +291,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                 country: newEmployee.country,
                 date_of_birth: newEmployee.date_of_birth,
                 hire_date: newEmployee.hire_date,
-                employment_status: 'Active',
+                employment_status: 'active',
                 position: newEmployee.position || null,
                 department_id: newEmployee.department_id || null,
                 location_id: newEmployee.location_id || null,
@@ -323,7 +323,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                 onEmployeeAdded();
                 onClose();
                 setNewEmployee({
-                    first_name: '', last_name: '', email: '', phone_number: '', address: '', city: '', state: '', zip_code: '', country: 'Nigeria', date_of_birth: '', hire_date: '', employment_status: 'Active', position: '', department_id: '', location_id: '',
+                    first_name: '', last_name: '', email: '', phone_number: '', address: '', city: '', state: '', zip_code: '', country: 'Nigeria', date_of_birth: '', hire_date: '', employment_status: 'active', position: '', department_id: '', location_id: '',
                     guarantor_name: '', guarantor_phone_number: '', guarantor_name_2: '', guarantor_phone_number_2: '',
                     salary: '', compensation: '', incentive: '', bonus: '', marital_status: '', bank_account_number: '', bank_name: '', account_name: '', gender: ''
                 });
@@ -394,7 +394,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="first_name"
                                 value={newEmployee.first_name}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -407,7 +407,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="last_name"
                                 value={newEmployee.last_name}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -420,7 +420,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="email"
                                 value={newEmployee.email}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -433,7 +433,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="date_of_birth"
                                 value={newEmployee.date_of_birth}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -445,7 +445,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="marital_status"
                                 value={newEmployee.marital_status}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Marital Status</option>
                                 <option value="Single">Single</option>
@@ -463,7 +463,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="gender"
                                 value={newEmployee.gender}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Gender</option>
                                 <option value="Male">Male</option>
@@ -487,7 +487,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="phone_number"
                                 value={newEmployee.phone_number}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -500,7 +500,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="address"
                                 value={newEmployee.address}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -513,7 +513,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="city"
                                 value={newEmployee.city}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -525,7 +525,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="state"
                                 value={newEmployee.state}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select a State</option>
                                 <option value="Abia">Abia</option>
@@ -577,7 +577,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="zip_code"
                                 value={newEmployee.zip_code}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -590,7 +590,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="country"
                                 value={newEmployee.country}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                     </div>
@@ -609,7 +609,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="hire_date"
                                 value={newEmployee.hire_date}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -622,7 +622,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="position"
                                 value={newEmployee.position}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -634,7 +634,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="department_id"
                                 value={newEmployee.department_id}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Department</option>
                                 {departments.map(department => (
@@ -652,7 +652,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="location_id"
                                 value={newEmployee.location_id}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Location</option>
                                 {locations.map(location => (
@@ -670,7 +670,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="guarantor_name"
                                 value={newEmployee.guarantor_name}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -683,7 +683,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="guarantor_phone_number"
                                 value={newEmployee.guarantor_phone_number}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -696,7 +696,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="guarantor_name_2"
                                 value={newEmployee.guarantor_name_2}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -709,7 +709,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="guarantor_phone_number_2"
                                 value={newEmployee.guarantor_phone_number_2}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                     </div>
@@ -727,7 +727,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="role"
                                 value={newEmployee.role}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Role</option>
                                 <option value="super_admin">super admin</option>
@@ -746,7 +746,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="salary"
                                 value={newEmployee.salary}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                                 min="0"
                             />
                         </div>
@@ -760,7 +760,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="compensation"
                                 value={newEmployee.compensation}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                                 min="0"
                             />
                         </div>
@@ -774,7 +774,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="incentive"
                                 value={newEmployee.incentive}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                                 min="0"
                             />
                         </div>
@@ -788,7 +788,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="bonus"
                                 value={newEmployee.bonus}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                                 min="0"
                             />
                         </div>
@@ -802,7 +802,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="bank_account_number"
                                 value={newEmployee.bank_account_number}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -815,7 +815,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="bank_name"
                                 value={newEmployee.bank_name}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
@@ -828,7 +828,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="account_name"
                                 value={newEmployee.account_name}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div className="md:col-span-2">
@@ -900,7 +900,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
 
     return (
         <div className={`fixed inset-0 bg-[#000000aa] bg-opacity-75 overflow-y-auto z-50 flex justify-center items-center ${isOpen ? '' : 'hidden'}`}>
-            <div ref={modalContentRef} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div ref={modalContentRef} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-5">
                 <div className="flex justify-between items-center border-b pb-3 mb-4">
                     <h2 className="text-2xl font-bold text-black">Add New Employee</h2>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-3xl leading-none">&times;</button>
@@ -945,7 +945,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             <button
                                 type="button"
                                 onClick={() => setCurrentStep(prev => prev + 1)}
-                                className="ml-auto px-6 py-2 border border-transparent rounded-md shadow-sm text-white bg-[#b88b1b] hover:bg-[#997417] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
+                                className="ml-auto px-6 py-2 border border-transparent rounded-md text-white bg-[#b88b1b] hover:bg-[#997417] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
                             >
                                 Next
                             </button>
@@ -953,7 +953,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         {currentStep === totalSteps && (
                             <button
                                 type="submit"
-                                className="ml-auto px-6 py-2 border border-transparent rounded-md shadow-sm text-white bg-[#b88b1b] hover:bg-[#997417] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
+                                className="ml-auto px-6 py-2 border border-transparent rounded-md text-white bg-[#b88b1b] hover:bg-[#997417] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
                                 disabled={loading}
                             >
                                 {loading ? 'Adding Employee...' : 'Add Employee'}

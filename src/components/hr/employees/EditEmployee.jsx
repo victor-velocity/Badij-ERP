@@ -1,49 +1,76 @@
-"use client"
+// components/hr/employees/EditEmployeeModal.jsx
+"use client";
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createClient } from "@/app/lib/supabase/client";
 import toast from 'react-hot-toast';
+import apiService from "@/app/lib/apiService";
+import { useRouter } from 'next/navigation';
 
 const supabase = createClient();
 
 const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => {
-    const [editedEmployee, setEditedEmployee] = useState({
-        id: '',
-        first_name: '',
-        last_name: '',
-        email: '',
-        employment_status: 'Active',
-        position_id: '',
-        department_id: '',
-        avatar_url: null,
+    const router = useRouter();
+
+    const [editedEmployee, setEditedEmployee] = useState(() => {
+        if (employee) {
+            return {
+                id: employee.id || '',
+                first_name: employee.first_name || '',
+                last_name: employee.last_name || '',
+                email: employee.email || '',
+                // Ensure initial status matches backend's expected casing
+                employment_status: employee.employment_status
+                    ? employee.employment_status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+                    : 'Active', // Default to 'Active'
+                position: employee.position || '',
+                department_id: employee.department_id || '',
+                avatar_url: employee.avatar_url || null,
+            };
+        }
+        return {
+            id: '',
+            first_name: '',
+            last_name: '',
+            email: '',
+            employment_status: 'Active', // Default to 'Active' with correct casing
+            position: '',
+            department_id: '',
+            avatar_url: null,
+        };
     });
 
     const [avatarFile, setAvatarFile] = useState(null);
-    const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(null);
-
+    const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(employee?.avatar_url || null);
     const [loading, setLoading] = useState(false);
-
-    const [positions, setPositions] = useState([]);
     const [departments, setDepartments] = useState([]);
-
     const avatarInputRef = useRef(null);
-
     const modalContentRef = useRef(null);
 
     useEffect(() => {
         if (isOpen && employee) {
             setEditedEmployee({
-                id: employee.id,
-                first_name: employee.first_name,
-                last_name: employee.last_name,
-                email: employee.email,
-                employment_status: employee.employment_status,
-                position_id: employee.position_id,
-                department_id: employee.department_id,
-                avatar_url: employee.avatar_url,
+                id: employee.id || '',
+                first_name: employee.first_name || '',
+                last_name: employee.last_name || '',
+                email: employee.email || '',
+                // Ensure initial status matches backend's expected casing
+                employment_status: employee.employment_status
+                    ? employee.employment_status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+                    : 'Active', // Default to 'Active'
+                position: employee.position || '',
+                department_id: employee.department_id || '',
+                avatar_url: employee.avatar_url || null,
             });
-            setAvatarPreviewUrl(employee.avatar_url);
+            setAvatarPreviewUrl(employee.avatar_url || null);
             setAvatarFile(null);
+        } else if (!isOpen) {
+            setEditedEmployee({
+                id: '', first_name: '', last_name: '', email: '', employment_status: 'Active', position: '', department_id: '', avatar_url: null,
+            });
+            setAvatarFile(null);
+            setAvatarPreviewUrl(null);
+            if (avatarInputRef.current) avatarInputRef.current.value = '';
         }
     }, [isOpen, employee]);
 
@@ -52,12 +79,6 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
             const fetchLookupData = async () => {
                 setLoading(true);
                 try {
-                    const { data: positionsData, error: positionsError } = await supabase
-                        .from('positions')
-                        .select('id, title');
-                    if (positionsError) throw positionsError;
-                    setPositions(positionsData);
-
                     const { data: departmentsData, error: departmentsError } = await supabase
                         .from('departments')
                         .select('id, name');
@@ -89,7 +110,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
             setAvatarPreviewUrl(URL.createObjectURL(file));
         } else {
             setAvatarFile(null);
-            setAvatarPreviewUrl(employee?.avatar_url || null);
+            setAvatarPreviewUrl(editedEmployee.avatar_url || null);
         }
     };
 
@@ -115,24 +136,9 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
         return publicUrlData.publicUrl;
     };
 
-    const validateFields = useCallback(() => {
-        const { employment_status, position_id, department_id } = editedEmployee;
-        if (!employment_status || !position_id || !department_id) {
-            toast.error('Please fill all required fields: Employment Status, Position, Department.');
-            return false;
-        }
-        return true;
-    }, [editedEmployee]);
-
-    // Handles the form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
-        if (!validateFields()) {
-            setLoading(false);
-            return;
-        }
 
         let newAvatarUrl = editedEmployee.avatar_url;
 
@@ -142,36 +148,30 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
             }
 
             const employeeDataToUpdate = {
+                // Ensure employment_status is sent with correct casing
                 employment_status: editedEmployee.employment_status,
-                position_id: editedEmployee.position_id,
+                position: editedEmployee.position,
                 department_id: editedEmployee.department_id,
                 avatar_url: newAvatarUrl,
             };
 
-            const { error: dbError } = await supabase
-                .from('employees')
-                .update(employeeDataToUpdate)
-                .eq('id', editedEmployee.id);
+            await apiService.updateEmployee(editedEmployee.id, employeeDataToUpdate, router);
 
-            if (dbError) {
-                console.error('Error updating employee in database:', dbError);
-                toast.error(`Failed to update employee details: ${dbError.message}`);
-            } else {
-                toast.success('Employee details updated successfully!');
-                setTimeout(() => {
-                    onEmployeeUpdated();
-                    onClose();
-                    setEditedEmployee({
-                        id: '', first_name: '', last_name: '', email: '', employment_status: 'Active', position_id: '', department_id: '', avatar_url: null,
-                    });
-                    setAvatarFile(null);
-                    setAvatarPreviewUrl(null);
-                    if (avatarInputRef.current) avatarInputRef.current.value = '';
-                }, 1500);
-            }
+            toast.success('Employee details updated successfully!');
+            setTimeout(() => {
+                onEmployeeUpdated();
+                onClose();
+                setEditedEmployee({
+                    id: '', first_name: '', last_name: '', email: '', employment_status: 'Active', position: '', department_id: '', avatar_url: null,
+                });
+                setAvatarFile(null);
+                setAvatarPreviewUrl(null);
+                if (avatarInputRef.current) avatarInputRef.current.value = '';
+            }, 1500);
+
         } catch (err) {
-            console.error('Unexpected error during employee update or file upload:', err);
-            toast.error(`An unexpected error occurred: ${err.message}`);
+            console.error('Error during employee update or file upload:', err);
+            toast.error(`Failed to update employee: ${err.message || 'An unexpected error occurred'}`);
         } finally {
             setLoading(false);
         }
@@ -195,7 +195,6 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                 <h2 className="text-2xl font-bold text-center text-black mb-6">Edit Employee Details</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Employee Photo */}
                     <div className="flex flex-col items-center mb-4">
                         <label htmlFor="avatar" className="block text-sm font-medium text-black mb-2">
                             Employee Photo
@@ -226,7 +225,6 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* First Name (Disabled) */}
                         <div>
                             <label htmlFor="first_name" className="block text-sm font-medium text-black mb-1">
                                 First Name
@@ -240,7 +238,6 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                                 disabled
                             />
                         </div>
-                        {/* Last Name (Disabled) */}
                         <div>
                             <label htmlFor="last_name" className="block text-sm font-medium text-black mb-1">
                                 Last Name
@@ -254,7 +251,6 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                                 disabled
                             />
                         </div>
-                        {/* Email (Disabled) */}
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-black mb-1">
                                 Email
@@ -269,7 +265,6 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                             />
                         </div>
 
-                        {/* Employment Status */}
                         <div>
                             <label htmlFor="employment_status" className="block text-sm font-medium text-black mb-1">
                                 Employment Status <span className="text-[#b88b1b]">*</span>
@@ -281,32 +276,28 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
+                                {/* Update options to match backend's expected casing */}
                                 <option value="Active">Active</option>
                                 <option value="On Leave">On Leave</option>
                                 <option value="Terminated">Terminated</option>
-                                <option value="Probation">Probation</option>
-                                <option value="Transferred">Transferred</option>
+                                {/* Remove or adjust these if your backend doesn't support them */}
+                                {/* <option value="probation">Probation</option> */}
+                                {/* <option value="transferred">Transferred</option> */}
                             </select>
                         </div>
-                        {/* Position */}
                         <div>
-                            <label htmlFor="position_id" className="block text-sm font-medium text-black mb-1">
+                            <label htmlFor="position" className="block text-sm font-medium text-black mb-1">
                                 Position <span className="text-[#b88b1b]">*</span>
                             </label>
-                            <select
-                                id="position_id"
-                                name="position_id"
-                                value={editedEmployee.position_id}
+                            <input
+                                id="position"
+                                name="position"
+                                type='text'
+                                value={editedEmployee.position}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
-                            >
-                                <option value="">Select Position</option>
-                                {positions.map(position => (
-                                    <option key={position.id} value={position.id}>{position.title}</option>
-                                ))}
-                            </select>
+                            />
                         </div>
-                        {/* Department */}
                         <div>
                             <label htmlFor="department_id" className="block text-sm font-medium text-black mb-1">
                                 Department <span className="text-[#b88b1b]">*</span>
@@ -326,7 +317,6 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                         </div>
                     </div>
 
-                    {/* Submit Button */}
                     <div className="flex justify-end mt-6">
                         <button
                             type="submit"

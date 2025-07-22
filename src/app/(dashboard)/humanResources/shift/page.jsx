@@ -5,99 +5,23 @@ import ShiftCard from "@/components/hr/shift/ShiftCard";
 import ViewShiftModal from "@/components/hr/shift/ViewShiftModal";
 import AddShiftModal from "@/components/hr/shift/AddShiftModal";
 import ShiftTable from "@/components/hr/shift/ShiftTable";
+import apiService from "@/app/lib/apiService";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 export default function ShiftPage() {
+    const router = useRouter();
     const [currentDateTime, setCurrentDateTime] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddShiftModalOpen, setIsAddShiftModalOpen] = useState(false);
     const [selectedShift, setSelectedShift] = useState(null);
     const [isViewShiftModalOpen, setIsViewShiftModalOpen] = useState(false);
-
-    const [allShifts, setAllShifts] = useState([
-        {
-            id: 's1',
-            employee: { name: 'John Doe', email: 'john@madisonjay.com' },
-            department: 'HR',
-            shiftType: 'Morning',
-            date: '2025-07-17',
-            startTime: '08:00',
-            endTime: '16:00',
-            note: 'Morning shift, focusing on onboarding new hires.',
-        },
-        {
-            id: 's2',
-            employee: { name: 'Fuad Abdulrauf', email: 'fuad@madisonjay.com' },
-            department: 'IT',
-            shiftType: 'Evening',
-            date: '2025-07-17',
-            startTime: '16:00',
-            endTime: '00:00',
-            note: 'On-call for server maintenance.',
-        },
-        {
-            id: 's3',
-            employee: { name: 'Victor Oluwatobi', email: 'victor@madisonjay.com' },
-            department: 'Sales',
-            shiftType: 'Morning',
-            date: '2025-07-18',
-            startTime: '09:00',
-            endTime: '17:00',
-            note: 'Client meetings all day.',
-        },
-        {
-            id: 's4',
-            employee: { name: 'Mary Smith', email: 'mary@madisonjay.com' },
-            department: 'HR',
-            shiftType: 'Night',
-            date: '2025-07-17',
-            startTime: '00:00',
-            endTime: '08:00',
-            note: 'Support for international branches.',
-        },
-        {
-            id: 's5',
-            employee: { name: 'Isreal Inene', email: 'isreal@madisonjay.com' },
-            department: 'IT',
-            shiftType: 'Morning',
-            date: '2025-07-18',
-            startTime: '08:30',
-            endTime: '16:30',
-            note: 'Project development and code review.',
-        },
-        {
-            id: 's6',
-            employee: { name: 'Sophia Lee', email: 'sophia@madisonjay.com' },
-            department: 'Marketing',
-            shiftType: 'Evening',
-            date: '2025-07-18',
-            startTime: '14:00',
-            endTime: '22:00',
-            note: 'Social media campaign monitoring.',
-        },
-        {
-            id: 's7',
-            employee: { name: 'Daniel Kim', email: 'daniel@madisonjay.com' },
-            department: 'R&D',
-            shiftType: 'Morning',
-            date: '2025-07-19',
-            startTime: '07:00',
-            endTime: '15:00',
-            note: 'Lab work and experiments.',
-        },
-         {
-            id: 's8',
-            employee: { name: 'Michael Brown', email: 'michael@madisonjay.com' },
-            department: 'Sales',
-            shiftType: 'Evening',
-            date: '2025-07-19',
-            startTime: '17:00',
-            endTime: '01:00',
-            note: 'Late calls with East Asian clients.',
-        },
-    ]);
+    const [allShifts, setAllShifts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const updateDateTime = () => {
@@ -121,12 +45,63 @@ export default function ShiftPage() {
         return () => clearInterval(intervalId);
     }, []);
 
+    const fetchShifts = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await apiService.getShifts(router);
+            setAllShifts(data);
+        } catch (err) {
+            console.error("Failed to fetch shifts:", err);
+            setError(err.message || "Failed to load shifts.");
+            toast.error(err.message || "Failed to load shifts.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchShifts();
+    }, []);
+
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
     };
 
-    const handleAddShift = (newShift) => {
-        setAllShifts((prevShifts) => [newShift, ...prevShifts]);
+    const handleAddShift = async (newShiftData) => {
+        try {
+            await apiService.createShift(newShiftData, router);
+            toast.success("Shift added successfully!");
+            setIsAddShiftModalOpen(false);
+            fetchShifts();
+        } catch (err) {
+            console.error("Error adding shift:", err);
+            toast.error(err.message || "Failed to add shift.");
+        }
+    };
+
+    const handleUpdateShift = async (shiftId, updatedShiftData) => {
+        try {
+            await apiService.updateShift(shiftId, updatedShiftData, router);
+            toast.success("Shift updated successfully!");
+            fetchShifts();
+        } catch (err) {
+            console.error("Error updating shift:", err);
+            toast.error(err.message || "Failed to update shift.");
+        }
+    };
+
+    const handleDeleteShift = async (shiftId) => {
+        if (window.confirm("Are you sure you want to delete this shift?")) {
+            try {
+                await apiService.deleteShift(shiftId, router);
+                toast.success("Shift deleted successfully!");
+                fetchShifts();
+            } catch (err) {
+                console.error("Error deleting shift:", err);
+                toast.error(err.message || "Failed to delete shift.");
+            }
+        }
     };
 
     const handleViewShift = (shift) => {
@@ -153,12 +128,16 @@ export default function ShiftPage() {
         );
     };
 
-    const filteredShifts = allShifts.filter(shift =>
-        shift.employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        shift.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        shift.shiftType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        shift.note.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredShifts = allShifts.filter(shift => {
+        const employeeName = shift.employee ? `${shift.employee.first_name} ${shift.employee.last_name}` : '';
+        const departmentName = shift.department?.name || '';
+        return (
+            employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            departmentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            shift.shift_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            shift.note?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    });
 
     return (
         <div className="max-w-[1400px] mx-auto p-4">
@@ -174,9 +153,9 @@ export default function ShiftPage() {
 
             <div className="flex flex-wrap gap-5 items-center justify-between mb-14">
                 <ShiftCard title="All Shifts" count={allShifts.length} />
-                <ShiftCard title="Morning Shifts" count={allShifts.filter(s => s.shiftType === 'Morning').length} />
-                <ShiftCard title="Evening Shifts" count={allShifts.filter(s => s.shiftType === 'Evening').length} />
-                <ShiftCard title="Night Shifts" count={allShifts.filter(s => s.shiftType === 'Night').length} />
+                <ShiftCard title="Morning Shifts" count={allShifts.filter(s => s.shift_type === 'Morning').length} />
+                <ShiftCard title="Evening Shifts" count={allShifts.filter(s => s.shift_type === 'Evening').length} />
+                <ShiftCard title="Night Shifts" count={allShifts.filter(s => s.shift_type === 'Night').length} />
             </div>
 
             <div className="flex items-center justify-between p-4 md:p-6 bg-white border-b border-gray-200">
@@ -197,6 +176,10 @@ export default function ShiftPage() {
                     shifts={filteredShifts}
                     searchTerm={searchTerm}
                     onViewShift={handleViewShift}
+                    onUpdateShift={handleUpdateShift}
+                    onDeleteShift={handleDeleteShift}
+                    loading={loading}
+                    error={error}
                 />
             </div>
 

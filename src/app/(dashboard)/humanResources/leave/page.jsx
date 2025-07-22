@@ -1,30 +1,26 @@
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { LeaveRow } from '@/components/hr/leave/LeaveRequestTable'; // Assuming LeaveRow is correctly imported
+import { LeaveRow } from '@/components/hr/leave/LeaveRequestTable';
 import apiService from '@/app/lib/apiService';
-import toast from 'react-hot-toast'; // Assuming toast is available
+import toast from 'react-hot-toast';
 
-// LeaveRequestTable Component
 const LeaveRequestTable = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const employeesPerPage = 5; // Renamed to leavesPerPage for clarity, but keeping original for now
+    const employeesPerPage = 5;
     const [currentDateTime, setCurrentDateTime] = useState('');
 
-    // State for actual leave data, loading, and error
     const [leavesData, setLeavesData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Fetch leave requests from the API on component mount
     useEffect(() => {
         const fetchLeaves = async () => {
             try {
                 setLoading(true);
                 setError(null);
                 const data = await apiService.getLeaves();
-                // Assuming your backend returns an array of leave objects
                 setLeavesData(data);
             } catch (err) {
                 console.error("Error fetching leave requests:", err);
@@ -36,21 +32,19 @@ const LeaveRequestTable = () => {
         };
 
         fetchLeaves();
-    }, []); // Empty dependency array means this runs once on mount
+    }, []);
 
-    const handleUpdateEmployeeStatus = (employeeId, newStatus) => {
-        // Optimistically update the local state
+    // Corrected to handle 'status' update from LeaveRow
+    const handleUpdateLeaveStatus = (leaveId, newStatus) => {
         setLeavesData(prevLeaves =>
             prevLeaves.map(leave => {
-                if (leave.id === employeeId) {
-                    // Assuming 'employment_status' in your leave object maps to the status field
-                    return { ...leave, employment_status: newStatus };
+                if (leave.id === leaveId) {
+                    // Update the 'status' field directly on the leave object
+                    return { ...leave, status: newStatus };
                 }
                 return leave;
             })
         );
-        // The actual API call for updating status is handled within LeaveRow,
-        // so no direct API call here. The onUpdateStatus prop is just for local state sync.
     };
 
     const filteredLeaves = useMemo(() => {
@@ -59,12 +53,12 @@ const LeaveRequestTable = () => {
         }
         const lowercasedSearchTerm = searchTerm.toLowerCase();
         return leavesData.filter(leave =>
-            // Adjust these fields based on what's searchable in your leave object
-            (leave.first_name && leave.first_name.toLowerCase().includes(lowercasedSearchTerm)) ||
-            (leave.last_name && leave.last_name.toLowerCase().includes(lowercasedSearchTerm)) ||
-            (leave.email && leave.email.toLowerCase().includes(lowercasedSearchTerm)) ||
-            (leave.department && leave.department.toLowerCase().includes(lowercasedSearchTerm)) ||
-            (leave.position && leave.position.toLowerCase().includes(lowercasedSearchTerm))
+            (leave.employee?.first_name && leave.employee.first_name.toLowerCase().includes(lowercasedSearchTerm)) ||
+            (leave.employee?.last_name && leave.employee.last_name.toLowerCase().includes(lowercasedSearchTerm)) ||
+            (leave.employee?.email && leave.employee.email.toLowerCase().includes(lowercasedSearchTerm)) ||
+            (leave.leave_type && leave.leave_type.toLowerCase().includes(lowercasedSearchTerm)) ||
+            (leave.reason && leave.reason.toLowerCase().includes(lowercasedSearchTerm)) ||
+            (leave.status && leave.status.toLowerCase().includes(lowercasedSearchTerm))
         );
     }, [searchTerm, leavesData]);
 
@@ -151,7 +145,6 @@ const LeaveRequestTable = () => {
                     </span>
                 </div>
 
-                {/* Employee List Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-0">Leave list</h2>
                     <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
@@ -172,7 +165,6 @@ const LeaveRequestTable = () => {
                     </div>
                 </div>
 
-                {/* Conditional rendering for loading, error, and empty states */}
                 {loading ? (
                     <div className="text-center py-8 text-gray-500">Loading leave requests...</div>
                 ) : error ? (
@@ -185,20 +177,19 @@ const LeaveRequestTable = () => {
                             <thead>
                                 <tr>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Days</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approval</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved by Admin</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved by</th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request Date</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
                                 {currentLeaves.map(leave => (
-                                    // Pass 'leave' object as 'employee' prop to LeaveRow
-                                    <LeaveRow key={leave.id} employee={leave} onUpdateStatus={handleUpdateEmployeeStatus} />
+                                    <LeaveRow key={leave.id} leaveRequest={leave} onUpdateStatus={handleUpdateLeaveStatus} />
                                 ))}
                             </tbody>
                         </table>

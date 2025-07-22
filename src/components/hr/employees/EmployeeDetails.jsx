@@ -11,6 +11,11 @@ const formatDate = (isoString) => {
     return date.toLocaleDateString('en-US', options).replace(/(\w+) (\d+), (\d+)/, '$2 of $1 $3');
 };
 
+function capitalizeFirstLetter(string) {
+  if (!string) return '';
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 const EmployeeDetailModal = ({ isOpen, onClose, employee }) => {
     if (!isOpen || !employee) return null;
 
@@ -45,52 +50,44 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
                         <div>
                             <span className="font-medium text-[#b88b1b]">Address: </span>
-                            <span>{`${employee.address}, ${employee.city}, ${employee.state}, ${employee.country}`}</span>
-                            {employee.zip_code && <span>Zip Code: {employee.zip_code}</span>}
+                            <span className='font-semibold'>{`${employee.address}, ${employee.city}, ${employee.state}, ${employee.country}`}</span>
+                            {employee.zip_code && <span className='font-semibold'> - {employee.zip_code}</span>}
                         </div>
                         <div>
                             <span className="font-medium text-[#b88b1b]">Phone Number: </span>
-                            <span>{employee.phone_number || '—'}</span>
+                            <span className='font-semibold'>{employee.phone_number || '—'}</span>
                         </div>
                         <div>
                             <span className="font-medium text-[#b88b1b]">Date of Birth: </span>
-                            <span>{formatDate(employee.date_of_birth)}</span>
+                            <span className='font-semibold'>{formatDate(employee.date_of_birth)}</span>
+                        </div>
+                        <div>
+                            <span className="font-medium text-[#b88b1b]">Marital Status: </span>
+                            <span className='font-semibold'>{employee.marital_status}</span>
                         </div>
                         <div>
                             <span className="font-medium text-[#b88b1b]">Hire Date: </span>
-                            <span>{formatDate(employee.hire_date)}</span>
+                            <span className='font-semibold'>{formatDate(employee.hire_date)}</span>
                         </div>
                         <div>
                             <span className="font-medium text-[#b88b1b]">Employment Status: </span>
-                            <span>{employee.employment_status}</span>
+                            <span className='font-semibold'>{employee.employment_status}</span>
                         </div>
                         <div>
                             <span className="font-medium text-[#b88b1b]">Position: </span>
-                            <span>{employee.position_id || 'N/A'}</span>
+                            <span className='font-semibold'>{employee.position || 'N/A'}</span>
                         </div>
                         <div>
                             <span className="font-medium text-[#b88b1b]">Department: </span>
-                            <span>{employee.department_id || 'N/A'}</span>
+                            <span className='font-semibold'>{capitalizeFirstLetter(employee.departments.name) || 'N/A'}</span>
                         </div>
                         <div>
                             <span className="font-medium text-[#b88b1b]">Guarantor Name: </span>
-                            <span>{employee.guarantor_name || '—'}</span>
+                            <span className='font-semibold'>{employee.guarantor_name || '—'}</span>
                         </div>
                         <div>
                             <span className="font-medium text-[#b88b1b]">Guarantor Phone: </span>
-                            <span>{employee.guarantor_phone_number || '—'}</span>
-                        </div>
-                        <div>
-                            <span className="font-medium text-[#b88b1b]">Salary: </span>
-                            <span>₦{employee.salary?.toLocaleString() || '0'}</span>
-                        </div>
-                        <div>
-                            <span className="font-medium text-[#b88b1b]">Compensation: </span>
-                            <span>₦{employee.compensation?.toLocaleString() || '0'}</span>
-                        </div>
-                        <div>
-                            <span className="font-medium text-[#b88b1b]">Incentive: </span>
-                            <span>₦{employee.incentive?.toLocaleString() || '0'}</span>
+                            <span className='font-semibold'>{employee.guarantor_phone_number || '—'}</span>
                         </div>
                     </div>
 

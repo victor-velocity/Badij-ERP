@@ -1,11 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import toast from 'react-hot-toast'; 
+import toast from 'react-hot-toast';
 import apiService from '@/app/lib/apiService';
 
-const DEFAULT_AVATAR = '/default-profile.png';
+const DEFAULT_AVATAR = 'https://placehold.co/40x40/E0E0E0/333333?text=User';
 
 const formatDate = (isoString) => {
     if (!isoString) return '—';
@@ -14,14 +12,24 @@ const formatDate = (isoString) => {
     return date.toLocaleDateString('en-US', options).replace(/(\w+) (\d+), (\d+)/, '$2 of $1 $3');
 };
 
-export const LeaveRow = ({ employee, onUpdateStatus }) => {
-    const [imgSrc, setImgSrc] = useState(employee.avatar || DEFAULT_AVATAR);
-    const [currentLeaveStatus, setCurrentLeaveStatus] = useState(employee.employment_status);
-    const isStatusLocked = currentLeaveStatus === 'Approved' || currentLeaveStatus === 'Declined';
+const calculateLeaveDuration = (startDate, endDate) => {
+    if (!startDate || !endDate) return '—';
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+};
+
+export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
+    const [imgSrc, setImgSrc] = useState(DEFAULT_AVATAR);
+    const [currentLeaveStatus, setCurrentLeaveStatus] = useState(leaveRequest.status);
+
+    const isStatusLocked = currentLeaveStatus.toLowerCase() === 'approved' || currentLeaveStatus.toLowerCase() === 'declined';
 
     useEffect(() => {
-        setCurrentLeaveStatus(employee.employment_status);
-    }, [employee.employment_status]);
+        setCurrentLeaveStatus(leaveRequest.status);
+    }, [leaveRequest.status]);
 
     const handleImageError = () => {
         setImgSrc(DEFAULT_AVATAR);
@@ -41,7 +49,7 @@ export const LeaveRow = ({ employee, onUpdateStatus }) => {
     };
 
     const handleDropdownChange = async (e) => {
-        const newStatus = e.target.value;
+        const newStatus = e.target.value.toLowerCase();
         setCurrentLeaveStatus(newStatus);
 
         try {
@@ -49,73 +57,69 @@ export const LeaveRow = ({ employee, onUpdateStatus }) => {
                 status: newStatus,
             };
 
-            await apiService.updateLeave(employee.id, updatedLeaveData);
+            await apiService.updateLeave(leaveRequest.id, updatedLeaveData);
 
-            toast.success(`Leave request for ${employee.first_name} ${employee.last_name} updated to ${newStatus}!`);
+            toast.success(`Leave request for ${leaveRequest.employee.first_name} updated to ${newStatus}!`);
             if (onUpdateStatus) {
-                onUpdateStatus(employee.id, newStatus);
+                onUpdateStatus(leaveRequest.id, newStatus);
             }
         } catch (error) {
             console.error('Error updating leave status:', error);
             toast.error(`Failed to update leave status: ${error.message || 'An unexpected error occurred.'}`);
-            setCurrentLeaveStatus(employee.employment_status); 
+            setCurrentLeaveStatus(leaveRequest.status);
         }
     };
 
     return (
-        <tr className="hover:bg-gray-50">
-            <td className="px-6 py-4 whitespace-nowrap">
+        <tr className="hover:bg-gray-50 rounded-lg">
+            <td className="px-6 py-4 whitespace-nowrap rounded-l-lg">
                 <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden">
                         <img
                             className="h-full w-full object-cover rounded-full"
                             src={imgSrc}
-                            alt={`${employee.first_name}'s avatar`}
+                            alt={`${leaveRequest.employee.first_name}'s avatar`}
                             onError={handleImageError}
                         />
                     </div>
                     <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{`${employee.first_name} ${employee.last_name}`}</div>
-                        <div className="text-sm text-gray-500">{employee.email}</div>
+                        <div className="text-sm font-medium text-gray-900">{`${leaveRequest.employee.first_name} ${leaveRequest.employee.last_name}`}</div>
+                        <div className="text-sm text-gray-500">{leaveRequest.employee.email}</div>
                     </div>
                 </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {employee.department || 'N/A'}
+                {leaveRequest.leave_type || "N/A"}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {employee.position || 'N/A'}
+                {leaveRequest.reason || "N/A"}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {employee.leave_start_date ? formatDate(employee.leave_start_date) : '—'}
+                {formatDate(leaveRequest.start_date)}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {employee.leave_end_date ? formatDate(employee.leave_end_date) : '—'}
+                {formatDate(leaveRequest.end_date)}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {employee.leave_duration || '—'}
+                {calculateLeaveDuration(leaveRequest.start_date, leaveRequest.end_date)}
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <select
-                    className={`px-2 py-1 text-xs leading-5 font-semibold rounded-full ${getStatusColor(currentLeaveStatus)} ${isStatusLocked ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    className={`px-2 py-1 text-xs leading-5 font-semibold rounded-full ${getStatusColor(currentLeaveStatus)} ${isStatusLocked ? 'opacity-70 cursor-not-allowed' : ''} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                     value={currentLeaveStatus}
                     onChange={handleDropdownChange}
                     disabled={isStatusLocked}
                 >
-                    <option value="Pending">Pending</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Declined">Declined</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="declined">Declined</option>
                 </select>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                {employee.admin_approval === 'mark' ? (
-                    <FontAwesomeIcon icon={faCheckCircle} className="text-green-500 text-lg" title="Approved by Admin" />
-                ) : (
-                    <FontAwesomeIcon icon={faTimesCircle} className="text-red-500 text-lg" title="Not Approved by Admin" />
-                )}
+                {leaveRequest.approver.first_name } {leaveRequest.approver.last_name || "Not Approved"}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {employee.request_date ? formatDate(employee.request_date) : '—'}
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 rounded-r-lg">
+                {formatDate(leaveRequest.created_at)}
             </td>
         </tr>
     );

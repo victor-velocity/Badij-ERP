@@ -10,6 +10,9 @@ const nextConfig = {
                 pathname: '/storage/v1/object/sign/**'
             },
         ],
+        domains: [
+            'placehold.co'
+        ]
     },
 };
 
