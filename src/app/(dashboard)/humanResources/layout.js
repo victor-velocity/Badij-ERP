@@ -40,8 +40,11 @@ export default function HRManagerLayout({ children }) {
                 router.replace('/login');
                 toast.error('You must be logged in to access this page.');
                 setLoading(false);
+                localStorage.removeItem('user_id')
                 return;
             }
+
+            localStorage.setItem('user_id', authUser.id)
 
             const { data: employeeData, error: employeeError } = await supabase
                 .from('employees')
