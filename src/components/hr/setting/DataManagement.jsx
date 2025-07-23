@@ -1,4 +1,3 @@
-// src/app/components/DataManagement.jsx
 "use client";
 
 import React, { useState } from 'react';
@@ -13,7 +12,6 @@ const DataManagement = () => {
 
     const supabase = createClient()
 
-    // --- Import Functions ---
     const handleFileChange = (e) => {
         if (e.target.files.length > 0) {
             setImportFile(e.target.files[0]);
@@ -121,11 +119,11 @@ const DataManagement = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-lg shadow-md mt-8">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">Data Management</h2>
+        <div className=" mt-14">
+            <h2 className="text-xl font-bold mb-4 text-gray-800">Data Management</h2>
 
             {/* Import Section */}
-            <div className="mb-8 p-4 border rounded-lg bg-gray-50">
+            <div className="mb-8 p-4 border border-solid border-gray-100 rounded-lg bg-gray-50">
                 <h3 className="text-xl font-semibold mb-3 text-gray-700">Import Data</h3>
                 <p className="text-gray-600 mb-4">
                     Upload a CSV or Excel file to import employee data.
@@ -150,8 +148,7 @@ const DataManagement = () => {
                 </form>
             </div>
 
-            {/* Export Section */}
-            <div className="p-4 border rounded-lg bg-gray-50">
+            <div className="p-4 border border-solid border-gray-100 rounded-lg bg-gray-50">
                 <h3 className="text-xl font-semibold mb-3 text-gray-700">Export Data</h3>
                 <p className="text-gray-600 mb-4">
                     Download employee data as a CSV file.
