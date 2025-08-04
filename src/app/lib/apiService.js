@@ -112,6 +112,10 @@ const apiService = {
         return callApi(`/leave_requests/${leaveId}`, "PUT", leaveData, router);
     },
 
+    requestLeave: async (leaveData, router) => {
+        return callApi("/leave_requests", "POST", leaveData, router);
+    },
+
     getTasks: async (router) => {
         return callApi("/tasks", "GET", null, router);
     },

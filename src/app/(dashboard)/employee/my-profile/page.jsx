@@ -14,20 +14,10 @@ const ProfileField = ({ label, value }) => (
 export default function MyProfile() {
     const router = useRouter();
     const [employee, setEmployee] = useState(null);
-    const [authUserId, setAuthUserId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('personal');
     const [currentDateTime, setCurrentDateTime] = useState('')
-
-    useEffect(() => {
-        const storedAuthUserId = localStorage.getItem("user_id");
-        if (storedAuthUserId) {
-            setAuthUserId(storedAuthUserId);
-        } else {
-            router.push("/login");
-        }
-    }, [router]);
 
     useEffect(() => {
         const updateDateTime = () => {
@@ -53,33 +43,27 @@ export default function MyProfile() {
 
     useEffect(() => {
         const fetchEmployeeDetails = async () => {
-            if (!authUserId) {
-                setLoading(false);
-                return;
-            }
-
             setLoading(true);
             setError(null);
             try {
-                const allEmployees = await apiService.getEmployees(router);
-                const foundEmployee = allEmployees.find(emp => emp.user_id === authUserId);
+                const EmployeeDetails = await apiService.getEmployees(router);
 
-                if (foundEmployee) {
-                    setEmployee(foundEmployee);
+                if (EmployeeDetails) {
+                    setEmployee(EmployeeDetails);
                 } else {
                     setError("Employee record not found for this user ID.");
                     setEmployee(null);
                 }
             } catch (err) {
                 console.error("Error fetching employee details:", err);
-                setError("Failed to load employee details.");
+                setError("Failed to load employee details. Try again.");
             } finally {
                 setLoading(false);
             }
         };
 
         fetchEmployeeDetails();
-    }, [authUserId, router]);
+    }, [router]);
 
     if (loading) {
         return <div className="flex justify-center items-center h-1/2 text-xl text-gray-600">Loading profile...</div>;

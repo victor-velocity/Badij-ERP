@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCredentialErrorBox, setShowCredentialErrorBox] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false); // New state for remember me
 
   const [isEmailInvalid, setIsEmailInvalid] = useState(false);
   const [isPasswordInvalid, setIsPasswordInvalid] = useState(false);
@@ -25,15 +26,14 @@ export default function LoginPage() {
   const supabase = createClient();
 
   const redirectToDashboard = async (user) => {
-
     const userRole = user?.app_metadata?.role;
     switch (userRole) {
       case 'hr_manager':
         router.push('/humanResources');
         break;
-      case 'employee':
-          router.push('/employee');
-          break;
+      case 'user':
+        router.push('/employee');
+        break;
       // case 'admin_manager':
       //     router.push('/adminDashboard');
       //     break;
@@ -44,7 +44,7 @@ export default function LoginPage() {
       //     router.push('/superAdminDashboard');
       //     break;
       default:
-        toast.error("Role no found. Try logging in.")
+        toast.error("Role not found. Try logging in again.")
         await supabase.auth.signOut();
         router.push('/login');
         break;
@@ -59,6 +59,13 @@ export default function LoginPage() {
       }
     };
     checkUserSession();
+
+    // Load saved email from localStorage if "rememberMe" was checked
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true); // Set rememberMe to true if an email was found
+    }
   }, [router, supabase]);
 
   const togglePasswordVisibility = () => {
@@ -100,6 +107,11 @@ export default function LoginPage() {
       toast.error(error.message || 'Login failed. Please check your credentials.');
     } else if (data.user) {
       toast.success("Successfully signed in!");
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+      }
       await redirectToDashboard(data.user);
     } else {
       setShowCredentialErrorBox(true);
@@ -182,6 +194,8 @@ export default function LoginPage() {
                     name="rememberMe"
                     id="rememberMe"
                     className="cursor-pointer"
+                    checked={rememberMe} // Bind checked state
+                    onChange={(e) => setRememberMe(e.target.checked)} // Update state on change
                   />
                   <label
                     htmlFor="rememberMe"

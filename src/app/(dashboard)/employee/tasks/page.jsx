@@ -4,11 +4,9 @@ import React, { useState, useEffect } from "react";
 import apiService from "@/app/lib/apiService";
 import { useRouter } from "next/navigation";
 import TaskCard from "@/components/employee/TaskCard";
-import UpcomingHolidaysSection from "@/components/employee/UpcomingHolidays";
-import ShiftPage from "@/components/employee/shift/ShiftCard";
 import { faTasks, faCheckCircle, faSpinner, faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
 
-export default function EmployeeDashboard() {
+export default function TaskPage() {
     const router = useRouter();
     const [currentDateTime, setCurrentDateTime] = useState('');
     const [greeting, setGreeting] = useState('');
@@ -102,10 +100,10 @@ export default function EmployeeDashboard() {
     }, [allTasks]);
 
     return (
-        <div className="max-w-[1400px] mx-auto p-4">
+        <div className="max-w-[1400px] mx-auto">
             <div className='flex justify-between items-center mt-5 mb-14 flex-wrap gap-4'>
                 <div>
-                    <h1 className='text-2xl font-bold '>Overview</h1>
+                    <h1 className='text-2xl font-bold '>My Tasks</h1>
                     <p className='text-[#A09D9D] font-medium mt-2'>{greeting}, {first_name}</p>
                 </div>
                 <span className='rounded-[20px] px-3 py-2 border-[0.5px] border-solid border-[#DDD9D9] text-[#A09D9D]'>
@@ -118,10 +116,6 @@ export default function EmployeeDashboard() {
                 <TaskCard title="Task Completed" value={taskData.completed} icon={faCheckCircle} iconColor="text-green-500" />
                 <TaskCard title="Task In-progress" value={taskData.inProgress} icon={faSpinner} iconColor="text-orange-500" />
                 <TaskCard title="Task Pending" value={taskData.pending} icon={faHourglassHalf} iconColor="text-purple-500" />
-            </div>
-            <div className="flex flex-wrap gap-6 items-start">
-                <UpcomingHolidaysSection className='grow'/>
-                <ShiftPage />
             </div>
         </div>
     );
