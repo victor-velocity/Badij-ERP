@@ -22,7 +22,6 @@ const LeaveRequests = () => {
             setLoading(true);
             setError(null);
             const data = await apiService.getLeaves();
-
             if (data && data.message === "No leave requests found") {
                 setLeavesData([]);
             } else {

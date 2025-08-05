@@ -147,6 +147,14 @@ const apiService = {
     updateShift: async (shiftId, shiftData, router) => {
         return callApi(`/shift_types/${shiftId}`, "PUT", shiftData, router);
     },
+
+    getEmployeePayments: async (router) => {
+        return callApi("/employee_payments", "GET", null, router);
+    },
+
+    getEmployeePaymentById: async (shiftId, router) => {
+        return callApi(`/employee_payments/${shiftId}`, "GET", null, router);
+    },
 };
 
 export default apiService;

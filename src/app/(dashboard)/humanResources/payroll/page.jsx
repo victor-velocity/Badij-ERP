@@ -6,32 +6,64 @@ import React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faAngleLeft, faAngleRight, faEye } from '@fortawesome/free-solid-svg-icons';
+import apiService from '@/app/lib/apiService';
+import { toast } from "react-hot-toast";
 
 export default function PayrollPage() {
     const [currentDateTime, setCurrentDateTime] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(8); // Number of items per page
+    const [itemsPerPage] = useState(8);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+    const [payrollData, setPayrollData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Dummy data for the table
-    const [payrollData, _setPayrollData] = useState([
-        { id: 1, name: 'John Doe', email: 'john@madisonjay.com', date: 'Jul 11, 2025 - 09:45 AM', department: 'HR', salary: 200000, bonus: 50000, status: 'Paid', avatar: 'https://placehold.co/40x40/FFD700/000?text=JD' },
-        { id: 2, name: 'Fuad Abdulrauf', email: 'fuad@madisonjay.com', date: 'Jul 11, 2025 - 09:45 AM', department: 'IT', salary: 200000, bonus: 50000, status: 'Pending', avatar: 'https://placehold.co/40x40/ADD8E6/000?text=FA' },
-        { id: 3, name: 'Victor Oluwatobi', email: 'victor@madisonjay.com', date: 'Jul 11, 2025 - 09:45 AM', department: 'Customer service', salary: 200000, bonus: 50000, status: 'Failed', avatar: 'https://placehold.co/40x40/90EE90/000?text=VO' },
-        { id: 4, name: 'Mary Smith', email: 'mary@madisonjay.com', date: 'Jul 11, 2025 - 09:45 AM', department: 'Sales', salary: 200000, bonus: 50000, status: 'Paid', avatar: 'https://placehold.co/40x40/FFB6C1/000?text=MS' },
-        { id: 5, name: 'Isreal Inene', email: 'isreal@madisonjay.com', date: 'Jul 11, 2025 - 09:45 AM', department: 'Engineering', salary: 200000, bonus: 50000, status: 'Paid', avatar: 'https://placehold.co/40x40/DDA0DD/000?text=II' },
-        { id: 6, name: 'Esther John', email: 'esther@madisonjay.com', date: 'Jul 11, 2025 - 09:45 AM', department: 'Finance', salary: 200000, bonus: 50000, status: 'Pending', avatar: 'https://placehold.co/40x40/FFFACD/000?text=EJ' },
-        { id: 7, name: 'Victor Bakare', email: 'victor@madisonjay.com', date: 'Jul 11, 2025 - 09:45 AM', department: 'IT', salary: 200000, bonus: 50000, status: 'Failed', avatar: 'https://placehold.co/40x40/C0C0C0/000?text=VB' },
-        { id: 8, name: 'Gabriel Timothy', email: 'gabriel@madisonjay.com', date: 'Jul 11, 2025 - 09:45 AM', department: 'HR', salary: 200000, bonus: 50000, status: 'Pending', avatar: 'https://placehold.co/40x40/FFDAB9/000?text=GT' },
-        { id: 9, name: 'Gabriel Timothy', email: 'gabriel@madisonjay.com', date: 'Jul 11, 2025 - 09:45 AM', department: 'HR', salary: 200000, bonus: 50000, status: 'Pending', avatar: 'https://placehold.co/40x40/FFDAB9/000?text=GT' },
-        { id: 10, name: 'Alice Wonderland', email: 'alice@madisonjay.com', date: 'Jul 10, 2025 - 10:00 AM', department: 'Marketing', salary: 180000, bonus: 40000, status: 'Paid', avatar: 'https://placehold.co/40x40/E0BBE4/000?text=AW' },
-        { id: 11, name: 'Bob The Builder', email: 'bob@madisonjay.com', date: 'Jul 10, 2025 - 10:30 AM', department: 'Construction', salary: 220000, bonus: 60000, status: 'Failed', avatar: 'https://placehold.co/40x40/957DAD/000?text=BB' },
-        { id: 12, name: 'Charlie Chaplin', email: 'charlie@madisonjay.com', date: 'Jul 09, 2025 - 11:00 AM', department: 'HR', salary: 190000, bonus: 45000, status: 'Paid', avatar: 'https://placehold.co/40x40/D291BC/000?text=CC' },
-        { id: 13, name: 'Diana Prince', email: 'diana@madisonjay.com', date: 'Jul 09, 2025 - 11:30 AM', department: 'Legal', salary: 250000, bonus: 70000, status: 'Pending', avatar: 'https://placehold.co/40x40/FFC72C/000?text=DP' },
-        { id: 14, name: 'Eve Harrington', email: 'eve@madisonjay.com', date: 'Jul 08, 2025 - 12:00 PM', department: 'Sales', salary: 170000, bonus: 35000, status: 'Paid', avatar: 'https://placehold.co/40x40/F7B2BD/000?text=EH' },
-        { id: 15, name: 'Frankenstein', email: 'frank@madisonjay.com', date: 'Jul 08, 2025 - 01:00 PM', department: 'R&D', salary: 210000, bonus: 55000, status: 'Failed', avatar: 'https://placehold.co/40x40/A7D9B8/000?text=FR' },
-    ]);
+    const generateAvatar = (firstName, lastName) => {
+        const initials = `${firstName ? firstName[0] : ''}${lastName ? lastName[0] : ''}`;
+        const colors = ['#FFD700', '#ADD8E6', '#90EE90', '#FFB6C1', '#DDA0DD', '#FFFACD', '#C0C0C0', '#FFDAB9'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        return `https://placehold.co/40x40/${color.substring(1)}/000?text=${initials.toUpperCase()}`;
+    };
+
+    useEffect(() => {
+        const fetchEmployeePayments = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const data = await apiService.getEmployeePayments();
+                
+                const transformedData = data.map((item) => {
+                    const firstName = item.employee_details?.first_name || '';
+                    const lastName = item.employee_details?.last_name || '';
+                    const employeeEmail = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`;
+                    
+                    const mockDate = `Jul 11, 2025 - 09:45 AM`; 
+
+                    return {
+                        id: item.employee_details?.id,
+                        name: `${firstName} ${lastName}`,
+                        email: employeeEmail,
+                        date: mockDate,
+                        department: item.employee_details?.department,
+                        salary: item.salary?.base_salary,
+                        bonus: item.salary?.bonus,
+                        avatar: generateAvatar(firstName, lastName),
+                    };
+                });
+
+                setPayrollData(transformedData);
+            } catch (err) {
+                console.error("Error fetching employees payment:", err);
+                setError("Failed to load employees payment. Please try again.");
+                toast.error("Failed to load employees payment.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEmployeePayments();
+    }, []);
 
     useEffect(() => {
         const updateDateTime = () => {
@@ -67,7 +99,6 @@ export default function PayrollPage() {
                 let aValue = a[sortConfig.key];
                 let bValue = b[sortConfig.key];
 
-                // Handle string comparison for names and departments
                 if (typeof aValue === 'string' && typeof bValue === 'string') {
                     aValue = aValue.toLowerCase();
                     bValue = bValue.toLowerCase();
@@ -87,14 +118,12 @@ export default function PayrollPage() {
 
     const filteredData = useMemo(() => {
         return sortedData.filter(item =>
-            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.status.toLowerCase().includes(searchTerm.toLowerCase())
+            (item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (item.email && item.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (item.department && item.department.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }, [sortedData, searchTerm]);
 
-    // Pagination logic
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -117,20 +146,6 @@ export default function PayrollPage() {
         return sortConfig.key === name ? sortConfig.direction : undefined;
     };
 
-    const getStatusClasses = (status) => {
-        switch (status) {
-            case 'Paid':
-                return 'text-green-600 bg-green-100';
-            case 'Pending':
-                return 'text-yellow-600 bg-yellow-100';
-            case 'Failed':
-                return 'text-red-600 bg-red-100';
-            default:
-                return 'text-gray-600 bg-gray-100';
-        }
-    };
-
-    // Generate pagination numbers
     const getPaginationNumbers = () => {
         const pageNumbers = [];
         const maxPagesToShow = 5;
@@ -157,7 +172,6 @@ export default function PayrollPage() {
         return pageNumbers;
     };
 
-
     return (
         <div className="">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-5 mb-14">
@@ -176,13 +190,12 @@ export default function PayrollPage() {
                 <Link href="/humanResources/payroll/prepare-payroll" className='inline-block mt-4 bg-[#b88b1b] text-white px-6 py-2 rounded-lg hover:bg-[#b88b1b]/90 transition-colors duration-300'>Prepare Payroll</Link>
             </div>
             <div className='flex flex-wrap gap-4 justify-between items-center mb-10'>
-                <PayrollCard title="Total employees" value={54} />
+                <PayrollCard title="Total employees" value={payrollData.length} />
                 <PayrollCard title="Total net(N)" value='200,000,000' />
                 <PayrollCard title="Total salary(N)" value="500,879,000" />
                 <PayrollCard title="Total gross(N)" value="500,000,000" />
             </div>
 
-            {/* Recent Activity Table */}
             <div>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-800">Recent activity</h3>
@@ -242,21 +255,19 @@ export default function PayrollPage() {
                                     {getClassNamesFor('bonus') === 'ascending' && ' ↑'}
                                     {getClassNamesFor('bonus') === 'descending' && ' ↓'}
                                 </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('status')}
-                                >
-                                    Status
-                                    {getClassNamesFor('status') === 'ascending' && ' ↑'}
-                                    {getClassNamesFor('status') === 'descending' && ' ↓'}
-                                </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Action
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {currentItems.length > 0 ? (
+                            {loading || error ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                                        {loading ? "Loading..." : "Failed to load data."}
+                                    </td>
+                                </tr>
+                            ) : currentItems.length > 0 ? (
                                 currentItems.map((item) => (
                                     <tr key={item.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -282,11 +293,6 @@ export default function PayrollPage() {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             N {item.bonus.toLocaleString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClasses(item.status)}`}>
-                                                {item.status}
-                                            </span>
-                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                             <div className='p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300 cursor-pointer'>
                                                 <FontAwesomeIcon icon={faEye} />
@@ -296,7 +302,7 @@ export default function PayrollPage() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
                                         No matching payroll activities found.
                                     </td>
                                 </tr>
@@ -305,7 +311,6 @@ export default function PayrollPage() {
                     </table>
                 </div>
 
-                {/* Pagination */}
                 <div className="flex justify-between items-center mt-6">
                     <button
                         onClick={() => paginate(currentPage - 1)}
@@ -319,13 +324,12 @@ export default function PayrollPage() {
                             <button
                                 key={index}
                                 onClick={() => typeof number === 'number' && paginate(number)}
-                                className={`px-4 py-2 text-sm font-medium rounded-lg ${
-                                    currentPage === number
+                                className={`px-4 py-2 text-sm font-medium rounded-lg ${currentPage === number
                                         ? 'bg-[#b88b1b] text-white'
                                         : typeof number === 'number'
-                                        ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                        : 'text-gray-500 cursor-default' // For '...'
-                                }`}
+                                            ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            : 'text-gray-500 cursor-default'
+                                    }`}
                                 disabled={typeof number !== 'number'}
                             >
                                 {number}
