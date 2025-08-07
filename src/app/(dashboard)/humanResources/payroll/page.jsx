@@ -5,7 +5,7 @@ import Link from 'next/link';
 import React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faAngleLeft, faAngleRight, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons'; // Removed faEye
 import apiService from '@/app/lib/apiService';
 import { toast } from "react-hot-toast";
 
@@ -18,7 +18,9 @@ export default function PayrollPage() {
     const [payrollData, setPayrollData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [summaryData, setSummaryData] = useState({ totalEmployees: 0, totalNet: '0', totalSalary: '0', totalGross: '0' });
 
+    // Function to generate a simple avatar placeholder with initials if no avatar_url is provided
     const generateAvatar = (firstName, lastName) => {
         const initials = `${firstName ? firstName[0] : ''}${lastName ? lastName[0] : ''}`;
         const colors = ['#FFD700', '#ADD8E6', '#90EE90', '#FFB6C1', '#DDA0DD', '#FFFACD', '#C0C0C0', '#FFDAB9'];
@@ -33,26 +35,61 @@ export default function PayrollPage() {
             try {
                 const data = await apiService.getEmployeePayments();
                 
+                let totalSalarySum = 0;
+                let totalGrossSum = 0;
+                let totalNetSum = 0;
+
                 const transformedData = data.map((item) => {
                     const firstName = item.employee_details?.first_name || '';
                     const lastName = item.employee_details?.last_name || '';
-                    const employeeEmail = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`;
                     
-                    const mockDate = `Jul 11, 2025 - 09:45 AM`; 
+                    const baseSalary = item.salary?.base_salary || 0;
+                    const bonus = item.salary?.bonus || 0;
+                    const incentives = item.salary?.incentives || 0;
+
+                    // Calculate total deductions for the employee
+                    let totalDeductionAmount = 0;
+                    if (item.deductions?.deductions_details && Array.isArray(item.deductions.deductions_details)) {
+                        totalDeductionAmount = item.deductions.deductions_details.reduce((sum, detail) => {
+                            return sum + (detail.default_fee || 0);
+                        }, 0);
+                    }
+                    // Subtract pardoned fees from total deductions
+                    totalDeductionAmount -= (item.deductions?.total_pardoned_fee || 0);
+                    // Ensure deductions are not negative
+                    totalDeductionAmount = Math.max(0, totalDeductionAmount);
+
+                    const grossPay = baseSalary + bonus + incentives;
+                    const netPay = grossPay - totalDeductionAmount;
+
+                    totalSalarySum += baseSalary;
+                    totalGrossSum += grossPay;
+                    totalNetSum += netPay;
 
                     return {
                         id: item.employee_details?.id,
-                        name: `${firstName} ${lastName}`,
-                        email: employeeEmail,
-                        date: mockDate,
+                        firstName: firstName,
+                        lastName: lastName,
+                        name: `${firstName} ${lastName}`, // Combined name for sorting/filtering convenience
+                        email: item.employee_details?.email, // Using actual email from API
                         department: item.employee_details?.department,
-                        salary: item.salary?.base_salary,
-                        bonus: item.salary?.bonus,
-                        avatar: generateAvatar(firstName, lastName),
+                        salary: baseSalary,
+                        bonus: bonus,
+                        incentives: incentives, // Using actual incentives from API
+                        totalDeductions: totalDeductionAmount, // Calculated total deductions
+                        netPay: netPay, // Calculated net pay
+                        avatar: item.employee_details?.avatar_url || generateAvatar(firstName, lastName), // Using actual avatar_url or fallback
                     };
                 });
 
                 setPayrollData(transformedData);
+                setSummaryData({
+                    totalEmployees: transformedData.length,
+                    totalNet: totalNetSum.toLocaleString(),
+                    totalSalary: totalSalarySum.toLocaleString(),
+                    totalGross: totalGrossSum.toLocaleString(),
+                });
+
             } catch (err) {
                 console.error("Error fetching employees payment:", err);
                 setError("Failed to load employees payment. Please try again.");
@@ -99,6 +136,7 @@ export default function PayrollPage() {
                 let aValue = a[sortConfig.key];
                 let bValue = b[sortConfig.key];
 
+                // Handle string comparison for names, emails, and departments
                 if (typeof aValue === 'string' && typeof bValue === 'string') {
                     aValue = aValue.toLowerCase();
                     bValue = bValue.toLowerCase();
@@ -120,7 +158,12 @@ export default function PayrollPage() {
         return sortedData.filter(item =>
             (item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (item.email && item.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (item.department && item.department.toLowerCase().includes(searchTerm.toLowerCase()))
+            (item.department && item.department.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (item.salary && item.salary.toString().includes(searchTerm)) || // Allow searching by salary
+            (item.bonus && item.bonus.toString().includes(searchTerm)) ||   // Allow searching by bonus
+            (item.incentives && item.incentives.toString().includes(searchTerm)) || // Allow searching by incentives
+            (item.totalDeductions && item.totalDeductions.toString().includes(searchTerm)) || // Allow searching by deductions
+            (item.netPay && item.netPay.toString().includes(searchTerm)) // Allow searching by net pay
         );
     }, [sortedData, searchTerm]);
 
@@ -190,10 +233,10 @@ export default function PayrollPage() {
                 <Link href="/humanResources/payroll/prepare-payroll" className='inline-block mt-4 bg-[#b88b1b] text-white px-6 py-2 rounded-lg hover:bg-[#b88b1b]/90 transition-colors duration-300'>Prepare Payroll</Link>
             </div>
             <div className='flex flex-wrap gap-4 justify-between items-center mb-10'>
-                <PayrollCard title="Total employees" value={payrollData.length} />
-                <PayrollCard title="Total net(N)" value='200,000,000' />
-                <PayrollCard title="Total salary(N)" value="500,879,000" />
-                <PayrollCard title="Total gross(N)" value="500,000,000" />
+                <PayrollCard title="Total employees" value={summaryData.totalEmployees} />
+                <PayrollCard title="Total net(N)" value={summaryData.totalNet} />
+                <PayrollCard title="Total salary(N)" value={summaryData.totalSalary} />
+                <PayrollCard title="Total gross(N)" value={summaryData.totalGross} />
             </div>
 
             <div>
@@ -215,21 +258,32 @@ export default function PayrollPage() {
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('name')}
-                                >
-                                    Employee
-                                    {getClassNamesFor('name') === 'ascending' && ' ↑'}
-                                    {getClassNamesFor('name') === 'descending' && ' ↓'}
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Avatar
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('date')}
+                                    onClick={() => requestSort('firstName')}
                                 >
-                                    Date and Time
-                                    {getClassNamesFor('date') === 'ascending' && ' ↑'}
-                                    {getClassNamesFor('date') === 'descending' && ' ↓'}
+                                    First Name
+                                    {getClassNamesFor('firstName') === 'ascending' && ' ↑'}
+                                    {getClassNamesFor('firstName') === 'descending' && ' ↓'}
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                    onClick={() => requestSort('lastName')}
+                                >
+                                    Last Name
+                                    {getClassNamesFor('lastName') === 'ascending' && ' ↑'}
+                                    {getClassNamesFor('lastName') === 'descending' && ' ↓'}
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                    onClick={() => requestSort('email')}
+                                >
+                                    Email
+                                    {getClassNamesFor('email') === 'ascending' && ' ↑'}
+                                    {getClassNamesFor('email') === 'descending' && ' ↓'}
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
@@ -255,15 +309,36 @@ export default function PayrollPage() {
                                     {getClassNamesFor('bonus') === 'ascending' && ' ↑'}
                                     {getClassNamesFor('bonus') === 'descending' && ' ↓'}
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Action
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                    onClick={() => requestSort('incentives')}
+                                >
+                                    Incentives
+                                    {getClassNamesFor('incentives') === 'ascending' && ' ↑'}
+                                    {getClassNamesFor('incentives') === 'descending' && ' ↓'}
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                    onClick={() => requestSort('totalDeductions')}
+                                >
+                                    Deductions
+                                    {getClassNamesFor('totalDeductions') === 'ascending' && ' ↑'}
+                                    {getClassNamesFor('totalDeductions') === 'descending' && ' ↓'}
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                    onClick={() => requestSort('netPay')}
+                                >
+                                    Net Pay
+                                    {getClassNamesFor('netPay') === 'ascending' && ' ↑'}
+                                    {getClassNamesFor('netPay') === 'descending' && ' ↓'}
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {loading || error ? (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                                    <td colSpan="11" className="px-6 py-4 text-center text-gray-500">
                                         {loading ? "Loading..." : "Failed to load data."}
                                     </td>
                                 </tr>
@@ -271,18 +346,18 @@ export default function PayrollPage() {
                                 currentItems.map((item) => (
                                     <tr key={item.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div className="flex-shrink-0 h-10 w-10">
-                                                    <img className="h-10 w-10 rounded-full" src={item.avatar} alt={`${item.name}'s avatar`} />
-                                                </div>
-                                                <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                                                    <div className="text-sm text-gray-500">{item.email}</div>
-                                                </div>
+                                            <div className="flex-shrink-0 h-10 w-10">
+                                                <img className="h-10 w-10 rounded-full" src={item.avatar} alt={`${item.name}'s avatar`} />
                                             </div>
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {item.firstName}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {item.lastName}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {item.date}
+                                            {item.email}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {item.department}
@@ -293,16 +368,20 @@ export default function PayrollPage() {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             N {item.bonus.toLocaleString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                            <div className='p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300 cursor-pointer'>
-                                                <FontAwesomeIcon icon={faEye} />
-                                            </div>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            N {item.incentives.toLocaleString()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            N {item.totalDeductions.toLocaleString()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            N {item.netPay.toLocaleString()}
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                                    <td colSpan="11" className="px-6 py-4 text-center text-gray-500">
                                         No matching payroll activities found.
                                     </td>
                                 </tr>

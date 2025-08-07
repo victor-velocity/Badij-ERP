@@ -44,6 +44,12 @@ const callApi = async (endpoint, method = "GET", data = null, router = null) => 
 
     try {
         const response = await fetch(`${BASE_URL}${endpoint}`, config);
+
+        // Check for 204 No Content status code
+        if (response.status === 204) {
+            return null;
+        }
+
         const contentType = response.headers.get("content-type");
         let responseData = null;
 
@@ -154,6 +160,22 @@ const apiService = {
 
     getEmployeePaymentById: async (shiftId, router) => {
         return callApi(`/employee_payments/${shiftId}`, "GET", null, router);
+    },
+
+    getDeductions: async (router) => {
+        return callApi("/deductions", "GET", null, router);
+    },
+
+    getDeductionsById: async (employeeId, router) => {
+        return callApi(`/employee/deductions/${employeeId}`, "GET", null, router);
+    },
+
+    addDeduction: async (deductionData, router) => {
+        return callApi(`/deductions`, "POST", deductionData, router);
+    },
+
+    getDefaultCharges: async (router) => {
+        return callApi("/default_charges", "GET", null, router);
     },
 };
 
