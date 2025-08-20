@@ -183,8 +183,8 @@ const apiService = {
         return callApi("/employee_payments", "GET", null, router);
     },
 
-    getEmployeePaymentById: async (shiftId, router) => {
-        return callApi(`/employee_payments/${shiftId}`, "GET", null, router);
+    getEmployeePaymentById: async (employeeId, router) => {
+        return callApi(`/employee_payments/${employeeId}`, "GET", null, router);
     },
 
     // deduction APIs

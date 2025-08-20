@@ -202,7 +202,7 @@ export default function HRManagerDashboardPage() {
                     value={loadingEmployees ? '-' : totalEmployees.toString()}
                     change={loadingEmployees ? '...' : `${employeeChangeType === 'increase' ? '+' : ''}${employeeChangePercentage}%`}
                     changeType={employeeChangeType}
-                    link="/employees"
+                    link="/humanResources/employees"
                     changedetails={loadingEmployees ? '...' : employeeChangeDetails}
                 />
 
@@ -211,7 +211,7 @@ export default function HRManagerDashboardPage() {
                     value={loadingTasks ? '-' : totalTasksIssued.toString()}
                     change={loadingTasks ? '...' : `${taskChangeType === 'increase' ? '+' : ''}${taskChangePercentage}%`}
                     changeType={taskChangeType}
-                    link="/tasks"
+                    link="/humanResources/tasks"
                     changedetails={loadingTasks ? '...' : taskChangeDetails}
                 />
 
@@ -220,7 +220,7 @@ export default function HRManagerDashboardPage() {
                     value={loadingLeaves ? '-' : totalLeaveRequests.toString()}
                     change={loadingLeaves ? '...' : `${leaveRequestChangeType === 'increase' ? '+' : ''}${leaveRequestChangePercentage}%`}
                     changeType={leaveRequestChangeType}
-                    link="/leave"
+                    link="/humanResources/leave"
                     changedetails={loadingLeaves ? '...' : leaveRequestChangeDetails}
                 />
             </div>
