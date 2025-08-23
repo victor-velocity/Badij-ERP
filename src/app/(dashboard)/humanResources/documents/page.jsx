@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpload, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import AddDocumentModal from '@/components/employee/documents/AddDocumentModal';
-import { createClient } from '@/app/lib/supabase/client';
 
 const DocumentsPage = () => {
   const [employees, setEmployees] = useState([]);
@@ -18,9 +17,8 @@ const DocumentsPage = () => {
   const [filter, setFilter] = useState('all');
   const [currentDateTime, setCurrentDateTime] = useState('');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [documentsWithSizes, setDocumentsWithSizes] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     const storedAuthUserId = localStorage.getItem("user_id");
@@ -30,42 +28,6 @@ const DocumentsPage = () => {
       router.push("/login");
     }
   }, [router]);
-
-  const getFileSizeFromUrl = async (url) => {
-    if (!url || url === '#') return null;
-
-    try {
-      const urlObj = new URL(url);
-      const filePath = urlObj.pathname.replace('/storage/v1/object/public/', '');
-      const [bucket, ...pathParts] = filePath.split('/');
-      const fileName = pathParts.pop();
-      const folderPath = pathParts.join('/');
-
-      const { data, error } = await supabase
-        .storage
-        .from(bucket)
-        .list(folderPath, {
-          limit: 1,
-          search: fileName
-        });
-
-      if (error) throw error;
-      return data?.[0]?.metadata?.size || null;
-    } catch (error) {
-      console.error('Error fetching file size:', error);
-      return null;
-    }
-  };
-
-  const enhanceDocumentsWithSizes = async (docs) => {
-    return await Promise.all(docs.map(async (doc) => {
-      const size = await getFileSizeFromUrl(doc.url);
-      return {
-        ...doc,
-        fileSize: size || 'N/A'
-      };
-    }));
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,8 +55,7 @@ const DocumentsPage = () => {
           }))
         );
 
-        const docsWithSizes = await enhanceDocumentsWithSizes(docs);
-        setDocumentsWithSizes(docsWithSizes);
+        setDocuments(docs);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -146,8 +107,7 @@ const DocumentsPage = () => {
         }))
       );
 
-      const docsWithSizes = await enhanceDocumentsWithSizes(docs);
-      setDocumentsWithSizes(docsWithSizes);
+      setDocuments(docs);
     } catch (error) {
       console.error("Error refreshing data:", error);
     } finally {
@@ -157,16 +117,15 @@ const DocumentsPage = () => {
 
   const documentTypes = useMemo(() => [
     "official documents",
-    "payslips",
     "contracts",
     "certificates",
     "ids"
   ], []);
 
   const filteredDocuments = useMemo(() => {
-    if (!documentsWithSizes.length) return [];
+    if (!documents.length) return [];
 
-    return documentsWithSizes.filter(doc => {
+    return documents.filter(doc => {
       const matchesSearch =
         doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (doc.type && doc.type.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -175,13 +134,13 @@ const DocumentsPage = () => {
       const matchesFilter = filter === 'all' || doc.type === filter;
       return matchesSearch && matchesFilter;
     });
-  }, [documentsWithSizes, searchTerm, filter]);
+  }, [documents, searchTerm, filter]);
 
   const categories = useMemo(() => {
-    const totalDocuments = documentsWithSizes.length;
+    const totalDocuments = documents.length;
     const typeCounts = documentTypes.map(type => ({
       name: type,
-      count: documentsWithSizes.filter(d => d.type === type).length
+      count: documents.filter(d => d.type === type).length
     }));
 
     return [
@@ -191,7 +150,7 @@ const DocumentsPage = () => {
         count: loading ? '-' : type.count
       }))
     ];
-  }, [documentsWithSizes, loading, documentTypes]);
+  }, [documents, loading, documentTypes]);
 
   return (
     <div>
@@ -211,7 +170,6 @@ const DocumentsPage = () => {
         onFilterChange={setFilter}
         loading={loading}
       />
-
 
       <div className="mt-8">
         <div className="flex justify-between items-center mb-4">

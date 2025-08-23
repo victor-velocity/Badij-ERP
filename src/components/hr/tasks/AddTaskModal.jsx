@@ -96,7 +96,7 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                 file,
                 name: file.name,
                 type: file.type,
-                category: 'Task Attachment',
+                category: 'assignment',
                 preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
             }));
 
@@ -138,7 +138,6 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
         setIsSubmitting(true);
 
         try {
-            // 1. Create the task first (without created_by and assigned_to)
             const taskData = {
                 title: formData.title,
                 description: formData.description,
@@ -146,27 +145,21 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                 end_date: formData.end_date,
                 priority: formData.priority,
                 status: 'Pending'
-                // DO NOT include created_by or assigned_to here
             };
 
             const taskResponse = await apiService.createTask(taskData, router);
 
-            if (!taskResponse || !taskResponse.id) {
+            if (!taskResponse || !taskResponse.task.id) {
                 throw new Error("Failed to create task: Invalid response from server");
             }
 
-            const taskId = taskResponse.id;
+            const taskId = taskResponse.task.id;
 
-            // 2. Assign employees to the task (only send employee_id)
             if (selectedEmployees.length > 0) {
-                await Promise.all(
-                    selectedEmployees.map(employee =>
-                        apiService.addEmployeeToTask(taskId, employee.id, router)
-                    )
-                );
+                const employeeIds = selectedEmployees.map(employee => employee.id);
+                await apiService.addEmployeesToTask(taskId, employeeIds, router);
             }
 
-            // 3. Handle document uploads (without created_by)
             if (formData.documents.length > 0) {
                 await Promise.all(
                     formData.documents.map(async (doc) => {
@@ -181,16 +174,14 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                             .from('taskattachments')
                             .getPublicUrl(filePath);
 
-                        // Create task document data (without created_by)
                         const documentData = {
                             name: doc.name,
                             url: publicUrl,
                             type: doc.type,
-                            category: doc.category || 'general'
-                            // DO NOT include created_by here
+                            category: doc.category || 'assignment',
+                            task_id: taskId
                         };
 
-                        // Use the task document API
                         await apiService.addTaskDocument(taskId, documentData, router);
                     })
                 );

@@ -24,6 +24,7 @@ const calculateLeaveDuration = (startDate, endDate) => {
 export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
     const [imgSrc, setImgSrc] = useState(DEFAULT_AVATAR);
     const [currentLeaveStatus, setCurrentLeaveStatus] = useState(leaveRequest.status);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const isStatusLocked = currentLeaveStatus.toLowerCase() === 'approved' || currentLeaveStatus.toLowerCase() === 'rejected';
 
@@ -51,6 +52,7 @@ export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
     const handleDropdownChange = async (e) => {
         const newStatus = e.target.value.toLowerCase();
         setCurrentLeaveStatus(newStatus);
+        setIsUpdating(true);
 
         try {
             const updatedLeaveData = {
@@ -67,6 +69,8 @@ export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
             console.error('Error updating leave status:', error);
             toast.error(`Failed to update leave status: ${error.message || 'An unexpected error occurred.'}`);
             setCurrentLeaveStatus(leaveRequest.status);
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -77,8 +81,8 @@ export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
                     <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden">
                         <img
                             className="h-full w-full object-cover rounded-full"
-                            src={leaveRequest.employee?.avatar_url || imgSrc} // Use optional chaining for avatar_url
-                            alt={`${leaveRequest.employee?.first_name || 'Employee'}'s avatar`} // Optional chaining
+                            src={leaveRequest.employee?.avatar_url || imgSrc}
+                            alt={`${leaveRequest.employee?.first_name || 'Employee'}'s avatar`}
                             onError={handleImageError}
                         />
                     </div>
@@ -105,15 +109,18 @@ export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <select
-                    className={`px-2 py-1 text-xs leading-5 font-semibold rounded-full ${getStatusColor(currentLeaveStatus)} ${isStatusLocked ? 'opacity-70 cursor-not-allowed' : ''} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+                    className={`px-2 py-1 text-xs leading-5 font-semibold rounded-full ${getStatusColor(currentLeaveStatus)} ${isStatusLocked ? 'opacity-70 cursor-not-allowed' : ''} ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                     value={currentLeaveStatus}
                     onChange={handleDropdownChange}
-                    disabled={isStatusLocked}
+                    disabled={isStatusLocked || isUpdating}
                 >
                     <option value="pending">Pending</option>
                     <option value="approved">Approve</option>
                     <option value="rejected">Decline</option>
                 </select>
+                {isUpdating && (
+                    <span className="ml-2 text-xs text-gray-500">Updating...</span>
+                )}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                 {leaveRequest.approver?.first_name} {leaveRequest.approver?.last_name || "Not Approved"}

@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import apiService from "@/app/lib/apiService";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const formatDateForInput = (dateString) => {
     if (!dateString) return '';
@@ -23,7 +23,7 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
         description: '',
         start_date: '',
         end_date: '',
-        assigned_to: '',
+        assigned_to: [],
         id: '',
     });
     const [isSaving, setIsSaving] = useState(false);
@@ -31,6 +31,7 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
     const [employeeSearchTerm, setEmployeeSearchTerm] = useState('');
     const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [selectedEmployees, setSelectedEmployees] = useState([]);
 
     useEffect(() => {
         if (show && task) {
@@ -39,15 +40,13 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
                 description: task.description || '',
                 start_date: formatDateForInput(task.start_date),
                 end_date: formatDateForInput(task.end_date),
-                assigned_to: task.assigned_to?.id || '',
+                assigned_to: task.assignedEmployees?.map(emp => emp.id) || [],
                 id: task.id,
             });
 
-            if (task.assigned_to) {
-                setEmployeeSearchTerm(`${task.assigned_to.first_name} ${task.assigned_to.last_name} (${task.assigned_to.email})`);
-            } else {
-                setEmployeeSearchTerm('');
-            }
+            // Set selected employees for display
+            setSelectedEmployees(task.assignedEmployees || []);
+            setEmployeeSearchTerm('');
         }
     }, [show, task]);
 
@@ -73,10 +72,11 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
         const filtered = allEmployees.filter(emp =>
             (emp.first_name?.toLowerCase().includes(lowercasedSearchTerm) ||
                 emp.last_name?.toLowerCase().includes(lowercasedSearchTerm) ||
-                emp.email?.toLowerCase().includes(lowercasedSearchTerm))
+                emp.email?.toLowerCase().includes(lowercasedSearchTerm)) &&
+            !formData.assigned_to.includes(emp.id)
         );
         setFilteredEmployees(filtered);
-    }, [employeeSearchTerm, allEmployees]);
+    }, [employeeSearchTerm, allEmployees, formData.assigned_to]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -97,34 +97,33 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
     };
 
     const handleEmployeeSearchChange = (e) => {
-        const newSearchTerm = e.target.value;
-        setEmployeeSearchTerm(newSearchTerm);
+        setEmployeeSearchTerm(e.target.value);
         setDropdownOpen(true);
-
-        const currentSelectedEmployee = allEmployees.find(emp => emp.id === formData.assigned_to);
-        const currentSelectedEmployeeName = currentSelectedEmployee ?
-            `${currentSelectedEmployee.first_name} ${currentSelectedEmployee.last_name} (${currentSelectedEmployee.email})` : '';
-
-        if (newSearchTerm !== currentSelectedEmployeeName) {
-            setFormData(prevData => ({ ...prevData, assigned_to: '' }));
-        }
     };
 
-    const handleEmployeeSelect = (employeeId, employeeName) => {
-        setFormData(prevData => ({ ...prevData, assigned_to: employeeId }));
-        setEmployeeSearchTerm(employeeName);
+    const handleEmployeeSelect = (employee) => {
+        if (!formData.assigned_to.includes(employee.id)) {
+            setFormData(prev => ({
+                ...prev,
+                assigned_to: [...prev.assigned_to, employee.id]
+            }));
+            setSelectedEmployees(prev => [...prev, employee]);
+        }
+        setEmployeeSearchTerm('');
         setDropdownOpen(false);
+    };
+
+    const handleRemoveEmployee = (employeeId) => {
+        setFormData(prev => ({
+            ...prev,
+            assigned_to: prev.assigned_to.filter(id => id !== employeeId)
+        }));
+        setSelectedEmployees(prev => prev.filter(emp => emp.id !== employeeId));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSaving(true);
-
-        if (!formData.assigned_to) {
-            toast.error("Please select an employee to assign the task.");
-            setIsSaving(false);
-            return;
-        }
 
         try {
             const updatedTaskPayload = {
@@ -132,10 +131,10 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
                 title: formData.title,
                 description: formData.description,
                 start_date: formData.start_date,
-                end_date: formData.end_date,    
-                assigned_to: formData.assigned_to,
+                end_date: formData.end_date,
+                assigned_to: formData.assigned_to, // This should be an array of employee IDs
                 status: task.status,
-                created_by: task.created_by?.id,
+                created_by: task.created_by,
             };
             
             await onSave(updatedTaskPayload);
@@ -151,8 +150,6 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
     if (!show) {
         return null;
     }
-
-    const selectedEmployeeForDisplay = allEmployees.find(emp => emp.id === formData.assigned_to);
 
     return (
         <div className="fixed inset-0 z-50 overflow-hidden bg-[#000000aa] flex items-center justify-center">
@@ -198,6 +195,7 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
                                                 value={formData.start_date}
                                                 onChange={handleChange}
                                                 className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 border"
+                                                required
                                             />
                                         </div>
                                         <div>
@@ -209,58 +207,69 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
                                                 value={formData.end_date}
                                                 onChange={handleChange}
                                                 className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 border"
+                                                required
                                             />
                                         </div>
                                     </div>
                                     <div className="mb-4 relative" ref={dropdownRef}>
-                                        <label htmlFor="assigned_to_search" className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Assign to
                                         </label>
+
+                                        {selectedEmployees.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 mb-2">
+                                                {selectedEmployees.map(employee => (
+                                                    <div key={employee.id} className="flex items-center bg-gray-100 rounded-full px-3 py-1">
+                                                        <span className="text-sm">
+                                                            {employee.first_name} {employee.last_name}
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveEmployee(employee.id)}
+                                                            className="ml-2 text-gray-500 hover:text-red-500"
+                                                            disabled={isSaving}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} className="h-3 w-3" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
                                         <div className="relative">
                                             <input
                                                 type="text"
-                                                id="assigned_to_search"
                                                 className="block w-full rounded-md border border-gray-300 focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 pr-10"
-                                                placeholder="Search and select an employee"
+                                                placeholder="Search and select employees"
                                                 value={employeeSearchTerm}
                                                 onChange={handleEmployeeSearchChange}
                                                 onFocus={() => setDropdownOpen(true)}
                                                 disabled={isSaving}
-                                                autoComplete="off" // Helps prevent browser autofill interference
+                                                autoComplete="off"
                                             />
                                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                 <FontAwesomeIcon icon={faSearch} className="h-4 w-4 text-gray-400" />
                                             </div>
                                         </div>
 
-                                        {dropdownOpen && filteredEmployees.length > 0 && (
+                                        {dropdownOpen && (
                                             <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto mt-1">
-                                                {filteredEmployees.map(employee => (
-                                                    <li
-                                                        key={employee.id}
-                                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                        onClick={() => handleEmployeeSelect(employee.id, `${employee.first_name} ${employee.last_name} (${employee.email})`)}
-                                                    >
-                                                        {employee.first_name} {employee.last_name} ({employee.email})
+                                                {filteredEmployees.length > 0 ? (
+                                                    filteredEmployees.map(employee => (
+                                                        <li
+                                                            key={employee.id}
+                                                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                            onClick={() => handleEmployeeSelect(employee)}
+                                                        >
+                                                            {employee.first_name} {employee.last_name} ({employee.email})
+                                                        </li>
+                                                    ))
+                                                ) : (
+                                                    <li className="px-4 py-2 text-gray-500">
+                                                        {employeeSearchTerm ? 'No employees found' : 'No employees available'}
                                                     </li>
-                                                ))}
+                                                )}
                                             </ul>
-                                        )}
-                                        {dropdownOpen && filteredEmployees.length === 0 && employeeSearchTerm !== '' && (
-                                            <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto mt-1">
-                                                <li className="px-4 py-2 text-gray-500">No employees found.</li>
-                                            </ul>
-                                        )}
-
-                                        {/* Display selected employee for clarity even if dropdown is closed */}
-                                        {formData.assigned_to && !dropdownOpen && selectedEmployeeForDisplay && (
-                                            <p className="mt-2 text-sm text-gray-600">
-                                                Currently assigned to: <strong>{selectedEmployeeForDisplay.first_name} {selectedEmployeeForDisplay.last_name}</strong>
-                                            </p>
-                                        )}
-                                        {/* Validation message if no employee is selected and input is not being typed into */}
-                                        {!formData.assigned_to && !dropdownOpen && employeeSearchTerm === '' && (
-                                            <p className="mt-2 text-sm text-red-500">Please select an employee.</p>
                                         )}
                                     </div>
                                 </div>
@@ -284,7 +293,7 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
                                     Updating...
                                 </>
                             ) : (
-                                'Update'
+                                'Update Task'
                             )}
                         </button>
                         <button

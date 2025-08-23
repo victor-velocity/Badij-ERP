@@ -4,7 +4,6 @@ import {
   faEllipsisV,
   faDownload,
   faUser,
-  faSpinner,
   faTrash,
   faEdit
 } from '@fortawesome/free-solid-svg-icons';
@@ -34,13 +33,6 @@ const DocumentsTable = ({ documents, loading, employees, onDocumentUpdated }) =>
     } catch {
       return 'N/A';
     }
-  };
-
-  const formatFileSize = (bytes) => {
-    if (!bytes || bytes === 'N/A') return 'N/A';
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / 1048576).toFixed(1)} MB`;
   };
 
   const getUploaderName = (createdById) => {
@@ -87,6 +79,33 @@ const DocumentsTable = ({ documents, loading, employees, onDocumentUpdated }) =>
     };
   }, []);
 
+  // Skeleton loader rows
+  const skeletonRows = Array.from({ length: 5 }, (_, index) => (
+    <tr key={index} className="animate-pulse">
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="h-6 bg-gray-200 rounded w-6"></div>
+      </td>
+    </tr>
+  ));
+
   return (
     <>
       <div className="overflow-x-auto">
@@ -96,7 +115,6 @@ const DocumentsTable = ({ documents, loading, employees, onDocumentUpdated }) =>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File Type</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded By</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Uploaded</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -104,14 +122,10 @@ const DocumentsTable = ({ documents, loading, employees, onDocumentUpdated }) =>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
-              <tr>
-                <td colSpan="7" className="px-6 py-4 text-center">
-                  <FontAwesomeIcon icon={faSpinner} className="animate-spin text-[#b88b1b]" size="lg" />
-                </td>
-              </tr>
+              skeletonRows
             ) : documents.length === 0 ? (
               <tr>
-                <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
                   No documents found
                 </td>
               </tr>
@@ -126,9 +140,6 @@ const DocumentsTable = ({ documents, loading, employees, onDocumentUpdated }) =>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getFileExtension(doc.url)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {formatFileSize(doc.fileSize)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">

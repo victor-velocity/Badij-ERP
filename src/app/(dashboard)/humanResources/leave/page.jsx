@@ -8,43 +8,46 @@ import toast from 'react-hot-toast';
 const LeaveRequestTable = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const employeesPerPage = 5;
+    const employeesPerPage = 15;
     const [currentDateTime, setCurrentDateTime] = useState('');
 
     const [leavesData, setLeavesData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+    const fetchLeaves = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await apiService.getLeaves();
+            setLeavesData(data);
+        } catch (err) {
+            console.error("Error fetching leave requests:", err);
+            setError("Failed to load leave requests. Please try again.");
+            toast.error("Failed to load leave requests.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchLeaves = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const data = await apiService.getLeaves();
-                setLeavesData(data);
-            } catch (err) {
-                console.error("Error fetching leave requests:", err);
-                setError("Failed to load leave requests. Please try again.");
-                toast.error("Failed to load leave requests.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchLeaves();
-    }, []);
+    }, [refreshTrigger]);
 
-    // Corrected to handle 'status' update from LeaveRow
     const handleUpdateLeaveStatus = (leaveId, newStatus) => {
         setLeavesData(prevLeaves =>
             prevLeaves.map(leave => {
                 if (leave.id === leaveId) {
-                    // Update the 'status' field directly on the leave object
                     return { ...leave, status: newStatus };
                 }
                 return leave;
             })
         );
+        
+        setTimeout(() => {
+            setRefreshTrigger(prev => prev + 1);
+        }, 500);
     };
 
     const filteredLeaves = useMemo(() => {
@@ -133,6 +136,61 @@ const LeaveRequestTable = () => {
         return () => clearInterval(intervalId);
     }, []);
 
+    // Loading skeleton component
+    const LoadingSkeletonRow = () => (
+        <tr className="animate-pulse">
+            <td className="px-6 py-4 whitespace-nowrap rounded-l-lg">
+                <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10 bg-gray-300 rounded-full"></div>
+                    <div className="ml-4">
+                        <div className="h-4 bg-gray-300 rounded w-24 mb-2"></div>
+                        <div className="h-3 bg-gray-300 rounded w-32"></div>
+                    </div>
+                </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-300 rounded w-20"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-300 rounded w-32"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-300 rounded w-24"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-300 rounded w-24"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-300 rounded w-16"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-8 bg-gray-300 rounded-full w-20"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-300 rounded w-24"></div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap rounded-r-lg">
+                <div className="h-4 bg-gray-300 rounded w-24"></div>
+            </td>
+        </tr>
+    );
+
+    // Table header component
+    const TableHeader = () => (
+        <thead>
+            <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Days</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approval</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved by</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request Date</th>
+            </tr>
+        </thead>
+    );
 
     return (
         <div className="">
@@ -168,39 +226,47 @@ const LeaveRequestTable = () => {
                     </div>
                 </div>
 
-                {loading ? (
-                    <div className="text-center py-8 text-gray-500">Loading leave requests...</div>
-                ) : error ? (
-                    <div className="text-center py-8 text-red-500">{error}</div>
-                ) : filteredLeaves.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">No leave requests found.</div>
-                ) : (
-                    <div className="overflow-x-auto shadow-md sm:rounded-lg rounded-lg border border-gray-200 table-container">
-                        <table className="min-w-full divide-y divide-gray-200 bg-white">
-                            <thead>
+                <div className="overflow-x-auto shadow-md sm:rounded-lg rounded-lg border border-gray-200 table-container">
+                    <table className="min-w-full divide-y divide-gray-200 bg-white">
+                        <TableHeader />
+                        <tbody className="divide-y divide-gray-200">
+                            {loading ? (
+                                Array.from({ length: employeesPerPage }).map((_, index) => (
+                                    <LoadingSkeletonRow key={index} />
+                                ))
+                            ) : error ? (
                                 <tr>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Days</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approval</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved by</th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request Date</th>
+                                    <td colSpan="9" className="px-6 py-8 text-center">
+                                        <div className="text-red-500 font-medium">{error}</div>
+                                        <button 
+                                            onClick={() => setRefreshTrigger(prev => prev + 1)}
+                                            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                                        >
+                                            Try Again
+                                        </button>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {currentLeaves.map(leave => (
-                                    <LeaveRow key={leave.id} leaveRequest={leave} onUpdateStatus={handleUpdateLeaveStatus} />
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                            ) : filteredLeaves.length === 0 ? (
+                                <tr>
+                                    <td colSpan="9" className="px-6 py-8 text-center text-gray-500">
+                                        No leave requests found.
+                                    </td>
+                                </tr>
+                            ) : (
+                                currentLeaves.map(leave => (
+                                    <LeaveRow 
+                                        key={leave.id} 
+                                        leaveRequest={leave} 
+                                        onUpdateStatus={handleUpdateLeaveStatus} 
+                                    />
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
                 {/* Pagination Controls */}
-                {filteredLeaves.length > 0 && (
+                {!loading && filteredLeaves.length > 0 && (
                     <div className="flex justify-center items-center mt-6 space-x-2">
                         <button
                             onClick={() => paginate(currentPage - 1)}

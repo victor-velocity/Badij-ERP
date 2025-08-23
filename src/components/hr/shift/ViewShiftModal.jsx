@@ -9,13 +9,17 @@ const ViewShiftModal = ({ isOpen, onClose, shift }) => {
     if (!isOpen || !shift) return null;
 
     const formatTimeWithAmPm = (timeString) => {
-        if (!timeString) return 'N/A';
+        if (!timeString || timeString === 'N/A' || timeString.includes('undefined')) return 'N/A';
         try {
             const [hours, minutes] = timeString.split(':');
             const hourNum = parseInt(hours, 10);
+            
+            // Check if hours is a valid number
+            if (isNaN(hourNum)) return 'N/A';
+            
             const period = hourNum >= 12 ? 'PM' : 'AM';
             const displayHour = hourNum % 12 || 12;
-            return `${displayHour}:${minutes} ${period}`;
+            return `${displayHour}:${minutes || '00'} ${period}`;
         } catch {
             return 'N/A';
         }
@@ -70,43 +74,47 @@ const ViewShiftModal = ({ isOpen, onClose, shift }) => {
                 </button>
 
                 <div className="flex flex-col items-center border-b pb-4 mb-4">
-                    <div className="flex-shrink-0 h-16 w-16">
+                    <div className="flex-shrink-0 h-20 w-20 mb-2">
                         <Image
                             className="h-full w-full rounded-full object-cover border-4 border-gray-200"
-                            src={shift.employee.avatar || '/default-profile.png'}
-                            alt={shift.employee.name}
-                            width={64}
-                            height={64}
+                            src={shift.employee?.avatar || '/default-profile.png'}
+                            alt={shift.employee?.name || 'Employee'}
+                            width={96}
+                            height={96}
                         />
                     </div>
-                    <div className="mt-4 text-center">
-                        <h2 className="text-2xl font-bold text-gray-900">{shift.employee.name}</h2>
-                        <p className="text-sm text-gray-500">{shift.employee.email}</p>
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-900">{shift.employee?.name || 'N/A'}</h2>
+                        <p className="text-sm text-gray-500">{shift.employee?.email || 'N/A'}</p>
                     </div>
                 </div>
 
                 <div className="space-y-6">
                     <div className="">
                         <p className="text-sm font-semibold text-[#b88b1b] uppercase mb-2 ml-2">Shift Type</p>
-                        {renderBadge(shift.shiftType)}
+                        {renderBadge(shift.shiftType || 'Unassigned')}
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
                         <div>
                             <p className="text-sm font-semibold text-[#b88b1b] uppercase">Department</p>
-                            <p className="text-lg text-gray-900 font-medium mt-1">{shift.department}</p>
+                            <p className="text-lg text-gray-900 font-medium mt-1">{shift.department || 'N/A'}</p>
                         </div>
                         <div>
                             <p className="text-sm font-semibold text-[#b88b1b] uppercase">Date</p>
-                            <p className="text-lg text-gray-900 font-medium mt-1">{shift.date}</p>
+                            <p className="text-lg text-gray-900 font-medium mt-1">{shift.date || 'N/A'}</p>
                         </div>
                         <div>
                             <p className="text-sm font-semibold text-[#b88b1b] uppercase">Start Time</p>
-                            <p className="text-lg text-gray-900 font-medium mt-1">{formatTimeWithAmPm(shift.startTime)}</p>
+                            <p className="text-lg text-gray-900 font-medium mt-1">
+                                {formatTimeWithAmPm(shift.startTime)}
+                            </p>
                         </div>
                         <div>
                             <p className="text-sm font-semibold text-[#b88b1b] uppercase">End Time</p>
-                            <p className="text-lg text-gray-900 font-medium mt-1">{formatTimeWithAmPm(shift.endTime)}</p>
+                            <p className="text-lg text-gray-900 font-medium mt-1">
+                                {formatTimeWithAmPm(shift.endTime)}
+                            </p>
                         </div>
                     </div>
 

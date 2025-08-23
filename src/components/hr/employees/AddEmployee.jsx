@@ -32,8 +32,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
         guarantor_name_2: '',
         guarantor_phone_number_2: '',
         salary: '',
-        compensation: '',
-        incentive: '',
+        incentives: '',
         bonus: '',
         marital_status: '',
         bank_account_number: '',
@@ -123,7 +122,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
             return false;
         }
 
-        const numericFields = ['salary', 'compensation', 'incentive', 'bonus'];
+        const numericFields = ['salary', 'incentives', 'bonus'];
         for (const field of numericFields) {
             if (isNaN(parseFloat(newEmployee[field])) || parseFloat(newEmployee[field]) < 0) {
                 toast.error(`${field.replace(/_/g, ' ')} must be a non-negative number.`);
@@ -300,8 +299,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                 guarantor_name_2: newEmployee.guarantor_name_2,
                 guarantor_phone_number_2: newEmployee.guarantor_phone_number_2,
                 salary: parseFloat(newEmployee.salary),
-                compensation: parseFloat(newEmployee.compensation),
-                incentive: parseFloat(newEmployee.incentive),
+                incentives: parseFloat(newEmployee.incentives),
                 bonus: parseFloat(newEmployee.bonus),
                 marital_status: newEmployee.marital_status,
                 bank_account_number: newEmployee.bank_account_number,
@@ -325,7 +323,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                 setNewEmployee({
                     first_name: '', last_name: '', email: '', phone_number: '', address: '', city: '', state: '', zip_code: '', country: 'Nigeria', date_of_birth: '', hire_date: '', employment_status: 'active', position: '', department_id: '', location_id: '',
                     guarantor_name: '', guarantor_phone_number: '', guarantor_name_2: '', guarantor_phone_number_2: '',
-                    salary: '', compensation: '', incentive: '', bonus: '', marital_status: '', bank_account_number: '', bank_name: '', account_name: '', gender: ''
+                    salary: '', incentives: '', bonus: '', marital_status: '', bank_account_number: '', bank_name: '', account_name: '', gender: ''
                 });
                 setAvatarFile(null);
                 setAvatarPreviewUrl(null);
@@ -717,7 +715,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
             case 4:
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <h3 className="md:col-span-2 text-lg font-semibold text-black mb-4">4. Compensation & Documents</h3>
+                        <h3 className="md:col-span-2 text-lg font-semibold text-black mb-4">4. Salary & Documents</h3>
                         <div>
                             <label htmlFor="role" className="block text-sm font-medium text-black mb-1">
                                 Role <span className="text-[#b88b1b]">*</span>
@@ -749,28 +747,14 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             />
                         </div>
                         <div>
-                            <label htmlFor="compensation" className="block text-sm font-medium text-black mb-1">
-                                Compensation (NGN) <span className="text-[#b88b1b]">*</span>
+                            <label htmlFor="incentives" className="block text-sm font-medium text-black mb-1">
+                                Incentives (NGN) <span className="text-[#b88b1b]">*</span>
                             </label>
                             <input
                                 type="number"
-                                id="compensation"
-                                name="compensation"
-                                value={newEmployee.compensation}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
-                                min="0"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="incentive" className="block text-sm font-medium text-black mb-1">
-                                Incentive (NGN) <span className="text-[#b88b1b]">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                id="incentive"
-                                name="incentive"
-                                value={newEmployee.incentive}
+                                id="incentives"
+                                name="incentives"
+                                value={newEmployee.incentives}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                                 min="0"

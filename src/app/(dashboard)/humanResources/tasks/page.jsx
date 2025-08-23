@@ -18,7 +18,6 @@ export default function TaskPage() {
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [allTasks, setAllTasks] = useState([]);
-    const [employeeDetails, setEmployeeDetails] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -44,29 +43,6 @@ export default function TaskPage() {
         const intervalId = setInterval(updateDateTime, 60000);
         return () => clearInterval(intervalId);
     }, []);
-
-    const _fetchEmployeeDetails = async (employeeId) => {
-        try {
-            if (!employeeId || employeeDetails[employeeId]) return;
-
-            const employee = await apiService.getEmployeeById(employeeId, router);
-            setEmployeeDetails(prev => ({
-                ...prev,
-                [employeeId]: employee
-            }));
-        } catch (err) {
-            console.error(`Failed to fetch employee ${employeeId}:`, err);
-            setEmployeeDetails(prev => ({
-                ...prev,
-                [employeeId]: {
-                    first_name: 'Unknown',
-                    last_name: 'Employee',
-                    email: 'unknown@example.com',
-                    avatar_url: null
-                }
-            }));
-        }
-    };
 
     const fetchTasks = async () => {
         setLoading(true);
@@ -108,12 +84,6 @@ export default function TaskPage() {
                         last_name: '',
                         email: 'N/A',
                         avatar_url: null
-                    },
-                    created_by_details: employeeDetails[task.created_by] || {
-                        first_name: 'Unknown',
-                        last_name: 'Creator',
-                        email: 'unknown@example.com',
-                        avatar_url: null
                     }
                 };
             }).sort((a, b) => {
@@ -142,14 +112,32 @@ export default function TaskPage() {
 
     useEffect(() => {
         fetchTasks();
-    }, [router, refreshKey, employeeDetails]);
+    }, [router, refreshKey]);
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
     };
 
-    const handleViewTask = (task) => {
-        setSelectedTask(task);
+    const handleViewTask = async (task) => {
+        // Fetch creator details for the selected task
+        try {
+            const creator = await apiService.getEmployeeById(task.created_by, router);
+            setSelectedTask({
+                ...task,
+                created_by_details: creator
+            });
+        } catch (err) {
+            console.error("Failed to fetch creator details:", err);
+            setSelectedTask({
+                ...task,
+                created_by_details: {
+                    first_name: 'Unknown',
+                    last_name: 'Creator',
+                    email: 'unknown@example.com',
+                    avatar_url: null
+                }
+            });
+        }
         setIsViewModalOpen(true);
     };
 
@@ -230,58 +218,56 @@ export default function TaskPage() {
                 </span>
             </div>
 
-            {loading && <p className="text-center text-gray-500">Loading tasks...</p>}
-            {error && <p className="text-center text-red-500">Error: {error}</p>}
+            <div className="flex flex-wrap gap-5 items-center justify-between mb-14">
+                <TaskCard
+                    title="All tasks"
+                    count={loading ? 0 : allTasks.filter(t => t.status !== "Cancelled").length}
+                    loading={loading}
+                />
+                <TaskCard
+                    title="Pending"
+                    count={loading ? 0 : allTasks.filter(t => t.status === 'Pending').length}
+                    loading={loading}
+                />
+                <TaskCard
+                    title="In progress"
+                    count={loading ? 0 : allTasks.filter(t => t.status === 'In Progress').length}
+                    loading={loading}
+                />
+                <TaskCard
+                    title="Completed"
+                    count={loading ? 0 : allTasks.filter(t => t.status === 'Completed').length}
+                    loading={loading}
+                />
+                <TaskCard
+                    title="Overdue"
+                    count={loading ? 0 : allTasks.filter(t => t.isOverdue).length}
+                    loading={loading}
+                />
+            </div>
 
-            {!loading && !error && (
-                <>
-                    <div className="flex flex-wrap gap-5 items-center justify-between mb-14">
-                        <TaskCard
-                            title="All tasks"
-                            count={allTasks.filter(t => t.status !== "Cancelled").length}
-                        />
-                        <TaskCard
-                            title="Pending"
-                            count={allTasks.filter(t => t.status === 'Pending').length}
-                        />
-                        <TaskCard
-                            title="In progress"
-                            count={allTasks.filter(t => t.status === 'In Progress').length}
-                        />
-                        <TaskCard
-                            title="Completed"
-                            count={allTasks.filter(t => t.status === 'Completed').length}
-                        />
-                        <TaskCard
-                            title="Overdue"
-                            count={allTasks.filter(t => t.isOverdue).length}
-                        />
-                    </div>
+            <div className="flex items-center justify-between p-4 md:p-6 bg-white border-b border-gray-200">
+                <h1 className="text-2xl font-semibold text-gray-900">Task list</h1>
+                <div className="flex items-center space-x-4">
+                    {renderSearchBar('Search tasks...', searchTerm, handleSearchChange)}
+                    <button
+                        onClick={() => setIsAddTaskModalOpen(true)}
+                        className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#b88b1b] hover:bg-[#a67c18] outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
+                    >
+                        Add new task
+                    </button>
+                </div>
+            </div>
 
-                    <div className="flex items-center justify-between p-4 md:p-6 bg-white border-b border-gray-200">
-                        <h1 className="text-2xl font-semibold text-gray-900">Task list</h1>
-                        <div className="flex items-center space-x-4">
-                            {renderSearchBar('Search tasks...', searchTerm, handleSearchChange)}
-                            <button
-                                onClick={() => setIsAddTaskModalOpen(true)}
-                                className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#b88b1b] hover:bg-[#a67c18] outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
-                            >
-                                Add new task
-                            </button>
-                        </div>
-                    </div>
-
-                    <TaskTable
-                        tasks={filteredTasks}
-                        searchTerm={searchTerm}
-                        onViewTask={handleViewTask}
-                        onUpdateTask={handleUpdateTask}
-                        onDeleteTask={handleDeleteTask}
-                        loading={loading}
-                        error={error}
-                    />
-                </>
-            )}
+            <TaskTable
+                tasks={filteredTasks}
+                searchTerm={searchTerm}
+                onViewTask={handleViewTask}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+                loading={loading}
+                error={error}
+            />
 
             <AddTaskModal
                 isOpen={isAddTaskModalOpen}

@@ -20,6 +20,9 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask
     setCurrentPage(1);
   }, [searchTerm, tasks]);
 
+  // Skeleton loading rows
+  const skeletonRows = Array.from({ length: itemsPerPage }, (_, i) => i);
+
   const renderBadge = (status) => {
     let bgColorClass = '';
     let textColorClass = '';
@@ -56,6 +59,8 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask
   };
 
   const renderPagination = (currentPage, totalPages, onPageChange) => {
+    if (totalPages <= 1) return null;
+
     const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
     const PageButton = ({ page, isActive, onClick }) => (
@@ -155,7 +160,7 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask
 
   const filteredTasks = tasks.filter(task => {
     if (task.status === "Cancelled") return false;
-    
+
     const searchLower = (searchTerm || "").toLowerCase();
     return (
       (task.title || "").toLowerCase().includes(searchLower) ||
@@ -218,14 +223,6 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask
     setTaskToUpdate(null);
   };
 
-  if (loading) {
-    return (
-      <div className="bg-white border border-solid border-[#DDD9D9] rounded-lg overflow-hidden py-10 text-center">
-        Loading tasks...
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="bg-white border border-solid border-[#DDD9D9] rounded-lg overflow-hidden py-10 text-center text-red-600">
@@ -245,17 +242,25 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start date</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End date</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task title</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th scope="col" className="px-3 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Overdue</th>
                 <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {currentTasks.length > 0 ? (
+              {loading ? (
+                skeletonRows.map((index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    {Array.from({ length: 8 }).map((_, colIndex) => (
+                      <td key={colIndex} className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : currentTasks.length > 0 ? (
                 currentTasks.map((task) => {
-                  const createdBy = task.created_by_details || {};
-                  
+
                   return (
                     <tr key={task.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -309,9 +314,6 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {task.title || 'Untitled Task'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {`${createdBy.first_name || 'Unknown'} ${createdBy.last_name || 'Creator'}`}
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-left">
                         {renderBadge(task.status || 'Pending')}
                       </td>
@@ -359,7 +361,7 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask
           </table>
         </div>
       </div>
-      {totalPages > 1 && renderPagination(currentPage, totalPages, handlePageChange)}
+      {!loading && totalPages > 1 && renderPagination(currentPage, totalPages, handlePageChange)}
 
       <DeleteConfirmationModal
         show={showDeleteModal}
