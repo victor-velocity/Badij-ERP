@@ -11,6 +11,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const totalSteps = 4;
 
+    // Initialize all form fields with empty strings instead of undefined
     const [newEmployee, setNewEmployee] = useState({
         first_name: '',
         last_name: '',
@@ -33,7 +34,6 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
         guarantor_phone_number_2: '',
         salary: '',
         incentives: '',
-        bonus: '',
         marital_status: '',
         bank_account_number: '',
         bank_name: '',
@@ -67,18 +67,17 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
             const fetchLookupData = async () => {
                 setLoading(true);
                 try {
-
                     const { data: departmentsData, error: departmentsError } = await supabase
                         .from('departments')
                         .select('id, name');
                     if (departmentsError) throw departmentsError;
-                    setDepartments(departmentsData);
+                    setDepartments(departmentsData || []);
 
                     const { data: locationsData, error: locationsError } = await supabase
                         .from('locations')
                         .select('id, name');
                     if (locationsError) throw locationsError;
-                    setLocations(locationsData);
+                    setLocations(locationsData || []);
 
                 } catch (error) {
                     console.error('Error fetching lookup data:', error.message);
@@ -122,9 +121,9 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
             return false;
         }
 
-        const numericFields = ['salary', 'incentives', 'bonus'];
+        const numericFields = ['salary', 'incentives'];
         for (const field of numericFields) {
-            if (isNaN(parseFloat(newEmployee[field])) || parseFloat(newEmployee[field]) < 0) {
+            if (newEmployee[field] && (isNaN(parseFloat(newEmployee[field])) || parseFloat(newEmployee[field]) < 0)) {
                 toast.error(`${field.replace(/_/g, ' ')} must be a non-negative number.`);
                 return false;
             }
@@ -243,7 +242,6 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
         return password.split('').sort(() => 0.5 - Math.random()).join('');
     };
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -299,8 +297,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                 guarantor_name_2: newEmployee.guarantor_name_2,
                 guarantor_phone_number_2: newEmployee.guarantor_phone_number_2,
                 salary: parseFloat(newEmployee.salary),
-                incentives: parseFloat(newEmployee.incentives),
-                bonus: parseFloat(newEmployee.bonus),
+                incentives: parseFloat(newEmployee.incentives || 0),
                 marital_status: newEmployee.marital_status,
                 bank_account_number: newEmployee.bank_account_number,
                 bank_name: newEmployee.bank_name,
@@ -311,19 +308,17 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                 document_urls: documentUrls,
             };
 
-            // 4. Use apiService to create the employee record in your database
             await apiService.createEmployee(employeeDataToInsert);
 
             toast.success('Employee registered successfully!');
 
-            // 5. Reset form and state
             setTimeout(() => {
                 onEmployeeAdded();
                 onClose();
                 setNewEmployee({
                     first_name: '', last_name: '', email: '', phone_number: '', address: '', city: '', state: '', zip_code: '', country: 'Nigeria', date_of_birth: '', hire_date: '', employment_status: 'active', position: '', department_id: '', location_id: '',
                     guarantor_name: '', guarantor_phone_number: '', guarantor_name_2: '', guarantor_phone_number_2: '',
-                    salary: '', incentives: '', bonus: '', marital_status: '', bank_account_number: '', bank_name: '', account_name: '', gender: ''
+                    salary: '', incentives: '', marital_status: '', bank_account_number: '', bank_name: '', account_name: '', gender: '', role: ''
                 });
                 setAvatarFile(null);
                 setAvatarPreviewUrl(null);
@@ -344,8 +339,6 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
             setLoading(false);
         }
     };
-
-
 
     const renderStepContent = () => {
         switch (currentStep) {
@@ -390,7 +383,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="text"
                                 id="first_name"
                                 name="first_name"
-                                value={newEmployee.first_name}
+                                value={newEmployee.first_name || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -403,7 +396,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="text"
                                 id="last_name"
                                 name="last_name"
-                                value={newEmployee.last_name}
+                                value={newEmployee.last_name || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -416,7 +409,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="email"
                                 id="email"
                                 name="email"
-                                value={newEmployee.email}
+                                value={newEmployee.email || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -429,7 +422,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="date"
                                 id="date_of_birth"
                                 name="date_of_birth"
-                                value={newEmployee.date_of_birth}
+                                value={newEmployee.date_of_birth || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -441,7 +434,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             <select
                                 id="marital_status"
                                 name="marital_status"
-                                value={newEmployee.marital_status}
+                                value={newEmployee.marital_status || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
@@ -459,7 +452,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             <select
                                 id="gender"
                                 name="gender"
-                                value={newEmployee.gender}
+                                value={newEmployee.gender || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
@@ -483,7 +476,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="tel"
                                 id="phone_number"
                                 name="phone_number"
-                                value={newEmployee.phone_number}
+                                value={newEmployee.phone_number || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -496,7 +489,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="text"
                                 id="address"
                                 name="address"
-                                value={newEmployee.address}
+                                value={newEmployee.address || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -509,7 +502,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="text"
                                 id="city"
                                 name="city"
-                                value={newEmployee.city}
+                                value={newEmployee.city || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -521,7 +514,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             <select
                                 id="state"
                                 name="state"
-                                value={newEmployee.state}
+                                value={newEmployee.state || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
@@ -573,7 +566,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="text"
                                 id="zip_code"
                                 name="zip_code"
-                                value={newEmployee.zip_code}
+                                value={newEmployee.zip_code || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -586,7 +579,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="text"
                                 id="country"
                                 name="country"
-                                value={newEmployee.country}
+                                value={newEmployee.country || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -605,7 +598,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="date"
                                 id="hire_date"
                                 name="hire_date"
-                                value={newEmployee.hire_date}
+                                value={newEmployee.hire_date || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -618,7 +611,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 id="position"
                                 type='text'
                                 name="position"
-                                value={newEmployee.position}
+                                value={newEmployee.position || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -630,7 +623,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             <select
                                 id="department_id"
                                 name="department_id"
-                                value={newEmployee.department_id}
+                                value={newEmployee.department_id || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
@@ -640,7 +633,6 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 ))}
                             </select>
                         </div>
-                        {/* New: Location Field */}
                         <div>
                             <label htmlFor="location_id" className="block text-sm font-medium text-black mb-1">
                                 Location <span className="text-[#b88b1b]">*</span>
@@ -648,7 +640,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             <select
                                 id="location_id"
                                 name="location_id"
-                                value={newEmployee.location_id}
+                                value={newEmployee.location_id || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
@@ -666,7 +658,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="text"
                                 id="guarantor_name"
                                 name="guarantor_name"
-                                value={newEmployee.guarantor_name}
+                                value={newEmployee.guarantor_name || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -679,7 +671,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="tel"
                                 id="guarantor_phone_number"
                                 name="guarantor_phone_number"
-                                value={newEmployee.guarantor_phone_number}
+                                value={newEmployee.guarantor_phone_number || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -692,7 +684,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="text"
                                 id="guarantor_name_2"
                                 name="guarantor_name_2"
-                                value={newEmployee.guarantor_name_2}
+                                value={newEmployee.guarantor_name_2 || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -705,7 +697,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 type="tel"
                                 id="guarantor_phone_number_2"
                                 name="guarantor_phone_number_2"
-                                value={newEmployee.guarantor_phone_number_2}
+                                value={newEmployee.guarantor_phone_number_2 || ''}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             />
@@ -755,20 +747,6 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 id="incentives"
                                 name="incentives"
                                 value={newEmployee.incentives}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
-                                min="0"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="bonus" className="block text-sm font-medium text-black mb-1">
-                                Bonus (NGN) <span className="text-[#b88b1b]">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                id="bonus"
-                                name="bonus"
-                                value={newEmployee.bonus}
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                                 min="0"

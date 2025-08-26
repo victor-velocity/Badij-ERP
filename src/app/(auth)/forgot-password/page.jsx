@@ -92,9 +92,9 @@ export default function ForgotPasswordPage() {
                             </div>
                         </div>
                         <div className='pagination flex gap-3 justify-center items-center mt-8'>
-                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
-                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
                             <div className='w-[12px] h-[12px] bg-[#b88b1b] rounded-full'></div>
+                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
+                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
                             <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
                         </div>
                     </div>

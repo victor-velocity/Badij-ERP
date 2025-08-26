@@ -11,22 +11,18 @@ export default function HRManagerDashboardPage() {
     const router = useRouter();
     const [currentDateTime, setCurrentDateTime] = useState('');
 
-    // State for Total Leave Requests
     const [totalLeaveRequests, setTotalLeaveRequests] = useState(0);
     const [prevTotalLeaveRequests, setPrevTotalLeaveRequests] = useState(0);
     const [loadingLeaves, setLoadingLeaves] = useState(true);
 
-    // State for Total Employees
     const [totalEmployees, setTotalEmployees] = useState(0);
     const [prevTotalEmployees, setPrevTotalEmployees] = useState(0);
     const [loadingEmployees, setLoadingEmployees] = useState(true);
 
-    // State for Total Tasks Issued
     const [totalTasksIssued, setTotalTasksIssued] = useState(0);
     const [prevTotalTasksIssued, setPrevTotalTasksIssued] = useState(0);
     const [loadingTasks, setLoadingTasks] = useState(true);
 
-    // States for Shift Management data
     const [assignedShiftsDashboard, setAssignedShiftsDashboard] = useState([]);
     const [loadingShiftsDashboard, setLoadingShiftsDashboard] = useState(true);
     const [errorShiftsDashboard, setErrorShiftsDashboard] = useState(null);
@@ -64,7 +60,6 @@ export default function HRManagerDashboardPage() {
             const lastMonth = lastMonthDate.getMonth();
             const lastMonthYear = lastMonthDate.getFullYear();
 
-            // Fetch Total Employees & calculate change
             setLoadingEmployees(true);
             try {
                 const employees = await apiService.getEmployees(router);
@@ -79,7 +74,8 @@ export default function HRManagerDashboardPage() {
                     return hireDate.getMonth() === lastMonth && hireDate.getFullYear() === lastMonthYear;
                 });
 
-                setPrevTotalEmployees(employees.length - employeesCurrentMonth.length + employeesLastMonth.length);
+                const prevMonthEmployees = employees.length - employeesCurrentMonth.length;
+                setPrevTotalEmployees(prevMonthEmployees);
 
             } catch (error) {
                 console.error('Failed to fetch employees data:', error);
@@ -87,7 +83,6 @@ export default function HRManagerDashboardPage() {
                 setLoadingEmployees(false);
             }
 
-            // Fetch Total Leave Requests & calculate change
             setLoadingLeaves(true);
             try {
                 const allLeaves = await apiService.getLeaves(router);
@@ -101,7 +96,9 @@ export default function HRManagerDashboardPage() {
                     const leaveDate = new Date(leave.created_at);
                     return leaveDate.getMonth() === lastMonth && leaveDate.getFullYear() === lastMonthYear;
                 });
-                setPrevTotalLeaveRequests(allLeaves.length - leavesCurrentMonth.length + leavesLastMonth.length);
+                
+                const prevMonthLeaves = allLeaves.length - leavesCurrentMonth.length;
+                setPrevTotalLeaveRequests(prevMonthLeaves);
 
             } catch (error) {
                 console.error('Failed to fetch leave requests data:', error);
@@ -109,7 +106,6 @@ export default function HRManagerDashboardPage() {
                 setLoadingLeaves(false);
             }
 
-            // Fetch Total Tasks Issued & calculate change
             setLoadingTasks(true);
             try {
                 const allTasks = await apiService.getTasks(router);
@@ -123,7 +119,9 @@ export default function HRManagerDashboardPage() {
                     const taskDate = new Date(task.created_at);
                     return taskDate.getMonth() === lastMonth && taskDate.getFullYear() === lastMonthYear;
                 });
-                setPrevTotalTasksIssued(allTasks.length - tasksCurrentMonth.length + tasksLastMonth.length);
+                
+                const prevMonthTasks = allTasks.length - tasksCurrentMonth.length;
+                setPrevTotalTasksIssued(prevMonthTasks);
 
             } catch (error) {
                 console.error('Failed to fetch tasks data:', error);
@@ -131,7 +129,6 @@ export default function HRManagerDashboardPage() {
                 setLoadingTasks(false);
             }
 
-            // Fetch Assigned Shifts for Dashboard
             setLoadingShiftsDashboard(true);
             setErrorShiftsDashboard(null);
             try {
@@ -168,22 +165,20 @@ export default function HRManagerDashboardPage() {
         fetchDashboardData();
     }, [router]);
 
-    // Calculate changes for Dashboard Cards
     const employeeChangeRaw = totalEmployees - prevTotalEmployees;
-    const employeeChangePercentage = prevTotalEmployees !== 0 ? ((employeeChangeRaw / prevTotalEmployees) * 100).toFixed(2) : 0;
+    const employeeChangePercentage = prevTotalEmployees !== 0 ? ((employeeChangeRaw / prevTotalEmployees) * 100).toFixed(2) : totalEmployees > 0 ? 100 : 0;
     const employeeChangeType = employeeChangeRaw >= 0 ? 'increase' : 'decrease';
     const employeeChangeDetails = employeeChangeRaw >= 0 ? `+${employeeChangeRaw} since last month` : `${employeeChangeRaw} since last month`;
 
     const taskChangeRaw = totalTasksIssued - prevTotalTasksIssued;
-    const taskChangePercentage = prevTotalTasksIssued !== 0 ? ((taskChangeRaw / prevTotalTasksIssued) * 100).toFixed(2) : 0;
+    const taskChangePercentage = prevTotalTasksIssued !== 0 ? ((taskChangeRaw / prevTotalTasksIssued) * 100).toFixed(2) : totalTasksIssued > 0 ? 100 : 0;
     const taskChangeType = taskChangeRaw >= 0 ? 'increase' : 'decrease';
     const taskChangeDetails = taskChangeRaw >= 0 ? `+${taskChangeRaw} since last month` : `${taskChangeRaw} since last month`;
 
     const leaveRequestChangeRaw = totalLeaveRequests - prevTotalLeaveRequests;
-    const leaveRequestChangePercentage = prevTotalLeaveRequests !== 0 ? ((leaveRequestChangeRaw / prevTotalLeaveRequests) * 100).toFixed(2) : 0;
+    const leaveRequestChangePercentage = prevTotalLeaveRequests !== 0 ? ((leaveRequestChangeRaw / prevTotalLeaveRequests) * 100).toFixed(2) : totalLeaveRequests > 0 ? 100 : 0;
     const leaveRequestChangeType = leaveRequestChangeRaw >= 0 ? 'increase' : 'decrease';
     const leaveRequestChangeDetails = leaveRequestChangeRaw >= 0 ? `+${leaveRequestChangeRaw} since last month` : `${leaveRequestChangeRaw} since last month`;
-
 
     return (
         <div>
@@ -233,7 +228,6 @@ export default function HRManagerDashboardPage() {
                         shifts={assignedShiftsDashboard}
                         loading={loadingShiftsDashboard}
                         error={errorShiftsDashboard}
-
                     />
                 </div>
             </div>
