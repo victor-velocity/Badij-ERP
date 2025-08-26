@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCredentialErrorBox, setShowCredentialErrorBox] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false); // New state for remember me
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [isEmailInvalid, setIsEmailInvalid] = useState(false);
   const [isPasswordInvalid, setIsPasswordInvalid] = useState(false);
@@ -27,27 +27,49 @@ export default function LoginPage() {
 
   const redirectToDashboard = async (user) => {
     const userRole = user?.app_metadata?.role;
-    switch (userRole) {
-      case 'hr_manager':
-        router.push('/humanResources');
-        break;
-      case 'user':
-        router.push('/employee');
-        break;
-      // case 'admin_manager':
-      //     router.push('/adminDashboard');
-      //     break;
-      // case 'it_manager':
-      //     router.push('/itDashboard');
-      //     break;
-      // case 'super_admin':
-      //     router.push('/superAdminDashboard');
-      //     break;
-      default:
-        toast.error("Role not found. Try logging in again.")
-        await supabase.auth.signOut();
-        router.push('/login');
-        break;
+
+    try {
+      switch (userRole) {
+        case 'hr_manager':
+          router.push('/humanResources');
+          break;
+        case 'user':
+          router.push('/employee');
+          break;
+        case 'manager':
+          const { data: employeeData, error: employeeError } = await supabase
+            .from('employees')
+            .select("*")
+            .eq('user_id', user.id)
+            .single();
+
+          if (employeeError) {
+            console.error("Error fetching employee data:", employeeError);
+            toast.error("Could not retrieve manager information");
+            await supabase.auth.signOut();
+            router.push('/login');
+            return;
+          } else {
+            if (employeeData.department_id === "10d06661-6324-41e8-84d4-41917293e448") {
+              router.push('/inventory')
+            } else {
+              toast.error("Could not retrieve manager information");
+              await supabase.auth.signOut();
+              router.push('/login');
+            }
+          }
+          break;
+        default:
+          toast.error("Role not found. Try logging in again.")
+          await supabase.auth.signOut();
+          router.push('/login');
+          break;
+      }
+    } catch (error) {
+      console.error("Redirect error:", error);
+      toast.error("An error occurred during login");
+      await supabase.auth.signOut();
+      router.push('/login');
     }
   };
 
@@ -60,11 +82,10 @@ export default function LoginPage() {
     };
     checkUserSession();
 
-    // Load saved email from localStorage if "rememberMe" was checked
     const savedEmail = localStorage.getItem('rememberedEmail');
     if (savedEmail) {
       setEmail(savedEmail);
-      setRememberMe(true); // Set rememberMe to true if an email was found
+      setRememberMe(true);
     }
   }, [router, supabase]);
 
@@ -97,25 +118,30 @@ export default function LoginPage() {
       return;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
 
-    if (error) {
-      setShowCredentialErrorBox(true);
-      toast.error(error.message || 'Login failed. Please check your credentials.');
-    } else if (data.user) {
-      toast.success("Successfully signed in!");
-      if (rememberMe) {
-        localStorage.setItem('rememberedEmail', email);
+      if (error) {
+        setShowCredentialErrorBox(true);
+        toast.error(error.message || 'Login failed. Please check your credentials.');
+      } else if (data.user) {
+        toast.success("Successfully signed in!");
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email);
+        } else {
+          localStorage.removeItem('rememberedEmail');
+        }
+        await redirectToDashboard(data.user);
       } else {
-        localStorage.removeItem('rememberedEmail');
+        setShowCredentialErrorBox(true);
+        toast.error('Login failed. Please check your credentials.');
       }
-      await redirectToDashboard(data.user);
-    } else {
-      setShowCredentialErrorBox(true);
-      toast.error('Login failed. Please check your credentials.');
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("An unexpected error occurred during login");
     }
 
     setLoading(false);
@@ -194,8 +220,8 @@ export default function LoginPage() {
                     name="rememberMe"
                     id="rememberMe"
                     className="cursor-pointer"
-                    checked={rememberMe} // Bind checked state
-                    onChange={(e) => setRememberMe(e.target.checked)} // Update state on change
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                   />
                   <label
                     htmlFor="rememberMe"

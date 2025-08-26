@@ -4,17 +4,17 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/app/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import SideNavBar from '@/components/hr/NavBar';
+import SideNavBar from '@/components/inventory/NavBar';
 import Loading from '@/components/Loading';
-import TopNavBar from '@/components/hr/TopNav';
+import TopNavBar from '@/components/inventory/TopNav';
 
-export default function HRManagerLayout({ children }) {
+export default function InventoryManagerLayout({ children }) {
     const supabase = createClient();
     const router = useRouter();
 
     const [loading, setLoading] = useState(false);
-    const [isHRManager, setIsHRManager] = useState(false);
-    const [profile, setProfile] = useState(null); 
+    const [isInventoryManager, setIsInventoryManager] = useState(false);
+    const [profile, setProfile] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const [isDesktopSidebarExpanded, setIsDesktopSidebarExpanded] = useState(() => {
@@ -48,9 +48,11 @@ export default function HRManagerLayout({ children }) {
 
             const { data: employeeData, error: employeeError } = await supabase
                 .from('employees')
-                .select('id, first_name, last_name, email, avatar_url, user_id')
+                .select('id, first_name, last_name, email, user_id, avatar_url, department_id')
                 .eq('user_id', authUser.id)
                 .single();
+
+            localStorage.setItem("first_name", employeeData.first_name)
 
             if (employeeError || !employeeData) {
                 console.error('Error fetching employee profile:', employeeError?.message || 'Employee data not found.');
@@ -61,10 +63,11 @@ export default function HRManagerLayout({ children }) {
             }
 
             const userRole = authUser.app_metadata?.role;
-            
+
             const employeeFullName = `${employeeData.first_name} ${employeeData.last_name}`;
             const employeeUsername = employeeData.email.split('@')[0];
             const employeeAvatarUrl = employeeData.avatar_url || "/default-profile.png";
+            const employeeDepartmentId = employeeData.department_id;
 
 
             if (userRole) {
@@ -76,20 +79,24 @@ export default function HRManagerLayout({ children }) {
                     employee_id: employeeData.id
                 });
 
-                if (userRole === 'hr_manager') {
-                    setIsHRManager(true);
+                if (userRole === 'manager') {
+                    if (employeeDepartmentId === "10d06661-6324-41e8-84d4-41917293e448") {
+                        setIsInventoryManager(true);
+                    } else {
+                        toast.error('Access Denied: You do not have Inventory Manager privileges.');
+                        router.replace('/login');
+                    }
                 } else {
-                    toast.error('Access Denied: You do not have HR Manager privileges.');
+                    toast.error('Access Denied: You do not have Inventory Manager privileges.');
                     await supabase.auth.signOut();
-                    router.replace('/login');
+                    router.push('/login');
                 }
             } else {
                 console.error('Error: User role not found in user metadata for auth user:', authUser.id);
-                await supabase.auth.signOut();
                 toast.error('Failed to load user profile. Role not found in authentication data.');
                 router.replace('/login');
             }
-            
+
             setLoading(false);
         }
 
@@ -112,7 +119,7 @@ export default function HRManagerLayout({ children }) {
         return <Loading />;
     }
 
-    if (!isHRManager) {
+    if (!isInventoryManager) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-100">
                 <p className="text-lg text-red-600 font-bold">Access Denied: You do not have permission to view this page.</p>

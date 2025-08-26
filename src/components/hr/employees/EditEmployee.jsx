@@ -22,7 +22,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                 // Ensure initial status matches backend's expected casing
                 employment_status: employee.employment_status
                     ? employee.employment_status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-                    : 'Active', // Default to 'Active'
+                    : 'active', // Default to 'Active'
                 position: employee.position || '',
                 department_id: employee.department_id || '',
                 avatar_url: employee.avatar_url || null,
@@ -33,7 +33,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
             first_name: '',
             last_name: '',
             email: '',
-            employment_status: 'Active',
+            employment_status: 'active',
             position: '',
             department_id: '',
             avatar_url: null,
@@ -56,7 +56,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                 email: employee.email || '',
                 employment_status: employee.employment_status
                     ? employee.employment_status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-                    : 'Active',
+                    : 'active',
                 position: employee.position || '',
                 department_id: employee.department_id || '',
                 avatar_url: employee.avatar_url || null,
@@ -65,7 +65,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
             setAvatarFile(null);
         } else if (!isOpen) {
             setEditedEmployee({
-                id: '', first_name: '', last_name: '', email: '', employment_status: 'Active', position: '', department_id: '', avatar_url: null,
+                id: '', first_name: '', last_name: '', email: '', employment_status: 'active', position: '', department_id: '', avatar_url: null,
             });
             setAvatarFile(null);
             setAvatarPreviewUrl(null);
@@ -150,7 +150,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                 employment_status: editedEmployee.employment_status,
                 position: editedEmployee.position,
                 department_id: editedEmployee.department_id,
-                avatar_url: newAvatarUrl,u8
+                avatar_url: newAvatarUrl,
             };
 
             await apiService.updateEmployee(editedEmployee.id, employeeDataToUpdate, router);
@@ -160,7 +160,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                 onEmployeeUpdated();
                 onClose();
                 setEditedEmployee({
-                    id: '', first_name: '', last_name: '', email: '', employment_status: 'Active', position: '', department_id: '', avatar_url: null,
+                    id: '', first_name: '', last_name: '', email: '', employment_status: 'active', position: '', department_id: '', avatar_url: null,
                 });
                 setAvatarFile(null);
                 setAvatarPreviewUrl(null);
@@ -274,8 +274,8 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
-                                <option value="Active">Active</option>
-                                <option value="On Leave">On Leave</option>
+                                <option value="active">Active</option>
+                                <option value="on leave">On Leave</option>
                             </select>
                         </div>
                         <div>
