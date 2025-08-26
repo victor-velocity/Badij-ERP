@@ -10,6 +10,43 @@ import DeleteEmployeeModal from '@/components/hr/employees/DeleteEmployeeModal';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
+// Skeleton Loading Component
+const SkeletonRow = () => (
+  <tr className="animate-pulse">
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="flex items-center">
+        <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+        <div className="ml-4">
+          <div className="h-4 bg-gray-200 rounded w-24"></div>
+          <div className="mt-2 h-3 bg-gray-200 rounded w-32"></div>
+        </div>
+      </div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-20"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-28"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-24"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-24"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="flex space-x-2">
+        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+      </div>
+    </td>
+  </tr>
+);
+
 const EmployeeListTable = () => {
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
@@ -217,9 +254,26 @@ const EmployeeListTable = () => {
             )}
 
             {loading ? (
-                <div className="flex justify-center items-center py-8">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b88b1b]"></div>
-                    <p className="ml-4 text-gray-600">Loading employees...</p>
+                <div className="overflow-x-auto shadow-md sm:rounded-lg rounded-lg border border-gray-200">
+                    <table className="min-w-full divide-y divide-gray-200 bg-white">
+                        <thead>
+                            <tr>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile no</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of birth</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employment Date</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {/* Render skeleton rows while loading */}
+                            {Array.from({ length: employeesPerPage }).map((_, index) => (
+                                <SkeletonRow key={index} />
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             ) : sortedAndFilteredEmployees.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">No employees found matching your search.</div>

@@ -48,7 +48,7 @@ export default function UserLayout({ children }) {
 
             const { data: employeeData, error: employeeError } = await supabase
                 .from('employees')
-                .select('id, first_name, last_name, email, user_id')
+                .select('id, first_name, last_name, email, user_id, avatar_url')
                 .eq('user_id', authUser.id)
                 .single();
 

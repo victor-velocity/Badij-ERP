@@ -45,7 +45,7 @@ export const LeaveRow = ({ leaveRequest, onDeleteRequest }) => {
                 return 'bg-green-100 text-green-800';
             case 'pending':
                 return 'bg-yellow-100 text-yellow-800';
-            case 'declined':
+            case 'rejected':
                 return 'bg-red-100 text-red-800';
             case 'cancelled':
                 return 'bg-gray-200 text-gray-700';

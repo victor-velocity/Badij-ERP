@@ -1,9 +1,10 @@
 "use client";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import toast from 'react-hot-toast';
 import apiService from '@/app/lib/apiService';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const DeleteDocumentModal = ({
     document,
@@ -12,8 +13,10 @@ const DeleteDocumentModal = ({
     onDocumentUpdated
 }) => {
     const router = useRouter();
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleDeleteConfirm = async () => {
+        setIsDeleting(true);
         try {
             await apiService.deleteEmployeeDocument(document.id, router);
             toast.success('Document deleted successfully!');
@@ -21,6 +24,8 @@ const DeleteDocumentModal = ({
             onDocumentUpdated();
         } catch (error) {
             toast.error(error.message || 'Failed to delete document');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -33,7 +38,8 @@ const DeleteDocumentModal = ({
                     <h2 className="text-xl font-bold">Delete Document</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700"
+                        disabled={isDeleting}
+                        className="text-gray-500 hover:text-gray-700 disabled:opacity-50"
                     >
                         <FontAwesomeIcon icon={faTimes} />
                     </button>
@@ -51,17 +57,24 @@ const DeleteDocumentModal = ({
                 <div className="flex justify-end gap-2">
                     <button
                         type="button"
-                        className="px-4 py-2 border rounded border-gray-400 hover:bg-gray-100 transition-colors"
+                        className="px-4 py-2 border rounded border-gray-400 hover:bg-gray-100 transition-colors disabled:opacity-50"
                         onClick={onClose}
+                        disabled={isDeleting}
                     >
                         Cancel
                     </button>
                     <button
                         type="button"
-                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center"
                         onClick={handleDeleteConfirm}
+                        disabled={isDeleting}
                     >
-                        Delete
+                        {isDeleting ? (
+                            <>
+                                <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />
+                                Deleting...
+                            </>
+                        ) : 'Delete'}
                     </button>
                 </div>
             </div>

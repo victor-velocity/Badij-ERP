@@ -113,7 +113,7 @@ export default function HRManagerLayout({ children }) {
     if (!isHRManager) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-100">
-                <p className="text-lg text-red-600">Access Denied: You do not have permission to view this page.</p>
+                <p className="text-lg text-red-600 font-bold">Access Denied: You do not have permission to view this page.</p>
             </div>
         );
     }

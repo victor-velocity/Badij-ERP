@@ -33,7 +33,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
             first_name: '',
             last_name: '',
             email: '',
-            employment_status: 'Active', // Default to 'Active' with correct casing
+            employment_status: 'Active',
             position: '',
             department_id: '',
             avatar_url: null,
@@ -54,10 +54,9 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                 first_name: employee.first_name || '',
                 last_name: employee.last_name || '',
                 email: employee.email || '',
-                // Ensure initial status matches backend's expected casing
                 employment_status: employee.employment_status
                     ? employee.employment_status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-                    : 'Active', // Default to 'Active'
+                    : 'Active',
                 position: employee.position || '',
                 department_id: employee.department_id || '',
                 avatar_url: employee.avatar_url || null,
@@ -148,11 +147,10 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
             }
 
             const employeeDataToUpdate = {
-                // Ensure employment_status is sent with correct casing
                 employment_status: editedEmployee.employment_status,
                 position: editedEmployee.position,
                 department_id: editedEmployee.department_id,
-                avatar_url: newAvatarUrl,
+                avatar_url: newAvatarUrl,u8
             };
 
             await apiService.updateEmployee(editedEmployee.id, employeeDataToUpdate, router);

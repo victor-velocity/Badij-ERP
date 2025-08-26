@@ -7,6 +7,23 @@ import TaskCard from "@/components/employee/TaskCard";
 import TasksTable from "@/components/employee/task/TaskTable";
 import { faTasks, faCheckCircle, faSpinner, faHourglassHalf } from '@fortawesome/free-solid-svg-icons';
 
+// Skeleton Loading Components
+const SkeletonTaskCard = () => (
+  <div className="bg-white p-6 rounded-lg shadow-md animate-pulse">
+    <div className="flex items-center justify-between mb-4">
+      <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+      <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+    </div>
+    <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+  </div>
+);
+
+const SkeletonSearchBar = () => (
+  <div className="w-full px-4 py-2 border border-gray-300 rounded-lg animate-pulse">
+    <div className="h-6 bg-gray-200 rounded"></div>
+  </div>
+);
+
 export default function TaskPage() {
     const router = useRouter();
     const [currentDateTime, setCurrentDateTime] = useState('');
@@ -17,7 +34,7 @@ export default function TaskPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const first_name = localStorage.getItem('first_name');
+    const first_name = typeof window !== 'undefined' ? localStorage.getItem('first_name') : '';
 
     const [taskData, setTaskData] = useState({
         assigned: 0,
@@ -130,6 +147,7 @@ export default function TaskPage() {
                 value={value}
                 onChange={onChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:border-transparent"
+                disabled={loading}
             />
         );
     };
@@ -139,7 +157,13 @@ export default function TaskPage() {
             <div className='flex justify-between items-center mt-5 mb-14 flex-wrap gap-4'>
                 <div>
                     <h1 className='text-2xl font-bold '>My Tasks</h1>
-                    <p className='text-[#A09D9D] font-medium mt-2'>{greeting}, {first_name}</p>
+                    {loading ? (
+                        <div className="animate-pulse mt-2">
+                            <div className="h-4 bg-gray-200 rounded w-48"></div>
+                        </div>
+                    ) : (
+                        <p className='text-[#A09D9D] font-medium mt-2'>{greeting}, {first_name}</p>
+                    )}
                 </div>
                 <span className='rounded-[20px] px-3 py-2 border-[0.5px] border-solid border-[#DDD9D9] text-[#A09D9D]'>
                     {currentDateTime}
@@ -147,16 +171,34 @@ export default function TaskPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-                <TaskCard title="Task Assigned" value={taskData.assigned} icon={faTasks} iconColor="text-blue-500" />
-                <TaskCard title="Task Completed" value={taskData.completed} icon={faCheckCircle} iconColor="text-green-500" />
-                <TaskCard title="Task In-progress" value={taskData.inProgress} icon={faSpinner} iconColor="text-orange-500" />
-                <TaskCard title="Task Pending" value={taskData.pending} icon={faHourglassHalf} iconColor="text-purple-500" />
+                {loading ? (
+                    Array.from({ length: 4 }).map((_, index) => (
+                        <SkeletonTaskCard key={index} />
+                    ))
+                ) : (
+                    <>
+                        <TaskCard title="Task Assigned" value={taskData.assigned} icon={faTasks} iconColor="text-blue-500" />
+                        <TaskCard title="Task Completed" value={taskData.completed} icon={faCheckCircle} iconColor="text-green-500" />
+                        <TaskCard title="Task In-progress" value={taskData.inProgress} icon={faSpinner} iconColor="text-orange-500" />
+                        <TaskCard title="Task Pending" value={taskData.pending} icon={faHourglassHalf} iconColor="text-purple-500" />
+                    </>
+                )}
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between mt-10 mb-4">
-                <h1 className="text-2xl font-semibold text-gray-900">Task list</h1>
-                <div className="flex items-center space-x-4">
-                    {renderSearchBar('Search...', searchTerm, handleSearchChange)}
+                {loading ? (
+                    <div className="animate-pulse">
+                        <div className="h-8 bg-gray-200 rounded w-32"></div>
+                    </div>
+                ) : (
+                    <h1 className="text-2xl font-semibold text-gray-900">Task list</h1>
+                )}
+                <div className="flex items-center space-x-4 w-full md:w-auto">
+                    {loading ? (
+                        <SkeletonSearchBar />
+                    ) : (
+                        renderSearchBar('Search...', searchTerm, handleSearchChange)
+                    )}
                 </div>
             </div>
 

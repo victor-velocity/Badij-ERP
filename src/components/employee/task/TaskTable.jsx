@@ -45,7 +45,52 @@ const TasksTable = ({ tasks, searchTerm, onViewTask, onUpdateTask, loading, erro
   };
 
   if (loading) {
-    return <p className="text-center text-gray-500">Loading tasks...</p>;
+    return (
+      <div className="overflow-x-auto bg-white rounded-md shadow-sm">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Title</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned by</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start date</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due date</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            <tr className="animate-pulse">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex space-x-2">
+                  <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
+                  <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
+                  <div className="h-6 w-16 bg-gray-200 rounded"></div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
   }
 
   if (error) {

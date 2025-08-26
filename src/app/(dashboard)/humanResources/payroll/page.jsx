@@ -9,6 +9,46 @@ import { faSearch, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg
 import apiService from '@/app/lib/apiService';
 import { toast } from "react-hot-toast";
 
+// Skeleton Loading Components
+const SkeletonPayrollCard = () => (
+  <div className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)] bg-white p-4 rounded-lg shadow">
+    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+    <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+  </div>
+); 
+
+const SkeletonTableRow = () => (
+  <tr className="animate-pulse">
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-24"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-32"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-20"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-16"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-12"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-14"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-16"></div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="h-4 bg-gray-200 rounded w-16"></div>
+    </td>
+  </tr>
+);
+
 export default function PayrollPage() {
     const [currentDateTime, setCurrentDateTime] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -270,17 +310,40 @@ export default function PayrollPage() {
                     {currentDateTime}
                 </span>
             </div>
+            
+            {/* Pay period banner with skeleton */}
             <div className='mb-10 px-5 py-7 bg-[#FDEDC5] text-center rounded-xl'>
-                <p className='text-[#A09D9D] text-[16px] font-medium'>Your next payroll is</p>
-                <p className='text-black font-medium text-xl my-4'>{payPeriod}</p>
-                <p className='text-[#A09D9D] text-[16px] font-medium'>Click prepare payroll to begin running payroll for this period</p>
-                <Link href="/humanResources/payroll/prepare-payroll" className='inline-block mt-4 bg-[#b88b1b] text-white px-6 py-2 rounded-lg hover:bg-[#b88b1b]/90 transition-colors duration-300'>Prepare Payroll</Link>
+                {loading ? (
+                    <div className="animate-pulse">
+                        <div className="h-4 bg-[#f5e5b3] rounded w-1/4 mx-auto mb-4"></div>
+                        <div className="h-6 bg-[#f5e5b3] rounded w-1/3 mx-auto my-4"></div>
+                        <div className="h-4 bg-[#f5e5b3] rounded w-1/2 mx-auto mb-4"></div>
+                        <div className="h-10 bg-[#f5e5b3] rounded w-40 mx-auto"></div>
+                    </div>
+                ) : (
+                    <>
+                        <p className='text-[#A09D9D] text-[16px] font-medium'>Your next payroll is</p>
+                        <p className='text-black font-medium text-xl my-4'>{payPeriod}</p>
+                        <p className='text-[#A09D9D] text-[16px] font-medium'>Click prepare payroll to begin running payroll for this period</p>
+                        <Link href="/humanResources/payroll/prepare-payroll" className='inline-block mt-4 bg-[#b88b1b] text-white px-6 py-2 rounded-lg hover:bg-[#b88b1b]/90 transition-colors duration-300'>Prepare Payroll</Link>
+                    </>
+                )}
             </div>
+            
+            {/* Summary cards with skeleton */}
             <div className='flex flex-wrap gap-4 justify-between items-center mb-10'>
-                <PayrollCard title="Total employees" value={summaryData.totalEmployees} />
-                <PayrollCard title="Total gross(N)" value={summaryData.totalGross} />
-                <PayrollCard title="Total deductions(N)" value={summaryData.totalDeductions} />
-                <PayrollCard title="Total net(N)" value={summaryData.totalNet} />
+                {loading ? (
+                    Array.from({ length: 4 }).map((_, index) => (
+                        <SkeletonPayrollCard key={index} />
+                    ))
+                ) : (
+                    <>
+                        <PayrollCard title="Total employees" value={summaryData.totalEmployees} />
+                        <PayrollCard title="Total gross(N)" value={summaryData.totalGross} />
+                        <PayrollCard title="Total deductions(N)" value={summaryData.totalDeductions} />
+                        <PayrollCard title="Total net(N)" value={summaryData.totalNet} />
+                    </>
+                )}
             </div>
 
             <div>
@@ -293,6 +356,7 @@ export default function PayrollPage() {
                             className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b]"
                             value={searchTerm}
                             onChange={handleSearchChange}
+                            disabled={loading}
                         />
                         <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     </div>
@@ -307,7 +371,7 @@ export default function PayrollPage() {
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('name')}
+                                    onClick={() => !loading && requestSort('name')}
                                 >
                                     Name
                                     {getClassNamesFor('name') === 'ascending' && ' ↑'}
@@ -315,7 +379,7 @@ export default function PayrollPage() {
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('email')}
+                                    onClick={() => !loading && requestSort('email')}
                                 >
                                     Email
                                     {getClassNamesFor('email') === 'ascending' && ' ↑'}
@@ -323,7 +387,7 @@ export default function PayrollPage() {
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('department')}
+                                    onClick={() => !loading && requestSort('department')}
                                 >
                                     Department
                                     {getClassNamesFor('department') === 'ascending' && ' ↑'}
@@ -331,7 +395,7 @@ export default function PayrollPage() {
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('salary')}
+                                    onClick={() => !loading && requestSort('salary')}
                                 >
                                     Salary
                                     {getClassNamesFor('salary') === 'ascending' && ' ↑'}
@@ -339,7 +403,7 @@ export default function PayrollPage() {
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('bonus')}
+                                    onClick={() => !loading && requestSort('bonus')}
                                 >
                                     Bonus
                                     {getClassNamesFor('bonus') === 'ascending' && ' ↑'}
@@ -347,7 +411,7 @@ export default function PayrollPage() {
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('incentives')}
+                                    onClick={() => !loading && requestSort('incentives')}
                                 >
                                     Incentives
                                     {getClassNamesFor('incentives') === 'ascending' && ' ↑'}
@@ -355,7 +419,7 @@ export default function PayrollPage() {
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('totalDeductions')}
+                                    onClick={() => !loading && requestSort('totalDeductions')}
                                 >
                                     Deductions
                                     {getClassNamesFor('totalDeductions') === 'ascending' && ' ↑'}
@@ -363,7 +427,7 @@ export default function PayrollPage() {
                                 </th>
                                 <th
                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                                    onClick={() => requestSort('netPay')}
+                                    onClick={() => !loading && requestSort('netPay')}
                                 >
                                     Net Pay
                                     {getClassNamesFor('netPay') === 'ascending' && ' ↑'}
@@ -372,10 +436,14 @@ export default function PayrollPage() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {loading || error ? (
+                            {loading ? (
+                                Array.from({ length: itemsPerPage }).map((_, index) => (
+                                    <SkeletonTableRow key={index} />
+                                ))
+                            ) : error ? (
                                 <tr>
-                                    <td colSpan="11" className="px-6 py-4 text-center text-gray-500">
-                                        {loading ? "Loading..." : "Failed to load data."}
+                                    <td colSpan="9" className="px-6 py-4 text-center text-gray-500">
+                                        Failed to load data.
                                     </td>
                                 </tr>
                             ) : currentItems.length > 0 ? (
@@ -414,7 +482,7 @@ export default function PayrollPage() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="11" className="px-6 py-4 text-center text-gray-500">
+                                    <td colSpan="9" className="px-6 py-4 text-center text-gray-500">
                                         No matching payroll activities found.
                                     </td>
                                 </tr>
@@ -423,39 +491,41 @@ export default function PayrollPage() {
                     </table>
                 </div>
 
-                <div className="flex justify-between items-center mt-6">
-                    <button
-                        onClick={() => paginate(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <FontAwesomeIcon icon={faAngleLeft} className="mr-2" /> Previous
-                    </button>
-                    <div className="flex space-x-2">
-                        {getPaginationNumbers().map((number, index) => (
-                            <button
-                                key={index}
-                                onClick={() => typeof number === 'number' && paginate(number)}
-                                className={`px-4 py-2 text-sm font-medium rounded-lg ${currentPage === number
-                                    ? 'bg-[#b88b1b] text-white'
-                                    : typeof number === 'number'
-                                        ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                        : 'text-gray-500 cursor-default'
-                                    }`}
-                                disabled={typeof number !== 'number'}
-                            >
-                                {number}
-                            </button>
-                        ))}
+                {!loading && (
+                    <div className="flex justify-between items-center mt-6">
+                        <button
+                            onClick={() => paginate(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <FontAwesomeIcon icon={faAngleLeft} className="mr-2" /> Previous
+                        </button>
+                        <div className="flex space-x-2">
+                            {getPaginationNumbers().map((number, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => typeof number === 'number' && paginate(number)}
+                                    className={`px-4 py-2 text-sm font-medium rounded-lg ${currentPage === number
+                                        ? 'bg-[#b88b1b] text-white'
+                                        : typeof number === 'number'
+                                            ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            : 'text-gray-500 cursor-default'
+                                        }`}
+                                    disabled={typeof number !== 'number'}
+                                >
+                                    {number}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => paginate(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next <FontAwesomeIcon icon={faAngleRight} className="ml-2" />
+                        </button>
                     </div>
-                    <button
-                        onClick={() => paginate(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Next <FontAwesomeIcon icon={faAngleRight} className="ml-2" />
-                    </button>
-                </div>
+                )}
             </div>
         </div>
     );

@@ -119,7 +119,7 @@ const apiService = {
     },
 
     requestLeave: async (leaveData, router) => {
-        return callApi("/leave-requests", "POST", leaveData, router);
+        return callApi("/leave_requests", "POST", leaveData, router);
     },
 
     // Enhanced Task APIs (from Flask backend)
@@ -144,24 +144,20 @@ const apiService = {
     },
 
     // Task Document APIs
-    addTaskDocument: async (taskId, documentData, router) => {
-        return callApi(`/tasks/${taskId}/documents`, "POST", documentData, router);
-    },
-
     updateTaskDocument: async (taskId, documentId, documentData, router) => {
-        return callApi(`/tasks/${taskId}/documents/${documentId}`, "PUT", documentData, router);
+        return callApi(`/task/${taskId}/documents/${documentId}`, "PUT", documentData, router);
     },
 
     deleteTaskDocument: async (taskId, documentId, router) => {
-        return callApi(`/tasks/${taskId}/documents/${documentId}`, "DELETE", null, router);
+        return callApi(`/task/${taskId}/documents/${documentId}`, "DELETE", null, router);
     },
 
     addEmployeesToTask: async (taskId, employeeIds, router) => {
-        return callApi(`/tasks/${taskId}/assignments`, "POST", { employee_ids: employeeIds }, router);
+        return callApi(`/task/${taskId}/assignments`, "POST", { assigned_to: employeeIds }, router);
     },
 
     removeEmployeeFromTask: async (taskId, employeeId, router) => {
-        return callApi(`/tasks/${taskId}/assignments/${employeeId}`, "DELETE", null, router);
+        return callApi(`/task/${taskId}/assignments/${employeeId}`, "DELETE", null, router);
     },
 
     // shift APIs
@@ -217,7 +213,10 @@ const apiService = {
     },
 
     addEmployeeDocuments: async (employeeId, documentsArray, router) => {
-        return callApi(`/employees/${employeeId}/documents`, 'POST', documentsArray, router);
+        const payload = {
+            documents: documentsArray
+        };
+        return callApi(`/employees/${employeeId}/documents`, 'POST', payload, router);
     },
 
     updateEmployeeDocument: async (documentId, documentData, router) => {

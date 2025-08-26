@@ -29,41 +29,41 @@ const DocumentsPage = () => {
     }
   }, [router]);
 
+  const refreshDocuments = async () => {
+    setLoading(true);
+    try {
+      const allEmployees = await apiService.getEmployees(router);
+      const validEmployees = Array.isArray(allEmployees) ? allEmployees : [];
+      setEmployees(validEmployees);
+
+      const foundEmployee = validEmployees.find(emp => emp.user_id === authUserId);
+      if (foundEmployee) setCurrentEmployee(foundEmployee);
+
+      const docs = validEmployees.flatMap(employee =>
+        (employee.employee_documents || []).map(doc => ({
+          ...doc,
+          employeeName: `${employee.first_name} ${employee.last_name}`,
+          employeeId: employee.id,
+          created_by: doc.created_by || employee.id,
+          name: doc.name || 'Unnamed Document',
+          type: doc.type || 'Unknown',
+          category: doc.category || 'official documents',
+          url: doc.url || '#'
+        }))
+      );
+
+      setDocuments(docs);
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      if (!authUserId) return;
-
-      setLoading(true);
-      try {
-        const allEmployees = await apiService.getEmployees(router);
-        
-        const validEmployees = Array.isArray(allEmployees) ? allEmployees : [];
-        setEmployees(validEmployees);
-
-        const foundEmployee = validEmployees.find(emp => emp.user_id === authUserId);
-        if (foundEmployee) setCurrentEmployee(foundEmployee);
-
-        const docs = validEmployees.flatMap(employee =>
-          (employee.employee_documents || []).map(doc => ({
-            ...doc,
-            employeeName: `${employee.first_name} ${employee.last_name}`,
-            employeeId: employee.id,
-            created_by: doc.created_by || employee.id,
-            name: doc.name || 'Unnamed Document',
-            type: doc.type || 'Unknown',
-            url: doc.url || '#'
-          }))
-        );
-
-        setDocuments(docs);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    if (authUserId) {
+      refreshDocuments();
+    }
   }, [authUserId, router]);
 
   useEffect(() => {
@@ -85,41 +85,15 @@ const DocumentsPage = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const handleDocumentAdded = async () => {
-    setLoading(true);
-    try {
-      const allEmployees = await apiService.getEmployees(router);
-      const validEmployees = Array.isArray(allEmployees) ? allEmployees : [];
-      setEmployees(validEmployees);
-
-      const foundEmployee = validEmployees.find(emp => emp.user_id === authUserId);
-      if (foundEmployee) setCurrentEmployee(foundEmployee);
-
-      const docs = validEmployees.flatMap(employee =>
-        (employee.employee_documents || []).map(doc => ({
-          ...doc,
-          employeeName: `${employee.first_name} ${employee.last_name}`,
-          employeeId: employee.id,
-          created_by: doc.created_by || employee.id,
-          name: doc.name || 'Unnamed Document',
-          type: doc.type || 'Unknown',
-          url: doc.url || '#'
-        }))
-      );
-
-      setDocuments(docs);
-    } catch (error) {
-      console.error("Error refreshing data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const documentTypes = useMemo(() => [
+  const documentCategories = useMemo(() => [
     "official documents",
     "contracts",
     "certificates",
     "ids"
+  ], []);
+
+  const fileTypes = useMemo(() => [
+    "pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png", "txt"
   ], []);
 
   const filteredDocuments = useMemo(() => {
@@ -129,28 +103,33 @@ const DocumentsPage = () => {
       const matchesSearch =
         doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (doc.type && doc.type.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (doc.category && doc.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
         doc.employeeName.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesFilter = filter === 'all' || doc.type === filter;
+      const matchesFilter = filter === 'all' ||
+        doc.category === filter ||
+        doc.type === filter;
+
       return matchesSearch && matchesFilter;
     });
   }, [documents, searchTerm, filter]);
 
   const categories = useMemo(() => {
     const totalDocuments = documents.length;
-    const typeCounts = documentTypes.map(type => ({
-      name: type,
-      count: documents.filter(d => d.type === type).length
+
+    const categoryCounts = documentCategories.map(category => ({
+      name: category,
+      count: documents.filter(d => d.category === category).length
     }));
 
     return [
       { name: 'all', count: loading ? '-' : totalDocuments },
-      ...typeCounts.map(type => ({
-        name: type.name,
-        count: loading ? '-' : type.count
+      ...categoryCounts.map(category => ({
+        name: category.name,
+        count: loading ? '-' : category.count
       }))
     ];
-  }, [documents, loading, documentTypes]);
+  }, [documents, loading, documentCategories]);
 
   return (
     <div>
@@ -202,6 +181,7 @@ const DocumentsPage = () => {
           documents={filteredDocuments}
           loading={loading}
           employees={employees}
+          onDocumentUpdated={refreshDocuments}
         />
       </div>
 
@@ -211,7 +191,7 @@ const DocumentsPage = () => {
           onClose={() => setIsUploadModalOpen(false)}
           employees={employees}
           currentEmployeeId={currentEmployee.id}
-          onDocumentAdded={handleDocumentAdded}
+          onDocumentAdded={refreshDocuments}
         />
       )}
     </div>

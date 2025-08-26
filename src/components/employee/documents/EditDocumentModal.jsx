@@ -17,14 +17,28 @@ const EditDocumentModal = ({
     const supabase = createClient();
     const [formData, setFormData] = useState({
         name: document?.name || '',
-        type: document?.type || '',
+        type: document?.type || '', // File type/extension (pdf, docx, png, etc.)
+        category: document?.category || 'official documents', // Document category/purpose
         file: null
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const documentTypes = [
+    // File types/extensions
+    const fileTypes = [
+        "pdf",
+        "doc",
+        "docx",
+        "xls",
+        "xlsx",
+        "jpg",
+        "jpeg",
+        "png",
+        "txt"
+    ];
+
+    // Document categories/purposes
+    const documentCategories = [
         "official documents",
-        "payslips",
         "contracts",
         "certificates",
         "ids"
@@ -36,7 +50,18 @@ const EditDocumentModal = ({
     };
 
     const handleFileChange = (e) => {
-        setFormData(prev => ({ ...prev, file: e.target.files[0] }));
+        const file = e.target.files[0];
+        if (file) {
+            // Auto-detect file type from extension when a new file is selected
+            const extension = file.name.split('.').pop().toLowerCase();
+            const detectedType = fileTypes.includes(extension) ? extension : '';
+            
+            setFormData(prev => ({ 
+                ...prev, 
+                file: file,
+                type: detectedType || prev.type // Keep existing type if detection fails
+            }));
+        }
     };
 
     const uploadFileToSupabase = async (file, bucketName, folderPath) => {
@@ -79,7 +104,8 @@ const EditDocumentModal = ({
 
             const payload = {
                 name: formData.name,
-                type: formData.type,
+                type: formData.type, // File extension/type
+                category: formData.category, // Document category
                 ...(formData.file && { url: documentUrl })
             };
 
@@ -110,7 +136,7 @@ const EditDocumentModal = ({
                     <button
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="text-gray-500 hover:text-gray-700"
+                        className="text-gray-500 hover:text-gray-700 disabled:opacity-50"
                     >
                         <FontAwesomeIcon icon={faTimes} />
                     </button>
@@ -124,7 +150,7 @@ const EditDocumentModal = ({
                         <input
                             type="text"
                             name="name"
-                            className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-0 focus:outline-none"
+                            className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-0 focus:outline-none disabled:opacity-50"
                             value={formData.name}
                             onChange={handleChange}
                             required
@@ -132,56 +158,88 @@ const EditDocumentModal = ({
                         />
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 text-gray-700">
-                            Document Type
-                        </label>
-                        <select
-                            name="type"
-                            className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-0 focus:outline-none"
-                            value={formData.type}
-                            onChange={handleChange}
-                            required
-                            disabled={isSubmitting}
-                        >
-                            <option value="">Select Type</option>
-                            {documentTypes.map(type => (
-                                <option key={type} value={type}>
-                                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">
+                                File Type
+                            </label>
+                            <select
+                                name="type"
+                                className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-0 focus:outline-none disabled:opacity-50"
+                                value={formData.type}
+                                onChange={handleChange}
+                                required
+                                disabled={isSubmitting}
+                            >
+                                <option value="">Select File Type</option>
+                                {fileTypes.map(type => (
+                                    <option key={type} value={type}>
+                                        {type.toUpperCase()}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700">
+                                Category
+                            </label>
+                            <select
+                                name="category"
+                                className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-0 focus:outline-none disabled:opacity-50"
+                                value={formData.category}
+                                onChange={handleChange}
+                                required
+                                disabled={isSubmitting}
+                            >
+                                {documentCategories.map(category => (
+                                    <option key={category} value={category}>
+                                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="mb-4">
                         <label className="block text-sm font-medium mb-1 text-gray-700">
                             Current File
                         </label>
-                        <input
-                            type="text"
-                            className="w-full p-2 border rounded border-gray-400 bg-gray-100 mb-2"
-                            value={document?.url?.split('/').pop() || 'N/A'}
-                            readOnly
-                        />
+                        <div className="w-full p-2 border rounded border-gray-400 bg-gray-100 mb-2">
+                            <p className="text-sm truncate">
+                                {document?.url?.split('/').pop() || 'N/A'}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                                Type: {document?.type?.toUpperCase() || 'N/A'}
+                            </p>
+                        </div>
+                        
                         <label className="block text-sm font-medium mb-1 text-gray-700">
                             Replace File (optional)
                         </label>
                         <input
                             type="file"
                             className="w-full p-2 file:mr-4 file:py-2 file:px-4
-                file:rounded file:border-0
-                file:text-sm file:font-semibold
-                file:bg-[#b88b1b] file:text-white
-                hover:file:bg-[#8d6b14]"
+                                file:rounded file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-[#b88b1b] file:text-white
+                                hover:file:bg-[#8d6b14] disabled:opacity-50"
                             onChange={handleFileChange}
                             disabled={isSubmitting}
+                            accept={fileTypes.map(type => `.${type}`).join(',')}
                         />
+                        {formData.file && (
+                            <p className="text-xs text-gray-500 mt-1">
+                                Selected: {formData.file.name} 
+                                {formData.type && ` (${formData.type.toUpperCase()})`}
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex justify-end gap-2">
                         <button
                             type="button"
-                            className="px-4 py-2 border rounded border-gray-400 hover:bg-gray-100 transition-colors"
+                            className="px-4 py-2 border rounded border-gray-400 hover:bg-gray-100 transition-colors disabled:opacity-50"
                             onClick={onClose}
                             disabled={isSubmitting}
                         >
@@ -189,14 +247,14 @@ const EditDocumentModal = ({
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-[#b88b1b] text-white rounded hover:bg-[#8d6b14] transition-colors"
+                            className="px-4 py-2 bg-[#b88b1b] text-white rounded hover:bg-[#8d6b14] transition-colors disabled:opacity-50 flex items-center justify-center"
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? (
-                                <span className="flex items-center justify-center">
+                                <>
                                     <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />
                                     Saving...
-                                </span>
+                                </>
                             ) : 'Save Changes'}
                         </button>
                     </div>

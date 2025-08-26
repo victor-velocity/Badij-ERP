@@ -138,27 +138,7 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
         setIsSubmitting(true);
 
         try {
-            const taskData = {
-                title: formData.title,
-                description: formData.description,
-                start_date: formData.start_date,
-                end_date: formData.end_date,
-                priority: formData.priority,
-                status: 'Pending'
-            };
-
-            const taskResponse = await apiService.createTask(taskData, router);
-
-            if (!taskResponse || !taskResponse.task.id) {
-                throw new Error("Failed to create task: Invalid response from server");
-            }
-
-            const taskId = taskResponse.task.id;
-
-            if (selectedEmployees.length > 0) {
-                const employeeIds = selectedEmployees.map(employee => employee.id);
-                await apiService.addEmployeesToTask(taskId, employeeIds, router);
-            }
+            const documentObjects = [];
 
             if (formData.documents.length > 0) {
                 await Promise.all(
@@ -174,23 +154,36 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                             .from('taskattachments')
                             .getPublicUrl(filePath);
 
-                        const documentData = {
+                        // Create document object with all required fields
+                        documentObjects.push({
                             name: doc.name,
-                            url: publicUrl,
                             type: doc.type,
-                            category: doc.category || 'assignment',
-                            task_id: taskId
-                        };
-
-                        await apiService.addTaskDocument(taskId, documentData, router);
+                            category: doc.category,
+                            url: publicUrl
+                        });
                     })
                 );
             }
 
+            const employeeIds = selectedEmployees.map(employee => employee.id);
+
+            const taskData = {
+                title: formData.title,
+                description: formData.description,
+                start_date: formData.start_date,
+                end_date: formData.end_date,
+                priority: formData.priority,
+                status: 'Pending',
+                assigned_to: employeeIds,
+                documents: documentObjects // Send array of document objects instead of just URLs
+            };
+
+            const taskResponse = await apiService.createTask(taskData, router);
+
             toast.success("Task created successfully!");
             onClose();
             resetForm();
-            if (onAddTask) onAddTask();
+            if (onAddTask) onAddTask(taskResponse);
 
         } catch (error) {
             console.error("Task creation failed:", error);

@@ -121,20 +121,14 @@ export default function MyProfile() {
                     <h2 className="text-2xl font-semibold text-gray-800 text-center md:text-left">{employee.first_name} {employee.last_name}</h2>
                     <p className="text-md text-gray-600">{employee.position || 'N/A'}</p>
                 </div>
-
-                <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:flex-grow mt-6 md:mt-0">
-                    <ProfileField label="Email" value={employee.email} />
-                    <ProfileField label="Phone Number" value={employee.phone_number || 'N/A'} />
-                    <ProfileField label="Date of Birth" value={employee.date_of_birth || 'N/A'} />
-                </div>
             </div>
 
             <div className="mt-8">
                 <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap -mb-px">
                     <button
                         className={`py-3 px-6 text-lg font-medium transition-colors duration-300 ${activeTab === 'personal'
-                                ? 'border-b-2 border-yellow-500 text-yellow-600'
-                                : 'text-gray-600 hover:text-gray-800'
+                            ? 'border-b-2 border-yellow-500 text-yellow-600'
+                            : 'text-gray-600 hover:text-gray-800'
                             }`}
                         onClick={() => setActiveTab('personal')}
                     >
@@ -142,8 +136,8 @@ export default function MyProfile() {
                     </button>
                     <button
                         className={`py-3 px-6 text-lg font-medium transition-colors duration-300 ${activeTab === 'contact'
-                                ? 'border-b-2 border-yellow-500 text-yellow-600'
-                                : 'text-gray-600 hover:text-gray-800'
+                            ? 'border-b-2 border-yellow-500 text-yellow-600'
+                            : 'text-gray-600 hover:text-gray-800'
                             }`}
                         onClick={() => setActiveTab('contact')}
                     >
@@ -151,8 +145,8 @@ export default function MyProfile() {
                     </button>
                     <button
                         className={`py-3 px-6 text-lg font-medium transition-colors duration-300 ${activeTab === 'employment'
-                                ? 'border-b-2 border-yellow-500 text-yellow-600'
-                                : 'text-gray-600 hover:text-gray-800'
+                            ? 'border-b-2 border-yellow-500 text-yellow-600'
+                            : 'text-gray-600 hover:text-gray-800'
                             }`}
                         onClick={() => setActiveTab('employment')}
                     >
@@ -160,8 +154,8 @@ export default function MyProfile() {
                     </button>
                     <button
                         className={`py-3 px-6 text-lg font-medium transition-colors duration-300 ${activeTab === 'guarantor'
-                                ? 'border-b-2 border-yellow-500 text-yellow-600'
-                                : 'text-gray-600 hover:text-gray-800'
+                            ? 'border-b-2 border-yellow-500 text-yellow-600'
+                            : 'text-gray-600 hover:text-gray-800'
                             }`}
                         onClick={() => setActiveTab('guarantor')}
                     >
@@ -173,10 +167,11 @@ export default function MyProfile() {
                     <div key={activeTab} className="transition-opacity duration-300 ease-in-out opacity-100">
                         {activeTab === 'personal' && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                                <ProfileField label="Employee ID" value={employee.id} />
                                 <ProfileField label="Gender" value={employee.gender || 'N/A'} />
                                 <ProfileField label="Marital Status" value={employee.marital_status || 'N/A'} />
-                                <ProfileField label="User ID (Auth)" value={employee.user_id} />
+                                <ProfileField label="Email" value={employee.email} />
+                                <ProfileField label="Phone Number" value={employee.phone_number || 'N/A'} />
+                                <ProfileField label="Date of Birth" value={employee.date_of_birth || 'N/A'} />
                             </div>
                         )}
 
