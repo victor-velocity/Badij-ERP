@@ -312,7 +312,7 @@ const AddDocumentModal = ({
                 Employee
               </label>
               <div 
-                className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-0 focus:outline-none cursor-pointer"
+                className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:outline-none cursor-pointer"
                 onClick={() => setShowDropdown(!showDropdown)}
               >
                 {formData.targetEmployeeId 
@@ -393,7 +393,7 @@ const AddDocumentModal = ({
                   </label>
                   <input
                     type="text"
-                    className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-0 focus:outline-none disabled:opacity-50"
+                    className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:outline-none disabled:opacity-50"
                     value={doc.name}
                     onChange={(e) => handleDocumentChange(index, 'name', e.target.value)}
                     required
@@ -408,7 +408,7 @@ const AddDocumentModal = ({
                       File Type
                     </label>
                     <select
-                      className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-0 focus:outline-none disabled:opacity-50"
+                      className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:outline-none disabled:opacity-50"
                       value={doc.type}
                       onChange={(e) => handleDocumentChange(index, 'type', e.target.value)}
                       required
@@ -433,7 +433,7 @@ const AddDocumentModal = ({
                       Category
                     </label>
                     <select
-                      className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-0 focus:outline-none disabled:opacity-50"
+                      className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:outline-none disabled:opacity-50"
                       value={doc.category}
                       onChange={(e) => handleDocumentChange(index, 'category', e.target.value)}
                       required
