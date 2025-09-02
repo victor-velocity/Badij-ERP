@@ -145,19 +145,19 @@ const apiService = {
 
     // Task Document APIs
     updateTaskDocument: async (taskId, documentId, documentData, router) => {
-        return callApi(`/task/${taskId}/documents/${documentId}`, "PUT", documentData, router);
+        return callApi(`/tasks/${taskId}/documents/${documentId}`, "PUT", documentData, router);
     },
 
     deleteTaskDocument: async (taskId, documentId, router) => {
-        return callApi(`/task/${taskId}/documents/${documentId}`, "DELETE", null, router);
+        return callApi(`/tasks/${taskId}/documents/${documentId}`, "DELETE", null, router);
     },
 
-    addEmployeesToTask: async (taskId, employeeIds, router) => {
-        return callApi(`/task/${taskId}/assignments`, "POST", { assigned_to: employeeIds }, router);
+    addEmployeesToTask: async (taskId, employeeId, router) => {
+        return callApi(`/tasks/${taskId}/assignments`, "POST", { assigned_to: employeeId }, router);
     },
 
     removeEmployeeFromTask: async (taskId, employeeId, router) => {
-        return callApi(`/task/${taskId}/assignments/${employeeId}`, "DELETE", null, router);
+        return callApi(`/tasks/${taskId}/assignments/${employeeId}`, "DELETE", null, router);
     },
 
     // shift APIs

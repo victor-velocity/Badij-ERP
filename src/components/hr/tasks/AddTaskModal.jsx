@@ -153,8 +153,6 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                         const { data: { publicUrl } } = supabase.storage
                             .from('taskattachments')
                             .getPublicUrl(filePath);
-
-                        // Create document object with all required fields
                         documentObjects.push({
                             name: doc.name,
                             type: doc.type,
