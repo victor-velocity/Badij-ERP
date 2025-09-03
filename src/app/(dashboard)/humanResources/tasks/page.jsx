@@ -154,17 +154,6 @@ export default function TaskPage() {
         toast.success("Task created successfully!");
     };
 
-    const handleUpdateTask = async (updatedTask) => {
-        try {
-            await apiService.updateTask(updatedTask.id, updatedTask, router);
-            setRefreshKey(prev => prev + 1);
-            toast.success("Task updated successfully!");
-        } catch (err) {
-            console.error("Failed to update task:", err);
-            toast.error("Failed to update task. Try again");
-        }
-    };
-
     const handleDeleteTask = async (taskId) => {
         try {
             await apiService.deleteTask(taskId, router);
@@ -265,7 +254,6 @@ export default function TaskPage() {
                 tasks={filteredTasks}
                 searchTerm={searchTerm}
                 onViewTask={handleViewTask}
-                onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
                 loading={loading}
                 error={error}
@@ -282,7 +270,6 @@ export default function TaskPage() {
                     isOpen={isViewModalOpen}
                     onClose={handleCloseViewModal}
                     task={selectedTask}
-                    onUpdateTask={handleUpdateTask}
                     onDeleteTask={handleDeleteTask}
                 />
             )}

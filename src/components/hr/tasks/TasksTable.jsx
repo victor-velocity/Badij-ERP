@@ -208,16 +208,6 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask
     setShowUpdateModal(true);
   };
 
-  const handleSaveUpdatedTask = async (updatedTask) => {
-    try {
-      await onUpdateTask(updatedTask);
-      setShowUpdateModal(false);
-      setTaskToUpdate(null);
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-  };
-
   const handleCancelUpdate = () => {
     setShowUpdateModal(false);
     setTaskToUpdate(null);
@@ -373,7 +363,6 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask
       <UpdateTaskModal
         show={showUpdateModal}
         task={taskToUpdate}
-        onSave={handleSaveUpdatedTask}
         onCancel={handleCancelUpdate}
       />
     </div>

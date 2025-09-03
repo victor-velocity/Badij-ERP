@@ -1,50 +1,33 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+// import ViewTaskModal from './ViewTaskModal';
 
 const TasksTable = ({ tasks, searchTerm, onViewTask, onUpdateTask, loading, error }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
-  // Safe filtering function to handle undefined/null values
-  const filteredTasks = (tasks ?? []).filter(task => {
-    if (!task) return false;
-
-    const searchLower = searchTerm.toLowerCase();
-    const title = task.title?.toLowerCase() || '';
-    const firstName = task.assigned_to?.first_name?.toLowerCase() || '';
-    const lastName = task.assigned_to?.last_name?.toLowerCase() || '';
-    const status = task.status?.toLowerCase() || '';
-
-    return (
-      title.includes(searchLower) ||
-      firstName.includes(searchLower) ||
-      lastName.includes(searchLower) ||
-      status.includes(searchLower)
-    );
-  });
+  const filteredTasks = (tasks ?? []).filter(task =>
+    task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.assigned_to?.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.assigned_to?.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.status.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    } catch (error) {
-      return 'Invalid Date';
-    }
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const getStatusColor = (status, isOverdue) => {
-    if (!status) return 'text-gray-500 bg-gray-100';
     if (isOverdue) return 'text-red-500 bg-red-100';
-
-    switch (status.toLowerCase()) {
-      case 'completed':
+    switch (status) {
+      case 'Completed':
         return 'text-green-500 bg-green-100';
-      case 'in progress':
-      case 'in-progress':
+      case 'In Progress':
         return 'text-yellow-500 bg-yellow-100';
-      case 'pending':
+      case 'Pending':
         return 'text-blue-500 bg-blue-100';
       default:
         return 'text-gray-500 bg-gray-100';
@@ -133,10 +116,8 @@ const TasksTable = ({ tasks, searchTerm, onViewTask, onUpdateTask, loading, erro
             {filteredTasks.length > 0 ? (
               filteredTasks.map((task) => (
                 <tr key={task.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.title || 'N/A'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {task.created_by?.first_name || 'N/A'} {task.created_by?.last_name || ''}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.title}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.created_by?.first_name || 'N/A'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(task.start_date)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(task.end_date)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -146,12 +127,12 @@ const TasksTable = ({ tasks, searchTerm, onViewTask, onUpdateTask, loading, erro
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(task.status, task.isOverdue)}`}>
-                      {task.isOverdue ? 'Overdue' : task.status || 'N/A'}
+                      {task.isOverdue ? 'Overdue' : task.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
-                      <button onClick={() => onViewTask(task.id)} className="text-gray-500 hover:text-indigo-900">
+                      <button onClick={() => onViewTask(task)} className="text-gray-500 hover:text-indigo-900">
                         <FontAwesomeIcon icon={faEye} />
                       </button>
                       <button onClick={() => handleEditClick(task)} className="text-gray-500 hover:text-indigo-900">
@@ -180,7 +161,7 @@ const TasksTable = ({ tasks, searchTerm, onViewTask, onUpdateTask, loading, erro
         </table>
       </div>
 
-      {/* Edit Task Modal would go here */}
+      {/* Edit Task Modal */}
       {isEditModalOpen && (
         <EditTaskModal
           isOpen={isEditModalOpen}

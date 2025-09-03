@@ -84,9 +84,9 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
     useEffect(() => {
         const lowercasedSearchTerm = employeeSearchTerm.toLowerCase();
         const filtered = allEmployees.filter(emp =>
-            (emp.first_name?.toLowerCase().includes(lowercasedSearchTerm) ||
-                emp.last_name?.toLowerCase().includes(lowercasedSearchTerm) ||
-                emp.email?.toLowerCase().includes(lowercasedSearchTerm))
+        (emp.first_name?.toLowerCase().includes(lowercasedSearchTerm) ||
+            emp.last_name?.toLowerCase().includes(lowercasedSearchTerm) ||
+            emp.email?.toLowerCase().includes(lowercasedSearchTerm))
         );
         setFilteredEmployees(filtered);
     }, [employeeSearchTerm, allEmployees]);
@@ -194,74 +194,95 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
         setIsSaving(true);
 
         try {
-            // Update basic task info
+            // Validate form data
             if (activeSection === 'basic') {
-                const updatedTaskPayload = {
+                if (!formData.title || !formData.description) {
+                    throw new Error("Title and description are required");
+                }
+                if (formData.start_date && formData.end_date && new Date(formData.start_date) > new Date(formData.end_date)) {
+                    throw new Error("Start date cannot be after end date");
+                }
+            }
+
+            // Prepare the consolidated update payload
+            const updatedTaskPayload = {
+                ...(activeSection === 'basic' && {
                     title: formData.title,
                     description: formData.description,
                     start_date: formData.start_date,
                     end_date: formData.end_date,
                     priority: formData.priority,
-                };
+                }),
+                ...(activeSection === 'documents' && newDocuments.length > 0 && {
+                    task_documents: [
+                        ...(task.task_documents || []),
+                        ...(await Promise.all(
+                            newDocuments.map(async (doc) => {
+                                const filePath = `task_documents/${Date.now()}_${doc.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                                const { error: uploadError } = await supabase.storage
+                                    .from('taskattachments')
+                                    .upload(filePath, doc.file);
+                                if (uploadError) throw uploadError;
 
+                                const { data: { publicUrl } } = supabase.storage
+                                    .from('taskattachments')
+                                    .getPublicUrl(filePath);
+
+                                return {
+                                    name: doc.name,
+                                    type: doc.type,
+                                    category: doc.category,
+                                    url: publicUrl,
+                                };
+                            })
+                        )),
+                    ],
+                }),
+            };
+
+            // Update task with basic info and/or documents
+            if (activeSection === 'basic' || (activeSection === 'documents' && newDocuments.length > 0)) {
                 await apiService.updateTask(task.id, updatedTaskPayload, router);
-                toast.success("Task updated successfully!");
             }
 
-            // Handle employee assignment
+            // Handle employee assignments
             if (activeSection === 'employees') {
                 // Remove employees
-                for (const employeeId of employeesToRemove) {
-                    await apiService.removeEmployeeFromTask(task.id, employeeId, router);
-                }
+                await Promise.all(
+                    employeesToRemove.map(employeeId =>
+                        apiService.removeEmployeeFromTask(task.id, employeeId, router)
+                    )
+                );
 
                 // Add new employees
-                for (const employee of employeesToAdd) {
-                    await apiService.addEmployeeToTask(task.id, employee.id, router);
-                }
-
-                if (employeesToAdd.length > 0 || employeesToRemove.length > 0) {
-                    toast.success("Employee assignments updated successfully!");
-                }
+                await Promise.all(
+                    employeesToAdd.map(employee =>
+                        apiService.addEmployeeToTask(task.id, employee.id, router)
+                    )
+                );
             }
 
-            // Handle document uploads
-            if (activeSection === 'documents' && newDocuments.length > 0) {
-                const documentObjects = [];
+            // Show a single success toast based on the active section
+            toast.success(
+                activeSection === 'basic'
+                    ? "Task details updated successfully!"
+                    : activeSection === 'employees'
+                        ? "Employee assignments updated successfully!"
+                        : "Documents added successfully!"
+            );
 
-                for (const doc of newDocuments) {
-                    const filePath = `task_documents/${Date.now()}_${doc.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-
-                    const { error: uploadError } = await supabase.storage
-                        .from('taskattachments')
-                        .upload(filePath, doc.file);
-                    if (uploadError) throw uploadError;
-
-                    const { data: { publicUrl } } = supabase.storage
-                        .from('taskattachments')
-                        .getPublicUrl(filePath);
-
-                    documentObjects.push({
-                        name: doc.name,
-                        type: doc.type,
-                        category: doc.category,
-                        url: publicUrl
-                    });
-                }
-
-                // Update task with new documents
-                const currentDocuments = task.task_documents || [];
-                const updatedDocuments = [...currentDocuments, ...documentObjects];
-
-                await apiService.updateTask(task.id, { task_documents: updatedDocuments }, router);
-                toast.success("Documents added successfully!");
-            }
-
-            onSave(); // Refresh parent component
+            // Clean up and refresh
+            newDocuments.forEach(doc => {
+                if (doc.preview) URL.revokeObjectURL(doc.preview);
+            });
+            setNewDocuments([]);
+            setEmployeesToAdd([]);
+            setEmployeesToRemove([]);
             onCancel();
         } catch (error) {
             console.error("Error updating task:", error);
-            toast.error("Failed to update task. Try again");
+            toast.error(error.message || "Failed to update task. Please try again.");
+        } finally {
             setIsSaving(false);
         }
     };
@@ -365,13 +386,12 @@ const UpdateTaskModal = ({ show, task, onSave, onCancel }) => {
                             filteredEmployees.map(employee => {
                                 const isAssigned = assignedEmployees.some(emp => emp.id === employee.id);
                                 const isPendingAddition = employeesToAdd.some(item => item.id === employee.id);
-                                
+
                                 return (
                                     <li
                                         key={employee.id}
-                                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                                            isAssigned || isPendingAddition ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-100'
-                                        }`}
+                                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${isAssigned || isPendingAddition ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-100'
+                                            }`}
                                         onClick={() => !isAssigned && !isPendingAddition && handleEmployeeSelect(employee)}
                                     >
                                         {employee.first_name} {employee.last_name} ({employee.email})
