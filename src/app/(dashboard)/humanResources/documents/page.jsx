@@ -92,9 +92,6 @@ const DocumentsPage = () => {
     "ids"
   ], []);
 
-  const fileTypes = useMemo(() => [
-    "pdf", "doc", "docx", "xls", "xlsx", "jpg", "jpeg", "png", "txt"
-  ], []);
 
   const filteredDocuments = useMemo(() => {
     if (!documents.length) return [];

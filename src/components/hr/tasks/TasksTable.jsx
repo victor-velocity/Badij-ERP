@@ -7,7 +7,7 @@ import { faChevronLeft, faChevronRight, faEye, faEdit, faTrashAlt, faCircleCheck
 import DeleteConfirmationModal from './DeleteTaskModal';
 import UpdateTaskModal from './UpdateTaskModal';
 
-const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onUpdateTask, onDeleteTask }) => {
+const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onDeleteTask }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
   const [showDeleteModal, setShowDeleteModal] = useState(false);

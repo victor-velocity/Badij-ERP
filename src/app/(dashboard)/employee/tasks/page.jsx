@@ -30,7 +30,6 @@ export default function TaskPage() {
     const [greeting, setGreeting] = useState('');
     const [allTasks, setAllTasks] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [_isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
