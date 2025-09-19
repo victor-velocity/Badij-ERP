@@ -193,13 +193,21 @@ const AddDocumentModal = ({
   };
 
   const validateDocuments = () => {
+    const typeCounts = {};
     for (const doc of documents) {
       if (!doc.name || !doc.type || !doc.category || !doc.file) {
         throw new Error("Please fill in all fields for each document");
       }
       
+      // Check for duplicate types in this upload
+      const lowerType = doc.type.toLowerCase();
+      if (typeCounts[lowerType]) {
+        throw new Error(`Duplicate file type "${doc.type}" in this upload. Each document must have a unique file type.`);
+      }
+      typeCounts[lowerType] = true;
+      
       // Validate file type is supported
-      if (!fileTypes.includes(doc.type.toLowerCase())) {
+      if (!fileTypes.includes(lowerType)) {
         throw new Error(`File type "${doc.type}" is not supported. Supported types: ${fileTypes.join(', ')}`);
       }
     }
@@ -251,7 +259,11 @@ const AddDocumentModal = ({
       
     } catch (error) {
       console.error("Upload failed:", error);
-      toast.error(error.message || "Document upload failed");
+      if (error.message && error.message.includes('duplicate key value violates unique constraint')) {
+        toast.error('A document with this file type already exists for the selected employee. Please choose a different type or update the existing document.');
+      } else {
+        toast.error(error.message || "Document upload failed");
+      }
     } finally {
       setIsSubmitting(false);
     }

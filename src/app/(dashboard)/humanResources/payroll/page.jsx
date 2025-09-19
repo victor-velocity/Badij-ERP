@@ -11,42 +11,42 @@ import { toast } from "react-hot-toast";
 
 // Skeleton Loading Components
 const SkeletonPayrollCard = () => (
-  <div className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)] bg-white p-4 rounded-lg shadow">
-    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-    <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-  </div>
-); 
+    <div className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)] bg-white p-4 rounded-lg shadow">
+        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+        <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+    </div>
+);
 
 const SkeletonTableRow = () => (
-  <tr className="animate-pulse">
-    <td className="px-6 py-4 whitespace-nowrap">
-      <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
-    </td>
-    <td className="px-6 py-4 whitespace-nowrap">
-      <div className="h-4 bg-gray-200 rounded w-24"></div>
-    </td>
-    <td className="px-6 py-4 whitespace-nowrap">
-      <div className="h-4 bg-gray-200 rounded w-32"></div>
-    </td>
-    <td className="px-6 py-4 whitespace-nowrap">
-      <div className="h-4 bg-gray-200 rounded w-20"></div>
-    </td>
-    <td className="px-6 py-4 whitespace-nowrap">
-      <div className="h-4 bg-gray-200 rounded w-16"></div>
-    </td>
-    <td className="px-6 py-4 whitespace-nowrap">
-      <div className="h-4 bg-gray-200 rounded w-12"></div>
-    </td>
-    <td className="px-6 py-4 whitespace-nowrap">
-      <div className="h-4 bg-gray-200 rounded w-14"></div>
-    </td>
-    <td className="px-6 py-4 whitespace-nowrap">
-      <div className="h-4 bg-gray-200 rounded w-16"></div>
-    </td>
-    <td className="px-6 py-4 whitespace-nowrap">
-      <div className="h-4 bg-gray-200 rounded w-16"></div>
-    </td>
-  </tr>
+    <tr className="animate-pulse">
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-gray-200 rounded w-24"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-gray-200 rounded w-32"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-gray-200 rounded w-20"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-gray-200 rounded w-16"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-gray-200 rounded w-12"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-gray-200 rounded w-14"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-gray-200 rounded w-16"></div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="h-4 bg-gray-200 rounded w-16"></div>
+        </td>
+    </tr>
 );
 
 export default function PayrollPage() {
@@ -77,7 +77,7 @@ export default function PayrollPage() {
     const calculatePayPeriod = () => {
         const now = new Date();
         const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-        
+
         const startDay = 28;
         const endDay = 3;
 
@@ -91,7 +91,7 @@ export default function PayrollPage() {
             startDate = new Date(now.getFullYear(), now.getMonth(), startDay);
             endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), endDay);
         }
-        
+
         const options = { month: 'short', day: 'numeric', year: 'numeric' };
         const formattedStartDate = startDate.toLocaleDateString('en-US', options);
         const formattedEndDate = endDate.toLocaleDateString('en-US', options);
@@ -112,22 +112,31 @@ export default function PayrollPage() {
                 let totalDeductionsSum = 0;
 
                 const transformedData = data.map((item) => {
-                    const firstName = item.employee_details?.first_name || '';
-                    const lastName = item.employee_details?.last_name || '';
+                    // Fixed: Use the correct key from API
+                    const employeeDetails = item['month-yearemployee_details'] || {};
+                    const firstName = employeeDetails.first_name || '';
+                    const lastName = employeeDetails.last_name || '';
+                    const email = employeeDetails.email || '';
+                    const department = employeeDetails.department || 'N/A';
+                    const avatarUrl = employeeDetails.avatar_url || '';
 
-                    const baseSalary = item.salary?.base_salary || 0;
-                    const bonus = item.salary?.bonus || 0;
-                    const incentives = item.salary?.incentives || 0;
+                    const salaryData = item.salary || {};
+                    const baseSalary = salaryData.base_salary || 0;
+                    const bonus = salaryData.bonus || 0;
+                    const incentives = salaryData.incentives || 0;
 
                     let totalDeductionAmount = 0;
-                    if (item.deductions?.deductions_details && Array.isArray(item.deductions.deductions_details)) {
-                        totalDeductionAmount = item.deductions.deductions_details.reduce((sum, detail) => {
+                    const deductions = item.deductions || {};
+                    // Fixed: Check both possible detail keys for robustness
+                    const detailsKey = deductions.deductions_details ? 'deductions_details' : 'deduction_details';
+                    if (deductions[detailsKey] && Array.isArray(deductions[detailsKey])) {
+                        totalDeductionAmount = deductions[detailsKey].reduce((sum, detail) => {
                             const instances = detail.instances || 0;
-                            const fee = detail.default_fee || 0;
+                            const fee = detail.default_fee || 0; 
                             return sum + (fee * instances);
                         }, 0);
                     }
-                    totalDeductionAmount -= (item.deductions?.total_pardoned_fee || 0);
+                    totalDeductionAmount -= (deductions.total_pardoned_fee || 0);
                     totalDeductionAmount = Math.max(0, totalDeductionAmount);
 
                     const grossPay = baseSalary + bonus + incentives;
@@ -139,16 +148,16 @@ export default function PayrollPage() {
                     totalDeductionsSum += totalDeductionAmount;
 
                     return {
-                        id: item.employee_details?.id,
-                        name: `${firstName} ${lastName}`,
-                        email: item.employee_details?.email,
-                        department: item.employee_details?.department || 'N/A',
+                        id: employeeDetails.id || `temp-${Math.random()}`,
+                        name: `${firstName} ${lastName}`.trim() || 'Unknown Employee',
+                        email: email,
+                        department: department,
                         salary: baseSalary,
                         bonus: bonus,
                         incentives: incentives,
                         totalDeductions: totalDeductionAmount,
                         netPay: netPay,
-                        avatar: item.employee_details?.avatar_url || generateAvatar(firstName, lastName),
+                        avatar: avatarUrl || generateAvatar(firstName, lastName),
                     };
                 });
 
@@ -169,7 +178,6 @@ export default function PayrollPage() {
                 setLoading(false);
             }
         };
-
         fetchEmployeePayments();
     }, []);
 
@@ -194,14 +202,14 @@ export default function PayrollPage() {
 
         return () => clearInterval(intervalId);
     }, []);
-    
+
     // New useEffect hook to calculate the pay period on component mount and update monthly
     useEffect(() => {
         calculatePayPeriod();
-        
+
         const now = new Date();
         const msUntilNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1) - now;
-        
+
         const intervalId = setInterval(() => {
             calculatePayPeriod();
         }, msUntilNextMonth);
@@ -310,7 +318,7 @@ export default function PayrollPage() {
                     {currentDateTime}
                 </span>
             </div>
-            
+
             {/* Pay period banner with skeleton */}
             <div className='mb-10 px-5 py-7 bg-[#FDEDC5] text-center rounded-xl'>
                 {loading ? (
@@ -329,12 +337,12 @@ export default function PayrollPage() {
                     </>
                 )}
             </div>
-            
+
             {/* Summary cards with skeleton */}
             <div className='flex flex-wrap gap-4 justify-between items-center mb-10'>
                 {loading ? (
                     Array.from({ length: 4 }).map((_, index) => (
-                        <SkeletonPayrollCard key={index} />
+                        <SkeletonPayrollCard key={`skeleton-card-${index}`} />
                     ))
                 ) : (
                     <>
@@ -438,7 +446,7 @@ export default function PayrollPage() {
                         <tbody className="bg-white divide-y divide-gray-200">
                             {loading ? (
                                 Array.from({ length: itemsPerPage }).map((_, index) => (
-                                    <SkeletonTableRow key={index} />
+                                    <SkeletonTableRow key={`skeleton-row-${index}`} />
                                 ))
                             ) : error ? (
                                 <tr>
@@ -503,7 +511,7 @@ export default function PayrollPage() {
                         <div className="flex space-x-2">
                             {getPaginationNumbers().map((number, index) => (
                                 <button
-                                    key={index}
+                                    key={`page-${number}-${index}`}
                                     onClick={() => typeof number === 'number' && paginate(number)}
                                     className={`px-4 py-2 text-sm font-medium rounded-lg ${currentPage === number
                                         ? 'bg-[#b88b1b] text-white'

@@ -181,7 +181,9 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
             await apiService.deleteTaskDocument(task.id, documentId, router);
             toast.success("Document removed successfully!");
             // Refresh the page after successful removal
-            window.location.reload();
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
         } catch (error) {
             console.error("Error removing document:", error);
             toast.error("Failed to remove document.");
@@ -286,7 +288,9 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
             setEmployeesToRemove([]);
             
             // Refresh the page after successful update
-            window.location.reload();
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
         } catch (error) {
             console.error("Error updating task:", error);
             toast.error(error.message || "Failed to update task. Please try again.");
