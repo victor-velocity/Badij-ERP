@@ -3,7 +3,18 @@
 import React, { useEffect } from "react";
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes, faThLarge, faPlaneDeparture, faCheckSquare, faClipboardList, faMoneyBillAlt, faEnvelope, faFileAlt, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faBars, 
+  faTimes, 
+  faThLarge, 
+  faUsers, 
+  faClipboardList, 
+  faChartLine, 
+  faMoneyBillAlt, 
+  faFileAlt, 
+  faCog, 
+  faArrowRightFromBracket 
+} from '@fortawesome/free-solid-svg-icons';
 import { usePathname } from 'next/navigation';
 import Image from "next/image";
 import { createClient } from "@/app/lib/supabase/client";
@@ -32,13 +43,12 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
 
     const navItems = [
         { name: "Dashboard", icon: faThLarge, path: "/sales" },
-        { name: "Customers", icon: faCheckSquare, path: "/sales/customers" },
+        { name: "Customers", icon: faUsers, path: "/sales/customers" },
         { name: "Orders", icon: faClipboardList, path: "/sales/orders" },
-        { name: "Report", icon: faPlaneDeparture, path: "/sales/report" },
+        { name: "Report", icon: faChartLine, path: "/sales/report" },
         { name: "Payroll", icon: faMoneyBillAlt, path: "/sales/payroll" },
         { name: "Documents", icon: faFileAlt, path: "/sales/documents" },
-        { name: "Settings", icon: faFileAlt, path: "/sales/settings" }
-        // { name: "Message", icon: faEnvelope, path: "/sales/chat" }
+        { name: "Settings", icon: faCog, path: "/sales/settings" }
     ];
 
     const handleLogout = async () => {
@@ -150,15 +160,12 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
                             </div>
                         </Link>
                     ))}
-                    <Link href="/" passHref>
-                        <div
-                            onClick={onCloseMobileMenu}
-                            className="flex items-center py-3 px-2 rounded-md text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors duration-200 mt-4"
-                        >
+                    <button onClick={() => handleLogout()} className="w-full">
+                        <div className="flex items-center py-3 px-2 rounded-md text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors duration-200 mt-4">
                             <FontAwesomeIcon icon={faArrowRightFromBracket} className="mr-3 text-xl" />
                             <span className="text-lg font-medium">Logout</span>
                         </div>
-                    </Link>
+                    </button>
                 </div>
             </div>
 

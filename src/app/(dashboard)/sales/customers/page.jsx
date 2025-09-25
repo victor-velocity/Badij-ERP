@@ -49,7 +49,7 @@ const CustomersPage = () => {
         <div>
             <div className='flex justify-between items-center mt-5 mb-14 flex-wrap gap-4'>
                 <div>
-                    <h1 className='text-2xl font-bold '>Overview</h1>
+                    <h1 className='text-2xl font-bold '>Customers</h1>
                     <p className='text-[#A09D9D] font-medium mt-2'>{greeting}, {first_name}</p>
                 </div>
                 <span className='rounded-[20px] px-3 py-2 border-[0.5px] border-solid border-[#DDD9D9] text-[#A09D9D]'>

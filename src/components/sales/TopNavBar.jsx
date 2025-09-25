@@ -1,4 +1,4 @@
-// components/employee/TopNav.jsx
+// components/sales/TopNav.jsx
 'use client';
 
 import React, { useState, useEffect, useRef } from "react";
@@ -118,14 +118,14 @@ export default function TopNavBar({ onMobileMenuToggle, profile }) {
                     {isDropdownOpen && (
                         <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50">
                             {/* <button
-                                onClick={() => handleDropdownClick('/employee/notifications')}
+                                onClick={() => handleDropdownClick('/sales/notifications')}
                                 className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                             >
                                 <FontAwesomeIcon icon={faBell} className="mr-2 text-gray-500" />
                                 Notifications
                             </button> */}
                             <button
-                                onClick={() => handleDropdownClick('/employee/my-profile')}
+                                onClick={() => handleDropdownClick('/sales/my-profile')}
                                 className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                             >
                                 <FontAwesomeIcon icon={faUserCircle} className="mr-2 text-gray-500" />
