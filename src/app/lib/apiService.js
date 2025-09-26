@@ -83,6 +83,29 @@ const callApi = async (endpoint, method = "GET", data = null, router = null) => 
     }
 };
 
+// Utility function to check permissions (for frontend use)
+export const hasInventoryPermission = (userRole, userDepartment, requiredAction = 'read') => {
+    // Super admin has full access
+    if (userRole === 'super_admin') return true;
+
+    // Warehouse department employees have access based on role
+    if (userDepartment === 'warehouse') {
+        switch (requiredAction) {
+            case 'read':
+                return ['super_admin', 'manager', 'user'].includes(userRole);
+            case 'write':
+            case 'create':
+            case 'update':
+            case 'delete':
+                return ['super_admin', 'manager'].includes(userRole);
+            default:
+                return false;
+        }
+    }
+
+    return false;
+};
+
 const apiService = {
     // employee APIs
     getEmployees: async (router) => {
@@ -231,6 +254,77 @@ const apiService = {
         return callApi(`/employee_documents/${documentId}`, 'DELETE', null, router);
     },
 
+    // Supplier APIs
+    getSuppliers: async (router) => {
+        return callApi("/suppliers", "GET", null, router);
+    },
+
+    getSupplierById: async (supplierId, router) => {
+        return callApi(`/suppliers/${supplierId}`, "GET", null, router);
+    },
+
+    createSupplier: async (supplierData, router) => {
+        return callApi("/suppliers", "POST", supplierData, router);
+    },
+
+    updateSupplier: async (supplierId, supplierData, router) => {
+        return callApi(`/suppliers/${supplierId}`, "PUT", supplierData, router);
+    },
+
+    deleteSupplier: async (supplierId, router) => {
+        return callApi(`/suppliers/${supplierId}`, "DELETE", null, router);
+    },
+
+    // Components APIs
+    getComponents: async (router) => {
+        return callApi("/components", "GET", null, router);
+    },
+
+    getComponentById: async (componentId, router) => {
+        return callApi(`/components/${componentId}`, "GET", null, router);
+    },
+
+    createComponent: async (componentData, router) => {
+        return callApi("/components", "POST", componentData, router);
+    },
+
+    updateComponent: async (componentId, componentData, router) => {
+        return callApi(`/components/${componentId}`, "PUT", componentData, router);
+    },
+
+    deleteComponent: async (componentId, router) => {
+        return callApi(`/components/${componentId}`, "DELETE", null, router);
+    },
+
+    // Products APIs
+    getProducts: async (router) => {
+        return callApi("/products", "GET", null, router);
+    },
+
+    getProductById: async (productId, router) => {
+        return callApi(`/products/${productId}`, "GET", null, router);
+    },
+
+    createProduct: async (productData, router) => {
+        return callApi("/products", "POST", productData, router);
+    },
+
+    updateProduct: async (productId, productData, router) => {
+        return callApi(`/products/${productId}`, "PUT", productData, router);
+    },
+
+    deleteProduct: async (productId, router) => {
+        return callApi(`/products/${productId}`, "DELETE", null, router);
+    },
+
+    // BOM APIs
+    addComponentToBOM: async (productId, bomData, router) => {
+        return callApi(`/products/${productId}/component`, "POST", bomData, router);
+    },
+
+    removeComponentFromBOM: async (productId, componentId, router) => {
+        return callApi(`/products/${productId}/component/${componentId}`, "DELETE", null, router);
+    },
 };
 
 export default apiService;

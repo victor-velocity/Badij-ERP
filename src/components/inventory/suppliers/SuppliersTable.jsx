@@ -1,44 +1,127 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faEdit, faTrash, faAngleLeft, faAngleRight, faPlus, faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { SupplierModal } from './SuppliersModal';
+import DeleteModal from './DeleteModal';
+import apiService from '@/app/lib/apiService';
+import toast from 'react-hot-toast';
 
 const ITEMS_PER_PAGE = 8;
 const goldColor = '#b88b1b';
 
-export const SupplierTable = () => {
-  const initialSupplierData = [
-    { id: 'SJP-001', name: 'FormModel L4', contact: 'John Smith', phone: '+1 428 4450 890', email: 'jsmp@umwood.com', products: 'Site cost, GoRite tables', status: 'Active' },
-    { id: 'SJP-002', name: 'WaveDrivlinn Co.', contact: 'Emily Johnson', phone: '+44 29 5555 678', email: 'emily@wavedrivlinn.com', products: 'Bittering tables, Bookshakers', status: 'Active' },
-    { id: 'SJP-003', name: 'Combat Living Inc.', contact: 'Ahmed Khan', phone: '+971 55 224 567', email: 'ahmed@comfortable.g.com', products: 'Bork, Brothers', status: 'Inactive' },
-    { id: 'SJP-004', name: 'Urban Office works', contact: 'Linda Moore', phone: '+1 495 339 222', email: 'linda@urbanoffice.com', products: 'Office clubs, Books', status: 'Active' },
-    { id: 'SJP-005', name: 'Quidoor Disspace', contact: 'Mark Taylor', phone: '+15 2 333 444', email: 'mark@quidoor.com', products: 'Paste cost, Quidoor furniture', status: 'Active' },
-    { id: 'SJP-006', name: 'FormModel L4', contact: 'John Smith', phone: '+1 428 4450 890', email: 'jsmp@umwood.com', products: 'Site cost, GoRite tables', status: 'Active' },
-    { id: 'SJP-007', name: 'WaveDrivlinn Co.', contact: 'Emily Johnson', phone: '+44 29 5555 678', email: 'emily@wavedrivlinn.com', products: 'Bittering tables, Bookshakers', status: 'Active' },
-    { id: 'SJP-008', name: 'Combat Living Inc.', contact: 'Ahmed Khan', phone: '+971 55 224 567', email: 'ahmed@comfortable.g.com', products: 'Bork, Brothers', status: 'Active' },
-    { id: 'SJP-009', name: 'Urban Office works', contact: 'Linda Moore', phone: '+971 55 224 567', email: 'linda@urbanoffice.com', products: 'Office clubs, Books', status: 'Inactive' },
-    { id: 'SJP-010', name: 'Premium Wood Inc.', contact: 'Robert Brown', phone: '+1 555 123 4567', email: 'robert@premiumwood.com', products: 'Wooden chairs, Tables', status: 'Active' },
-    { id: 'SJP-011', name: 'MetalWorks Ltd.', contact: 'Sarah Connor', phone: '+44 20 7946 0958', email: 'sarah@metalworks.com', products: 'Metal frames, Office furniture', status: 'Active' },
-    { id: 'SJP-012', name: 'Textile Innovations', contact: 'Michael Bay', phone: '+1 234 567 8901', email: 'michael@textile.com', products: 'Chair upholstery, Cushions', status: 'Inactive' },
-  ];
+// Skeleton Loading Components
+const TableSkeleton = () => {
+  return (
+    <div className="overflow-x-auto mb-6 rounded-lg border border-gray-200">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
+            <tr key={index} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+              </td>
+              <td className="px-6 py-4">
+                <div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+              </td>
+              <td className="px-6 py-4">
+                <div className="h-4 bg-gray-200 rounded w-36 animate-pulse"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex items-center space-x-4">
+                  <div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
+const PaginationSkeleton = () => {
+  return (
+    <div className="flex justify-center items-center gap-2 mt-6">
+      <div className="w-8 h-8 bg-gray-200 rounded-md animate-pulse"></div>
+      <div className="flex gap-2">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div key={index} className="w-8 h-8 bg-gray-200 rounded-md animate-pulse"></div>
+        ))}
+      </div>
+      <div className="w-8 h-8 bg-gray-200 rounded-md animate-pulse"></div>
+    </div>
+  );
+};
+
+export const SupplierTable = () => {
+  const router = useRouter();
+  const [suppliers, setSuppliers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [filteredData, setFilteredData] = useState(initialSupplierData);
+  const [filteredData, setFilteredData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState(null);
 
+  // Fetch suppliers from the backend
   useEffect(() => {
-    const results = initialSupplierData.filter(item =>
+    const fetchSuppliers = async () => {
+      setIsLoading(true);
+      try {
+        const response = await apiService.getSuppliers(router);
+        if (response.status === 'success') {
+          setSuppliers(response.data || []);
+          setFilteredData(response.data || []);
+        } else {
+          setError(response.message || 'Failed to fetch suppliers');
+        }
+      } catch (err) {
+        setError('An error occurred while fetching suppliers');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSuppliers();
+  }, []);
+
+  // Filter suppliers based on search term
+  useEffect(() => {
+    const results = suppliers.filter(item =>
       Object.values(item).some(value =>
-        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        value && value.toString().toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
     setFilteredData(results);
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, suppliers]);
 
   const handleOpenModal = (supplier = null) => {
     setSelectedSupplier(supplier);
@@ -48,6 +131,54 @@ export const SupplierTable = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedSupplier(null);
+    // Refresh suppliers after modal close (in case of create/update)
+    const fetchSuppliers = async () => {
+      setIsLoading(true);
+      try {
+        const response = await apiService.getSuppliers(router);
+        if (response.status === 'success') {
+          setSuppliers(response.data || []);
+          setFilteredData(response.data || []);
+        }
+      } catch (err) {
+        console.error('Error refreshing suppliers:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSuppliers();
+  };
+
+  const handleOpenDeleteModal = (supplier) => {
+    setSelectedSupplier(supplier);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedSupplier(null);
+    setIsDeleting(false);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedSupplier) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await apiService.deleteSupplier(selectedSupplier.supplier_id, router);
+      if (response.status === 'success') {
+        setSuppliers(prev => prev.filter(supplier => supplier.supplier_id !== selectedSupplier.supplier_id));
+        setFilteredData(prev => prev.filter(supplier => supplier.supplier_id !== selectedSupplier.supplier_id));
+        handleCloseDeleteModal();
+      } else {
+        throw new Error(response.message || 'Failed to delete supplier');
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      throw err; // This will be caught in the DeleteModal
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
@@ -87,8 +218,7 @@ export const SupplierTable = () => {
       pageNumbers.push(
         <button
           key={i}
-          className={`px-3 py-1 rounded-md border border-gray-300 cursor-pointer ${currentPage === i ? 'text-white font-medium' : 'text-gray-600'
-            }`}
+          className={`px-3 py-1 rounded-md border border-gray-300 cursor-pointer ${currentPage === i ? 'text-white font-medium' : 'text-gray-600'}`}
           style={currentPage === i ? { backgroundColor: goldColor } : {}}
           onClick={() => setCurrentPage(i)}
         >
@@ -119,12 +249,6 @@ export const SupplierTable = () => {
     return pageNumbers;
   };
 
-  const getStatusClass = (status) => {
-    return status === 'Active'
-      ? 'text-green-600 font-medium'
-      : 'text-red-600 font-medium';
-  };
-
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -146,6 +270,7 @@ export const SupplierTable = () => {
             className="px-4 py-2 rounded-md text-white font-medium flex-shrink-0 flex items-center justify-center gap-2"
             style={{ backgroundColor: goldColor }}
             onClick={() => handleOpenModal()}
+            disabled={isLoading}
           >
             <FontAwesomeIcon icon={faPlus} />
             Add new supplier
@@ -153,86 +278,116 @@ export const SupplierTable = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto mb-6 rounded-lg border border-gray-200">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier ID</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier name</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact person</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone number</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email address</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product supplied</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {currentData.map((item, index) => (
-              <tr key={index} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.contact}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.phone}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.products}</td>
-                <td className={`px-6 py-4 whitespace-nowrap text-sm ${getStatusClass(item.status)}`}>
-                  {item.status}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center space-x-4 text-gray-500">
-                    <button
-                      className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
-                      aria-label="Edit"
-                      onClick={() => handleOpenModal(item)}
-                    >
-                      <FontAwesomeIcon icon={faEdit} />
-                    </button>
-                    <button className="text-red-500 hover:text-red-700 transition-colors duration-200" aria-label="Delete">
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Loading State */}
+      {isLoading && (
+        <>
+          <TableSkeleton />
+          <PaginationSkeleton />
+        </>
+      )}
 
-      {filteredData.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          No suppliers found matching your search criteria.
+      {/* Error State */}
+      {error && (
+        <div className="text-center py-8 text-red-500">
+          {error}
         </div>
       )}
 
-      <div className="flex justify-center items-center gap-2 mt-6">
-        <button
-          className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 disabled:opacity-50"
-          style={{ backgroundColor: goldColor }}
-          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-          disabled={currentPage === 1}
-          aria-label="Previous page"
-        >
-          <FontAwesomeIcon icon={faAngleLeft} className="text-white text-sm" />
-        </button>
-        <div className="flex gap-2 text-sm font-medium">
-          {renderPaginationNumbers()}
-        </div>
-        <button
-          className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 disabled:opacity-50"
-          style={{ backgroundColor: goldColor }}
-          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-          disabled={currentPage === totalPages}
-          aria-label="Next page"
-        >
-          <FontAwesomeIcon icon={faAngleRight} className="text-white text-sm" />
-        </button>
-      </div>
+      {/* Success State */}
+      {!isLoading && !error && (
+        <>
+          <div className="overflow-x-auto mb-6 rounded-lg border border-gray-200">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {currentData.map((item) => (
+                  <tr key={item.supplier_id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.contact_phone || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.contact_email || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.address || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.website || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.notes || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-4 text-gray-500">
+                        <button
+                          className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+                          aria-label="Edit"
+                          onClick={() => handleOpenModal(item)}
+                        >
+                          <FontAwesomeIcon icon={faEdit} />
+                        </button>
+                        <button
+                          className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                          aria-label="Delete"
+                          onClick={() => handleOpenDeleteModal(item)}
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {filteredData.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No suppliers found matching your search criteria.
+            </div>
+          )}
+
+          {filteredData.length > 0 && (
+            <div className="flex justify-center items-center gap-2 mt-6">
+              <button
+                className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 disabled:opacity-50"
+                style={{ backgroundColor: goldColor }}
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                <FontAwesomeIcon icon={faAngleLeft} className="text-white text-sm" />
+              </button>
+              <div className="flex gap-2 text-sm font-medium">
+                {renderPaginationNumbers()}
+              </div>
+              <button
+                className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 disabled:opacity-50"
+                style={{ backgroundColor: goldColor }}
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                aria-label="Next page"
+              >
+                <FontAwesomeIcon icon={faAngleRight} className="text-white text-sm" />
+              </button>
+            </div>
+          )}
+        </>
+      )}
 
       <SupplierModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         initialData={selectedSupplier}
+      />
+
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleDelete}
+        itemName={selectedSupplier?.name}
+        isLoading={isDeleting}
       />
     </div>
   );

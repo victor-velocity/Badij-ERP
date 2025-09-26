@@ -52,7 +52,6 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
         { name: "Inventory management", icon: faBoxes, path: "/inventory/management" },
         { name: "Stock movement", icon: faTruck, path: "/inventory/stock-movement" },
         { name: "Suppliers", icon: faUsers, path: "/inventory/suppliers" },
-        { name: "Reports & analytics", icon: faChartBar, path: "/inventory/reports" },
         { name: "Documents", icon: faFile, path: "/inventory/documents" },
         { name: "Settings", icon: faCog, path: "/inventory/settings" },
     ];

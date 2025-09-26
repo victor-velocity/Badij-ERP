@@ -1,21 +1,43 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import SupplierTable from "@/components/inventory/suppliers/SuppliersTable";
 import { SupplierCard } from "@/components/inventory/suppliers/SuppliersCard";
+import apiService from "@/app/lib/apiService";
 
 export default function InventoryOrders() {
+    const router = useRouter();
     const [currentDateTime, setCurrentDateTime] = useState('');
     const [greeting, setGreeting] = useState('');
+    const [cardData, setCardData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const first_name = localStorage.getItem('first_name');
 
-    const cardData = [
-        { title: 'Total suppliers', value: '45' },
-        { title: 'Active suppliers', value: '38' },
-        { title: 'Inactive suppliers', value: '7' },
-        { title: 'Top supplier', value: 'FurniWorld ltd' },
-    ];
+    useEffect(() => {
+        const fetchSuppliers = async () => {
+            setIsLoading(true);
+            try {
+                const response = await apiService.getSuppliers(router);
+                if (response.status === 'success') {
+                    const totalSuppliers = response.data.length;
+                    setCardData([
+                        { title: 'Total suppliers', value: totalSuppliers.toString() }
+                    ]);
+                } else {
+                    setError(response.message || 'Failed to fetch suppliers');
+                }
+            } catch (err) {
+                setError('An error occurred while fetching suppliers');
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchSuppliers();
+    }, [router]);
 
     useEffect(() => {
         const updateDateTimeAndGreeting = () => {
@@ -61,15 +83,29 @@ export default function InventoryOrders() {
                 </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-14">
-              {cardData.map((card, index) => (
-                <SupplierCard key={index} title={card.title} value={card.value} />
-              ))}
-            </div>
+            {/* {isLoading && (
+                <div className="text-center py-8 text-gray-500">
+                    Loading supplier data...
+                </div>
+            )}
+
+            {error && (
+                <div className="text-center py-8 text-red-500">
+                    {error}
+                </div>
+            )}
+
+            {!isLoading && !error && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-14">
+                    {cardData.map((card, index) => (
+                        <SupplierCard key={index} title={card.title} value={card.value} />
+                    ))}
+                </div>
+            )} */}
 
             <div>
                 <SupplierTable />
             </div>
         </div>
-    )
+    );
 }

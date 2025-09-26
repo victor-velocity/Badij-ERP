@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { faEye, faFileInvoice, faCalendarAlt, faCheckCircle, faSpinner, faTimesCircle, faDollarSign, faShoppingBag, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faFileInvoice, faCalendarAlt, faCheckCircle, faDollarSign, faSpinner, faBox, faTruck, faTruckLoading, faShoppingBag, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const initialTransactions = [
-    { invoice: '#AB1301', date: '12/08/2025', items: [{ name: 'Chair A', quantity: 100 }], status: 'Delivered', price: '₦300,000' },
-    { invoice: '#AB1302', date: '12/08/2025', items: [{ name: 'Chair B', quantity: 50 }], status: 'In progress', price: '₦150,000' },
-    { invoice: '#AB1303', date: '12/08/2025', items: [{ name: 'Table A', quantity: 25 }, { name: 'Chair C', quantity: 10 }, { name: 'Sofa A', quantity: 5 }], status: 'Delivered', price: '₦200,000' },
-    { invoice: '#AB1304', date: '12/08/2025', items: [{ name: 'Table B', quantity: 30 }], status: 'In progress', price: '₦250,000' },
-    { invoice: '#AB1305', date: '12/08/2025', items: [{ name: 'Sofa A', quantity: 10 }], status: 'Delivered', price: '₦500,000' },
-    { invoice: '#AB1306', date: '12/08/2025', items: [{ name: 'Sofa B', quantity: 15 }, { name: 'Table C', quantity: 8 }], status: 'Failed', price: '₦600,000' },
-    { invoice: '#AB1307', date: '13/08/2025', items: [{ name: 'Chair C', quantity: 75 }], status: 'Delivered', price: '₦225,000' },
-    { invoice: '#AB1308', date: '13/08/2025', items: [{ name: 'Table C', quantity: 20 }], status: 'In progress', price: '₦180,000' },
-    { invoice: '#AB1309', date: '13/08/2025', items: [{ name: 'Sofa C', quantity: 12 }, { name: 'Chair D', quantity: 15 }, { name: 'Table D', quantity: 7 }], status: 'Delivered', price: '₦480,000' },
-    { invoice: '#AB1310', date: '14/08/2025', items: [{ name: 'Chair D', quantity: 60 }], status: 'Failed', price: '₦180,000' },
-    { invoice: '#AB1311', date: '14/08/2025', items: [{ name: 'Table D', quantity: 18 }], status: 'Delivered', price: '₦162,000' },
-    { invoice: '#AB1312', date: '14/08/2025', items: [{ name: 'Sofa D', quantity: 8 }], status: 'In progress', price: '₦320,000' },
+    { invoice: '#AB1301', date: '12/08/2025', items: [{ name: 'Chair A', quantity: 100 }], status: 'Shipped to customer', price: '₦300,000' },
+    { invoice: '#AB1302', date: '12/08/2025', items: [{ name: 'Chair B', quantity: 50 }], status: 'Pending', price: '₦150,000' },
+    { invoice: '#AB1303', date: '12/08/2025', items: [{ name: 'Table A', quantity: 25 }, { name: 'Chair C', quantity: 10 }, { name: 'Sofa A', quantity: 5 }], status: 'In transit', price: '₦200,000' },
+    { invoice: '#AB1304', date: '12/08/2025', items: [{ name: 'Table B', quantity: 30 }], status: 'Inventory arrangement', price: '₦250,000' },
+    { invoice: '#AB1305', date: '12/08/2025', items: [{ name: 'Sofa A', quantity: 10 }], status: 'Shipped to customer', price: '₦500,000' },
+    { invoice: '#AB1306', date: '12/08/2025', items: [{ name: 'Sofa B', quantity: 15 }, { name: 'Table C', quantity: 8 }], status: 'Pending', price: '₦600,000' },
+    { invoice: '#AB1307', date: '13/08/2025', items: [{ name: 'Chair C', quantity: 75 }], status: 'Ready for dispatch', price: '₦225,000' },
+    { invoice: '#AB1308', date: '13/08/2025', items: [{ name: 'Table C', quantity: 20 }], status: 'Inventory arrangement', price: '₦180,000' },
+    { invoice: '#AB1309', date: '13/08/2025', items: [{ name: 'Sofa C', quantity: 12 }, { name: 'Chair D', quantity: 15 }, { name: 'Table D', quantity: 7 }], status: 'Shipped to customer', price: '₦480,000' },
+    { invoice: '#AB1310', date: '14/08/2025', items: [{ name: 'Chair D', quantity: 60 }], status: 'Pending', price: '₦180,000' },
+    { invoice: '#AB1311', date: '14/08/2025', items: [{ name: 'Table D', quantity: 18 }], status: 'In transit', price: '₦162,000' },
+    { invoice: '#AB1312', date: '14/08/2025', items: [{ name: 'Sofa D', quantity: 8 }], status: 'Ready for dispatch', price: '₦320,000' },
 ];
 
 export function RecentTransactionsTable() {
@@ -103,12 +103,16 @@ export function RecentTransactionsTable() {
 
     const getStatusStyles = (status) => {
         switch (status) {
-            case 'Delivered':
-                return 'text-green-500';
-            case 'In progress':
+            case 'Pending':
+                return 'text-orange-500';
+            case 'Inventory arrangement':
                 return 'text-yellow-500';
-            case 'Failed':
-                return 'text-red-500';
+            case 'Ready for dispatch':
+                return 'text-blue-500';
+            case 'In transit':
+                return 'text-purple-500';
+            case 'Shipped to customer':
+                return 'text-green-500';
             default:
                 return 'text-gray-500';
         }
@@ -116,14 +120,18 @@ export function RecentTransactionsTable() {
 
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'Delivered':
-                return faCheckCircle;
-            case 'In progress':
+            case 'Pending':
                 return faSpinner;
-            case 'Failed':
-                return faTimesCircle;
+            case 'Inventory arrangement':
+                return faBox;
+            case 'Ready for dispatch':
+                return faTruckLoading;
+            case 'In transit':
+                return faTruck;
+            case 'Shipped to customer':
+                return faCheckCircle;
             default:
-                return faInfoCircle;
+                return faSpinner;
         }
     };
 
@@ -138,7 +146,7 @@ export function RecentTransactionsTable() {
                             placeholder="Search..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                            className="w-full pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#b88b1b]"
                         />
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -146,12 +154,6 @@ export function RecentTransactionsTable() {
                             </svg>
                         </div>
                     </div>
-                    <button
-                        className="px-6 py-2 rounded-sm text-white font-medium"
-                        style={{ backgroundColor: goldColor }}
-                    >
-                        Search
-                    </button>
                 </div>
             </div>
 
@@ -241,7 +243,7 @@ export function RecentTransactionsTable() {
             {/* Modal for transaction details */}
             {selectedTransaction && (
                 <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full transform transition-all duration-300 ease-in-out scale-100">
+                    <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full transform transition-all duration-300 ease-in-out scale-100 space-y-4">
                         <h3 className="text-xl font-bold mb-4 flex items-center">
                             <FontAwesomeIcon icon={faFileInvoice} className="mr-2 text-[#b88b1b]" />
                             Transaction Details: {selectedTransaction.invoice}
