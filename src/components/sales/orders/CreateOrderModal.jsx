@@ -71,7 +71,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
 
     const handleCustomerSelect = (customerName) => {
         setFormData(prev => ({ ...prev, customer: customerName }));
-        setFilteredCustomers([]); // Close dropdown
+        setFilteredCustomers([]);
     };
 
     const handleItemToggle = (itemId) => {
@@ -86,6 +86,163 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
 
     const generateOrderId = () => {
         return `#${Math.floor(100000 + Math.random() * 900000)}`;
+    };
+
+    const generateInvoiceHTML = (newOrder) => {
+        return `
+        <div style="font-family: Arial, sans-serif; padding: 30px; background: white; color: #333; max-width: 100%;">
+            <!-- Header Section -->
+            <div style="display: flex; justify-content: center; margin-bottom: 30px; border-bottom: 3px solid #b88b1b; padding-bottom: 20px;">
+            <img src="/madisonjayng_logo.png" alt="Company Logo" style="max-height: 60px; width: auto;" />
+            </div>
+
+            <!-- Invoice Title -->
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #b88b1b; font-size: 28px; margin: 0; border: 2px solid #b88b1b; display: inline-block; padding: 10px 30px; border-radius: 5px;">
+                    INVOICE
+                </h2>
+            </div>
+
+            <!-- Customer and Invoice Details -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+                <div style="flex: 1; min-width: 250px;">
+                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
+                        <strong>Invoice To:</strong>
+                    </div>
+                    <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px;">
+                        <p style="margin: 5px 0; font-weight: bold;">${newOrder.customer}</p>
+                        <p style="margin: 5px 0;">${newOrder.address}</p>
+                        <p style="margin: 5px 0;">Phone: ${newOrder.phone}</p>
+                        <p style="margin: 5px 0;">Email: ${newOrder.email}</p>
+                    </div>
+                </div>
+
+                <div style="flex: 1; min-width: 250px;">
+                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
+                        <strong>Invoice Details:</strong>
+                    </div>
+                    <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px;">
+                        <p style="margin: 5px 0;"><strong>Invoice No:</strong> ${newOrder.id}</p>
+                        <p style="margin: 5px 0;"><strong>Invoice Date:</strong> ${new Date().toLocaleDateString()}</p>
+                        <p style="margin: 5px 0;"><strong>Delivery Date:</strong> ${newOrder.deliveryDate}</p>
+                        <p style="margin: 5px 0;"><strong>Payment Type:</strong> ${newOrder.paymentType}</p>
+                    </div>
+                </div>
+
+                <div style="flex: 1; min-width: 200px;">
+                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0; text-align: center;">
+                        <strong>TOTAL DUE</strong>
+                    </div>
+                    <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px; text-align: center;">
+                        <p style="font-size: 24px; font-weight: bold; color: #b88b1b; margin: 0;">₦${newOrder.amount.toLocaleString()}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div style="margin-bottom: 30px;">
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                    <thead>
+                        <tr style="background: #b88b1b; color: white;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Item Description</th>
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd; font-weight: bold; width: 100px;">Price</th>
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd; font-weight: bold; width: 80px;">Qty</th>
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd; font-weight: bold; width: 120px;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${newOrder.items.map((item, index) => `
+                            <tr style="${index % 2 === 0 ? 'background: #f9f9f9;' : ''}">
+                                <td style="padding: 12px; border: 1px solid #ddd; vertical-align: top;">
+                                    <strong>${item.name}</strong>
+                                    <br>
+                                </td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center; vertical-align: top;">₦${item.price.toLocaleString()}</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center; vertical-align: top;">${item.quantity}</td>
+                                <td style="padding: 12px; border: 1px solid #ddd; text-align: center; vertical-align: top; font-weight: bold;">₦${(item.price * item.quantity).toLocaleString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Summary Section -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+                <!-- Payment Information -->
+                <div style="flex: 1; min-width: 300px;">
+                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
+                        <strong>PAYMENT INFORMATION</strong>
+                    </div>
+                    <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px;">
+                        <p style="margin: 8px 0;"><strong>Account No:</strong></p>
+                        <p style="margin: 8px 0;"><strong>Account Name:</strong></p>
+                        <p style="margin: 8px 0;"><strong>Bank Details:</strong></p>
+                        <p style="margin: 8px 0;"><strong>Sort Code:</strong></p>
+                    </div>
+                </div>
+
+                <!-- Total Calculation -->
+                <div style="flex: 1; min-width: 250px;">
+                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0; text-align: center;">
+                        <strong>ORDER SUMMARY</strong>
+                    </div>
+                    <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px;">
+                        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                            <span>Sub Total:</span>
+                            <span>₦${newOrder.amount.toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                            <span>VAT (0%):</span>
+                            <span>₦0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                            <span>Discount (0%):</span>
+                            <span>₦0</span>
+                        </div>
+                        <hr style="border: none; border-top: 2px solid #b88b1b; margin: 15px 0;">
+                        <div style="display: flex; justify-content: space-between; margin: 10px 0; font-size: 18px; font-weight: bold;">
+                            <span>GRAND TOTAL:</span>
+                            <span style="color: #b88b1b;">₦${newOrder.amount.toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Section -->
+            <div style="border-top: 3px solid #b88b1b; padding-top: 20px; margin-top: 30px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <p style="font-size: 18px; font-weight: bold; color: #b88b1b; margin: 0;">Thank you for your patronage!</p>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+                    <!-- Terms -->
+                    <div style="flex: 2; min-width: 300px;">
+                        <p style="margin: 5px 0; font-weight: bold;">TERMS & CONDITIONS:</p>
+                        <p style="margin: 5px 0; font-size: 12px; color: #666;">
+                            Madison Jay is an established Nigerian furniture company that has successfully proven itself over the years in the procurement of high standard ergonomic office chairs, tables, work stations, ancillary & home furniture.
+                        </p>
+                    </div>
+
+                    <!-- Signature -->
+                    <div style="flex: 1; min-width: 200px; text-align: center;">
+                        <p style="margin: 20px 0 5px 0; font-weight: bold;">TONY GREY</p>
+                        <p style="margin: 0; color: #666;">Account Manager</p>
+                        <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 10px;">
+                            <p style="margin: 0; font-style: italic;">Signature</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Information -->
+                <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f5f5f5; border-radius: 5px;">
+                    <p style="margin: 5px 0; font-weight: bold; color: #b88b1b;">COMPANY INFORMATION</p>
+                    <p style="margin: 3px 0; font-size: 12px;">13, Alhaij Kanike Close, off Awolowo Road, Ikoyi - Lagos</p>
+                    <p style="margin: 3px 0; font-size: 12px;">Phone: +234-817-777-0017 | Email: sales@madisonjayng.com</p>
+                    <p style="margin: 3px 0; font-size: 12px;">Website: www.company.com</p>
+                </div>
+            </div>
+        </div>
+        `;
     };
 
     const handleSubmit = async (e) => {
@@ -110,34 +267,30 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
 
             // Generate and download invoice
             const invoiceElement = document.createElement('div');
-            invoiceElement.innerHTML = `
-                <h2 style="text-align: center; color: #b88b1b;">Invoice</h2>
-                <p><strong>Order ID:</strong> ${newOrder.id}</p>
-                <p><strong>Customer:</strong> ${newOrder.customer}</p>
-                <p><strong>Phone:</strong> ${newOrder.phone}</p>
-                <p><strong>Email:</strong> ${newOrder.email}</p>
-                <p><strong>Dispatch Address:</strong> ${newOrder.address}</p>
-                <p><strong>Date of Delivery:</strong> ${newOrder.deliveryDate}</p>
-                <p><strong>Payment Type:</strong> ${newOrder.paymentType}</p>
-                <h3>Items:</h3>
-                <ul>
-                    ${newOrder.items.map(item => `
-                        <li>${item.name} - Quantity: ${item.quantity} - Price: ₦${item.price} - Total: ₦${item.price * item.quantity}</li>
-                    `).join('')}
-                </ul>
-                <p><strong>Total Amount:</strong> ₦${newOrder.amount}</p>
-                <p style="text-align: center;">Thank you for your order!</p>
-            `;
-            invoiceElement.style.padding = '20px';
-            invoiceElement.style.fontFamily = 'Arial, sans-serif';
+            invoiceElement.innerHTML = generateInvoiceHTML(newOrder);
+            invoiceElement.style.width = '210mm'; // A4 width
+            invoiceElement.style.minHeight = '297mm'; // A4 height
+            invoiceElement.style.margin = '0 auto';
             document.body.appendChild(invoiceElement);
 
-            const canvas = await html2canvas(invoiceElement);
+            const canvas = await html2canvas(invoiceElement, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                width: invoiceElement.offsetWidth,
+                height: invoiceElement.offsetHeight
+            });
+
             const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF();
-            const imgProps = pdf.getImageProperties(imgData);
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             pdf.save(`invoice_${newOrder.customer}_${newOrder.id}.pdf`);
             document.body.removeChild(invoiceElement);
@@ -148,6 +301,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                 onClose();
             }, 1000);
         } catch (error) {
+            console.error('Invoice generation error:', error);
             toast.error("Failed to generate invoice. Please try again.");
         } finally {
             setIsLoading(false);
@@ -166,6 +320,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                     </button>
                 </div>
                 <form onSubmit={handleSubmit}>
+                    {/* ... rest of the form remains the same ... */}
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Customer</label>
                         <input
