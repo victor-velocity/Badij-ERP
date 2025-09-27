@@ -325,6 +325,27 @@ const apiService = {
     removeComponentFromBOM: async (productId, componentId, router) => {
         return callApi(`/products/${productId}/component/${componentId}`, "DELETE", null, router);
     },
+
+    // Import Batches APIs
+    getImportBatches: async (router) => {
+        return callApi("/import_batches", "GET", null, router);
+    },
+
+    getImportBatchById: async (batchId, router) => {
+        return callApi(`/import_batches/${batchId}`, "GET", null, router);
+    },
+
+    createImportBatch: async (importBatchData, router) => {
+        return callApi("/import_batches", "POST", importBatchData, router);
+    },
+
+    updateImportBatch: async (batchId, importBatchData, router) => {
+        return callApi(`/import_batches/${batchId}`, "PUT", importBatchData, router);
+    },
+
+    deleteImportBatch: async (batchId, router) => {
+        return callApi(`/import_batches/${batchId}`, "DELETE", null, router);
+    },
 };
 
 export default apiService;

@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from "react";
 import ProductsTable from "@/components/inventory/management/ProductsTable";
 import ComponentsTable from "@/components/inventory/management/ComponentsTable";
+import BatchesTable from "@/components/inventory/management/BatchesTable";
 import { InventoryCard } from "@/components/inventory/management/InventoryCard";
-import { faDollarSign, faBoxOpen, faExclamationTriangle, faBan, faCogs, faBoxes } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faExclamationTriangle, faBan, faCogs, faBoxes } from "@fortawesome/free-solid-svg-icons";
 import apiService from "@/app/lib/apiService";
 
 export default function InventoryOrders() {
@@ -12,14 +13,15 @@ export default function InventoryOrders() {
     const [greeting, setGreeting] = useState('');
     const [activeTab, setActiveTab] = useState('products');
     const [inventoryStats, setInventoryStats] = useState({
-        totalStockValue: 0,
         inStockProducts: 0,
         lowStockProducts: 0,
         outOfStockProducts: 0,
-        totalComponents: 0
+        totalComponents: 0,
+        totalBatches: 0
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [retrying, setRetrying] = useState(false);
 
     const first_name = localStorage.getItem('first_name');
 
@@ -31,24 +33,28 @@ export default function InventoryOrders() {
         return () => clearInterval(intervalId);
     }, []);
 
-    const loadInventoryStats = async () => {
+    const loadInventoryStats = async (isRetry = false) => {
         try {
-            setLoading(true);
-            // Load products and components to calculate stats
-            const [productsResponse, componentsResponse] = await Promise.all([
+            if (isRetry) {
+                setRetrying(true);
+                setError('');
+            } else {
+                setLoading(true);
+            }
+            
+            // Load products, components, and batches to calculate stats
+            const [productsResponse, componentsResponse, batchesResponse] = await Promise.all([
                 apiService.getProducts(),
-                apiService.getComponents()
+                apiService.getComponents(),
+                apiService.getImportBatches()
             ]);
 
-            if (productsResponse.status === 'success' && componentsResponse.status === 'success') {
+            if (productsResponse.status === 'success' && componentsResponse.status === 'success' && batchesResponse.status === 'success') {
                 const products = productsResponse.data || [];
                 const components = componentsResponse.data || [];
+                const batches = batchesResponse.data || [];
 
                 // Calculate statistics
-                const totalStockValue = products.reduce((sum, product) => 
-                    sum + (product.price * (product.stock_quantity || 0)), 0
-                );
-
                 const inStockProducts = products.filter(product => 
                     (product.stock_quantity || 0) > 10
                 ).length;
@@ -63,23 +69,29 @@ export default function InventoryOrders() {
                 ).length;
 
                 const totalComponents = components.length;
+                const totalBatches = batches.length;
 
                 setInventoryStats({
-                    totalStockValue,
                     inStockProducts,
                     lowStockProducts,
                     outOfStockProducts,
-                    totalComponents
+                    totalComponents,
+                    totalBatches
                 });
             } else {
                 setError('Failed to load inventory data');
             }
         } catch (error) {
             console.error('Error loading inventory stats:', error);
-            setError(error.message || 'Failed to load inventory statistics');
+            setError('Failed to load inventory data');
         } finally {
             setLoading(false);
+            setRetrying(false);
         }
+    };
+
+    const handleRetry = () => {
+        loadInventoryStats(true);
     };
 
     const updateDateTimeAndGreeting = () => {
@@ -108,14 +120,6 @@ export default function InventoryOrders() {
     };
 
     const cardData = [
-        { 
-            title: 'Total Stock Value', 
-            value: `₦${inventoryStats.totalStockValue.toLocaleString()}`,
-            borderColor: "border-4 border-solid border-green-100", 
-            textColor: "text-green-800", 
-            icon: faDollarSign,
-            loading: loading
-        },
         { 
             title: 'In Stock Products', 
             value: inventoryStats.inStockProducts.toLocaleString(),
@@ -148,9 +152,17 @@ export default function InventoryOrders() {
             icon: faCogs,
             loading: loading
         },
+        { 
+            title: 'Import Batches', 
+            value: inventoryStats.totalBatches.toLocaleString(),
+            borderColor: "border-4 border-solid border-orange-100", 
+            textColor: "text-orange-800", 
+            icon: faBoxes,
+            loading: loading
+        },
     ];
 
-    if (error) {
+    if (error && !retrying) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
@@ -158,10 +170,21 @@ export default function InventoryOrders() {
                     <h1 className="text-2xl font-bold text-gray-800 mb-2">Error Loading Inventory</h1>
                     <p className="text-gray-600 mb-4">{error}</p>
                     <button 
-                        onClick={loadInventoryStats}
-                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                        onClick={handleRetry}
+                        disabled={retrying}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center mx-auto"
                     >
-                        Retry
+                        {retrying ? (
+                            <>
+                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Retrying...
+                            </>
+                        ) : (
+                            'Retry'
+                        )}
                     </button>
                 </div>
             </div>
@@ -205,10 +228,21 @@ export default function InventoryOrders() {
                         <i className="mr-2">⚙️</i>
                         Components ({inventoryStats.totalComponents})
                     </button>
+                    <button
+                        onClick={() => setActiveTab('batches')}
+                        className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                            activeTab === 'batches'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                    >
+                        <i className="mr-2">📋</i>
+                        Batches ({inventoryStats.totalBatches})
+                    </button>
                 </nav>
             </div>
 
-            {/* Statistics Cards */}
+            {/* Statistics Cards - Updated grid for 5 cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
                 {cardData.map((card, index) => (
                     <InventoryCard 
@@ -218,7 +252,7 @@ export default function InventoryOrders() {
                         borderColor={card.borderColor}
                         textColor={card.textColor}
                         icon={card.icon}
-                        loading={card.loading}
+                        loading={loading}
                     />
                 ))}
             </div>
@@ -226,7 +260,7 @@ export default function InventoryOrders() {
             {/* Refresh Button */}
             <div className="flex justify-end mb-4">
                 <button 
-                    onClick={loadInventoryStats}
+                    onClick={() => loadInventoryStats(false)}
                     disabled={loading}
                     className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50"
                 >
@@ -245,9 +279,11 @@ export default function InventoryOrders() {
             {/* Content based on active tab */}
             <div>
                 {activeTab === 'products' ? (
-                    <ProductsTable onDataChange={loadInventoryStats} />
+                    <ProductsTable onDataChange={() => loadInventoryStats(false)} />
+                ) : activeTab === 'components' ? (
+                    <ComponentsTable onDataChange={() => loadInventoryStats(false)} />
                 ) : (
-                    <ComponentsTable onDataChange={loadInventoryStats} />
+                    <BatchesTable onDataChange={() => loadInventoryStats(false)} />
                 )}
             </div>
         </div>
