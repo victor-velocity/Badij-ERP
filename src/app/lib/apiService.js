@@ -346,6 +346,61 @@ const apiService = {
     deleteImportBatch: async (batchId, router) => {
         return callApi(`/import_batches/${batchId}`, "DELETE", null, router);
     },
+
+    // Stock APIs
+    createStockEntry: async (stockData, router) => {
+        return callApi("/stocks", "POST", stockData, router);
+    },
+
+    getStocks: async (router) => {
+        return callApi("/stocks", "GET", null, router);
+    },
+
+    getStockById: async (stockId, router) => {
+        return callApi(`/stocks/${stockId}`, "GET", null, router);
+    },
+
+    updateStock: async (stockId, stockData, router) => {
+        return callApi(`/stocks/${stockId}`, "PUT", stockData, router);
+    },
+
+    deleteStock: async (stockId, router) => {
+        return callApi(`/stocks/${stockId}`, "DELETE", null, router);
+    },
+
+    // Customer APIs
+    getCustomers: async (router) => {
+        return callApi("/customers", "GET", null, router);
+    },
+
+    getCustomerById: async (customerId, router) => {
+        return callApi(`/customers/${customerId}`, "GET", null, router);
+    },
+
+    createCustomer: async (customerData, router) => {
+        return callApi("/customers", "POST", customerData, router);
+    },
+
+    updateCustomer: async (customerId, customerData, router) => {
+        return callApi(`/customers/${customerId}`, "PUT", customerData, router);
+    },
+
+    // Order APIs
+    getOrders: async (router) => {
+        return callApi("/orders", "GET", null, router);
+    },
+
+    getOrderById: async (orderId, router) => {
+        return callApi(`/orders/${orderId}`, "GET", null, router);
+    },
+
+    createOrder: async (orderData, router) => {
+        return callApi("/orders", "POST", orderData, router);
+    },
+
+    updateOrder: async (orderId, orderData, router) => {
+        return callApi(`/orders/${orderId}`, "PUT", orderData, router);
+    },
 };
 
 export default apiService;

@@ -68,8 +68,11 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
         const fetchEmployees = async () => {
             try {
                 const fetchedEmployees = await apiService.getEmployees(router);
-                setAllEmployees(fetchedEmployees);
-                setFilteredEmployees(fetchedEmployees);
+                const activeEmployees = fetchedEmployees.filter(
+                    employee => employee.employment_status?.toLowerCase() !== 'terminated'
+                );
+                setAllEmployees(activeEmployees);
+                setFilteredEmployees(activeEmployees);
             } catch (err) {
                 console.error("Failed to fetch employees:", err);
                 toast.error("Failed to load employees for assignment.");
@@ -286,7 +289,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
             setNewDocuments([]);
             setEmployeesToAdd([]);
             setEmployeesToRemove([]);
-            
+
             // Refresh the page after successful update
             setTimeout(() => {
                 window.location.reload();

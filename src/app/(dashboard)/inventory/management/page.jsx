@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import ProductsTable from "@/components/inventory/management/ProductsTable";
 import ComponentsTable from "@/components/inventory/management/ComponentsTable";
 import BatchesTable from "@/components/inventory/management/BatchesTable";
+import StocksTable from "@/components/inventory/management/StocksTable";
 import { InventoryCard } from "@/components/inventory/management/InventoryCard";
-import { faBoxOpen, faExclamationTriangle, faBan, faCogs, faBoxes } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faExclamationTriangle, faBan, faCogs, faBoxes, faWarehouse } from "@fortawesome/free-solid-svg-icons";
 import apiService from "@/app/lib/apiService";
 
 export default function InventoryOrders() {
@@ -17,7 +18,8 @@ export default function InventoryOrders() {
         lowStockProducts: 0,
         outOfStockProducts: 0,
         totalComponents: 0,
-        totalBatches: 0
+        totalBatches: 0,
+        totalStockEntries: 0
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -42,17 +44,22 @@ export default function InventoryOrders() {
                 setLoading(true);
             }
             
-            // Load products, components, and batches to calculate stats
-            const [productsResponse, componentsResponse, batchesResponse] = await Promise.all([
+            // Load products, components, batches, and stocks to calculate stats
+            const [productsResponse, componentsResponse, batchesResponse, stocksResponse] = await Promise.all([
                 apiService.getProducts(),
                 apiService.getComponents(),
-                apiService.getImportBatches()
+                apiService.getImportBatches(),
+                apiService.getStocks()
             ]);
 
-            if (productsResponse.status === 'success' && componentsResponse.status === 'success' && batchesResponse.status === 'success') {
+            if (productsResponse.status === 'success' && 
+                componentsResponse.status === 'success' && 
+                batchesResponse.status === 'success') {
+                
                 const products = productsResponse.data || [];
                 const components = componentsResponse.data || [];
                 const batches = batchesResponse.data || [];
+                const stocks = stocksResponse.status === 'success' ? stocksResponse.data || [] : [];
 
                 // Calculate statistics
                 const inStockProducts = products.filter(product => 
@@ -70,13 +77,15 @@ export default function InventoryOrders() {
 
                 const totalComponents = components.length;
                 const totalBatches = batches.length;
+                const totalStockEntries = stocks.length;
 
                 setInventoryStats({
                     inStockProducts,
                     lowStockProducts,
                     outOfStockProducts,
                     totalComponents,
-                    totalBatches
+                    totalBatches,
+                    totalStockEntries
                 });
             } else {
                 setError('Failed to load inventory data');
@@ -119,10 +128,15 @@ export default function InventoryOrders() {
         setCurrentDateTime(now.toLocaleString('en-US', options));
     };
 
+    // Safe value getter for card data
+    const getSafeValue = (value) => {
+        return (value ?? 0).toLocaleString();
+    };
+
     const cardData = [
         { 
             title: 'In Stock Products', 
-            value: inventoryStats.inStockProducts.toLocaleString(),
+            value: getSafeValue(inventoryStats.inStockProducts),
             borderColor: "border-4 border-solid border-blue-100", 
             textColor: "text-blue-800", 
             icon: faBoxOpen,
@@ -130,7 +144,7 @@ export default function InventoryOrders() {
         },
         { 
             title: 'Low Stock Products', 
-            value: inventoryStats.lowStockProducts.toLocaleString(),
+            value: getSafeValue(inventoryStats.lowStockProducts),
             borderColor: "border-4 border-solid border-yellow-100", 
             textColor: "text-yellow-800", 
             icon: faExclamationTriangle,
@@ -138,7 +152,7 @@ export default function InventoryOrders() {
         },
         { 
             title: 'Out of Stock Products', 
-            value: inventoryStats.outOfStockProducts.toLocaleString(),
+            value: getSafeValue(inventoryStats.outOfStockProducts),
             borderColor: "border-4 border-solid border-red-100", 
             textColor: "text-red-800", 
             icon: faBan,
@@ -146,7 +160,7 @@ export default function InventoryOrders() {
         },
         { 
             title: 'Total Components', 
-            value: inventoryStats.totalComponents.toLocaleString(),
+            value: getSafeValue(inventoryStats.totalComponents),
             borderColor: "border-4 border-solid border-purple-100", 
             textColor: "text-purple-800", 
             icon: faCogs,
@@ -154,13 +168,29 @@ export default function InventoryOrders() {
         },
         { 
             title: 'Import Batches', 
-            value: inventoryStats.totalBatches.toLocaleString(),
+            value: getSafeValue(inventoryStats.totalBatches),
             borderColor: "border-4 border-solid border-orange-100", 
             textColor: "text-orange-800", 
             icon: faBoxes,
             loading: loading
         },
+        { 
+            title: 'Stock Entries', 
+            value: getSafeValue(inventoryStats.totalStockEntries),
+            borderColor: "border-4 border-solid border-green-100", 
+            textColor: "text-green-800", 
+            icon: faWarehouse,
+            loading: loading
+        },
     ];
+
+    // Safe calculation for tab counts
+    const getProductsCount = () => {
+        const total = (inventoryStats.inStockProducts || 0) + 
+                     (inventoryStats.lowStockProducts || 0) + 
+                     (inventoryStats.outOfStockProducts || 0);
+        return total;
+    };
 
     if (error && !retrying) {
         return (
@@ -215,7 +245,7 @@ export default function InventoryOrders() {
                         }`}
                     >
                         <i className="mr-2">📦</i>
-                        Products ({inventoryStats.inStockProducts + inventoryStats.lowStockProducts + inventoryStats.outOfStockProducts})
+                        Products ({getProductsCount()})
                     </button>
                     <button
                         onClick={() => setActiveTab('components')}
@@ -226,7 +256,7 @@ export default function InventoryOrders() {
                         }`}
                     >
                         <i className="mr-2">⚙️</i>
-                        Components ({inventoryStats.totalComponents})
+                        Components ({getSafeValue(inventoryStats.totalComponents)})
                     </button>
                     <button
                         onClick={() => setActiveTab('batches')}
@@ -237,13 +267,24 @@ export default function InventoryOrders() {
                         }`}
                     >
                         <i className="mr-2">📋</i>
-                        Batches ({inventoryStats.totalBatches})
+                        Batches ({getSafeValue(inventoryStats.totalBatches)})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('stocks')}
+                        className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                            activeTab === 'stocks'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                    >
+                        <i className="mr-2">🏪</i>
+                        Stocks ({getSafeValue(inventoryStats.totalStockEntries)})
                     </button>
                 </nav>
             </div>
 
-            {/* Statistics Cards - Updated grid for 5 cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+            {/* Statistics Cards - Updated grid for 6 cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                 {cardData.map((card, index) => (
                     <InventoryCard 
                         key={index} 
@@ -282,8 +323,10 @@ export default function InventoryOrders() {
                     <ProductsTable onDataChange={() => loadInventoryStats(false)} />
                 ) : activeTab === 'components' ? (
                     <ComponentsTable onDataChange={() => loadInventoryStats(false)} />
-                ) : (
+                ) : activeTab === 'batches' ? (
                     <BatchesTable onDataChange={() => loadInventoryStats(false)} />
+                ) : (
+                    <StocksTable onDataChange={() => loadInventoryStats(false)} />
                 )}
             </div>
         </div>

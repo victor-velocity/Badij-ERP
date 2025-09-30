@@ -12,12 +12,10 @@ import EditDeductionModal from '@/components/hr/payroll/EditDeductionModal';
 import DefaultChargesModal from '@/components/hr/payroll/DefaultChargesModal';
 import AddDefaultChargeModal from '@/components/hr/payroll/AddDefaultChargeModal';
 
-// Helper function to format currency
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
 };
 
-// Define keys for local storage
 const LOCAL_STORAGE_KEYS = {
     EMPLOYEE_STATE: 'preparePayrollEmployeeState',
     SELECTED_EMPLOYEE_ID: 'preparePayrollSelectedEmployeeId',
@@ -47,12 +45,12 @@ const PreparePayroll = () => {
     const canPreparePayrollForEmployee = (employee) => {
         if (!employee) return false;
         if (!employee.next_due_date) return true;
-        
-        const today = new Date('2025-09-11');  // Hardcoded for consistency with logs/current date
+
+        const today = new Date();
         let dueDate;
         try {
             dueDate = new Date(employee.next_due_date);
-            if (isNaN(dueDate.getTime())) return true;  // Invalid date = allow
+            if (isNaN(dueDate.getTime())) return true;
         } catch {
             return true;
         }
@@ -69,18 +67,12 @@ const PreparePayroll = () => {
                 apiService.getEmployees(router)
             ]);
 
-            console.log('DEBUG: Raw employeeData (payments):', employeeData);
-            console.log('DEBUG: Raw employeesDetails (employees):', employeesDetails);
-
             setEmployeeDetails(employeesDetails);
 
-            // NEW: Get common IDs only (intersection)
             const paymentIds = new Set(employeeData.map(emp => emp['month-yearemployee_details']?.id).filter(Boolean));
             const detailIds = new Set(employeesDetails.map(e => e.id));
             const commonIds = [...paymentIds].filter(id => detailIds.has(id));
-            console.log('DEBUG: Common IDs (intersection):', commonIds.length, commonIds);
 
-            // Log excluded payments
             const excludedIds = [...paymentIds].filter(id => !detailIds.has(id));
             if (excludedIds.length > 0) {
                 console.warn('DEBUG: Excluded payment IDs (no matching details):', excludedIds);
@@ -91,9 +83,9 @@ const PreparePayroll = () => {
 
             let initialEmployees = commonIds.map(id => {
                 const empData = employeeData.find(emp => emp['month-yearemployee_details']?.id === id);
-                const savedEmp = parsedState.find(s => s['month-yearemployee_details']?.id === id);  // Updated key
+                const savedEmp = parsedState.find(s => s['month-yearemployee_details']?.id === id);
                 const employeeDetail = employeesDetails.find(e => e.id === id);
-                
+
                 return {
                     ...empData,
                     isReadyForPayroll: savedEmp ? savedEmp.isReadyForPayroll : false,
@@ -101,18 +93,15 @@ const PreparePayroll = () => {
                 };
             });
 
-            console.log('DEBUG: initialEmployees after mapping (common only):', initialEmployees);
-
             setEmployees(initialEmployees);
             setDefaultCharges(chargesData);
 
-            // Select first common or saved (validate)
             const savedEmployeeId = localStorage.getItem(LOCAL_STORAGE_KEYS.SELECTED_EMPLOYEE_ID);
             const validSavedId = savedEmployeeId && commonIds.includes(savedEmployeeId) ? savedEmployeeId : null;
             if (validSavedId) {
                 setSelectedEmployeeId(validSavedId);
             } else if (initialEmployees.length > 0) {
-                setSelectedEmployeeId(initialEmployees[0]['month-yearemployee_details'].id);  // Updated key
+                setSelectedEmployeeId(initialEmployees[0]['month-yearemployee_details'].id);
             } else {
                 console.warn('No common employees found between payments and details.');
             }
@@ -128,22 +117,24 @@ const PreparePayroll = () => {
     const mappedEmployees = useMemo(() => {
         if (!employees) return [];
         const result = employees.map(emp => {
-            const employeeDetail = employeeDetails.find(e => e.id === emp['month-yearemployee_details']?.id);  // Updated key
-            const details = emp['month-yearemployee_details'];  // Shorthand
+            const employeeDetail = employeeDetails.find(e => e.id === emp['month-yearemployee_details']?.id);
+            const details = emp['month-yearemployee_details'];
             const mapped = {
                 id: details?.id,
                 name: `${details?.first_name || ''} ${details?.last_name || ''}`.trim() || 'Unknown Employee',
-                title: details?.department || employeeDetail?.departments?.name || 'Unknown',  // Fallback to detail's dept
+                title: details?.department || employeeDetail?.departments?.name || 'Unknown',
                 avatar_url: details?.avatar_url,
                 isReadyForPayroll: emp.isReadyForPayroll,
                 canPreparePayroll: emp.canPreparePayroll,
-                next_due_date: employeeDetail?.next_due_date || details?.next_due_date  // Fallback
+                next_due_date: employeeDetail?.next_due_date || details?.next_due_date,
+                employment_status: employeeDetail?.employment_status
             };
-            console.log(`DEBUG Mapped Employee ID ${mapped.id}: name="${mapped.name}", title="${mapped.title}", detail found: ${!!employeeDetail}`);
             return mapped;
         });
-        console.log('DEBUG: Full mappedEmployees:', result);
-        return result;
+
+        return result.filter(employee =>
+            employee.employment_status?.toLowerCase() !== 'terminated'
+        );
     }, [employees, employeeDetails]);
 
     // Calculate selected employee details
@@ -202,7 +193,6 @@ const PreparePayroll = () => {
     const filteredEmployees = useMemo(() => {
         const result = mappedEmployees.filter(employee => {
             if (!employee || !employee.name || !employee.title) {
-                console.log(`DEBUG Filtered OUT: ID ${employee?.id}, name="${employee?.name}", title="${employee?.title}"`);
                 return false;
             }
             const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -210,19 +200,14 @@ const PreparePayroll = () => {
             const matchesDepartment = selectedDepartment === '' || employee.title.toLowerCase().includes(selectedDepartment.toLowerCase());
             const matchesStatus = selectedStatus === '' || (selectedStatus === 'Ready' && employee.isReadyForPayroll) || (selectedStatus === 'Pending' && !employee.isReadyForPayroll);
             const finalMatch = matchesSearch && matchesDepartment && matchesStatus;
-            if (!finalMatch) {
-                console.log(`DEBUG Filtered OUT (non-basic): ID ${employee.id}, search="${searchTerm}", dept="${selectedDepartment}", status="${selectedStatus}", matches: search=${matchesSearch}, dept=${matchesDepartment}, status=${matchesStatus}`);
-            }
             return finalMatch;
         });
-        console.log('DEBUG: Filtered result length:', result.length, 'Full filteredEmployees:', result);
         return result;
     }, [mappedEmployees, searchTerm, selectedDepartment, selectedStatus]);
 
     // Count ready employees
     const readyForPayrollCount = useMemo(() => {
         const count = mappedEmployees.filter(emp => emp.isReadyForPayroll).length;
-        console.log('DEBUG: readyForPayrollCount:', count);
         return count;
     }, [mappedEmployees]);
 
@@ -282,7 +267,7 @@ const PreparePayroll = () => {
     };
 
     const handleConfirmPayslip = () => {
-        toast.success(`Payslip for ${selectedEmployee.name} confirmed and generated!`);
+        toast.success(`Payment for ${selectedEmployee.name} confirmed!`);
         setIsPayslipModalOpen(false);
     };
 

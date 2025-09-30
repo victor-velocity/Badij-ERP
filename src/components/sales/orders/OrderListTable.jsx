@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlus, faEye, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faPlus, faEye, faEdit, faTrash, faRefresh } from '@fortawesome/free-solid-svg-icons';
 import CreateOrderModal from "./CreateOrderModal";
 import EditOrderModal from "./EditOrderModal";
-import DeleteOrderModal from "./DeleteOrderConfirmation";
 import ViewOrderModal from "./ViewOrderModal";
 import toast from "react-hot-toast";
+import apiService from "@/app/lib/apiService";
+import { useRouter } from "next/navigation";
 
 const OrderListTable = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -15,166 +16,120 @@ const OrderListTable = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [customers, setCustomers] = useState({});
     const itemsPerPage = 12;
+    const router = useRouter();
 
-    const [orders, setOrders] = useState([
-        {
-            id: "#412346",
-            customer: "Abdulrauf Fuad",
-            address: "12 Lagos Street, Lagos",
-            deliveryDate: "24 Aug, 2025",
-            paymentType: "Transfer",
-            status: "Shipped to customer",
-            phone: "+2348012345678",
-            email: "fuad@gmail.com",
-            items: [
-                { id: 1, name: "Wooden Dining Chair", price: 15000, quantity: 2 },
-                { id: 4, name: "Wooden Dining Table", price: 50000, quantity: 1 },
-            ],
-            amount: 80000, // (15000 * 2) + (50000 * 1)
-        },
-        {
-            id: "#413246",
-            customer: "John Doe",
-            address: "15 Lagos Avenue, Lagos",
-            deliveryDate: "28 Aug, 2025",
-            paymentType: "Card",
-            status: "Inventory arrangement",
-            phone: "+2348076543210",
-            email: "john@gmail.com",
-            items: [
-                { id: 2, name: "Office Chair", price: 20000, quantity: 3 },
-            ],
-            amount: 60000, // (20000 * 3)
-        },
-        {
-            id: "#412347",
-            customer: "Irene Israel",
-            address: "20 Abuja Road, Abuja",
-            deliveryDate: "31 Aug, 2025",
-            paymentType: "Card",
-            status: "In transit",
-            phone: "+2348034567890",
-            email: "irene@gmail.com",
-            items: [
-                { id: 3, name: "Leather Recliner", price: 35000, quantity: 1 },
-                { id: 5, name: "Glass Coffee Table", price: 45000, quantity: 1 },
-            ],
-            amount: 80000, // (35000 * 1) + (45000 * 1)
-        },
-        {
-            id: "#413248",
-            customer: "Mary Smith",
-            address: "10 Akwa Street, Akwa",
-            deliveryDate: "2 Sep, 2025",
-            paymentType: "Cash",
-            status: "Pending",
-            phone: "+2348098765432",
-            email: "mary@gmail.com",
-            items: [
-                { id: 6, name: "Foldable Table", price: 25000, quantity: 2 },
-            ],
-            amount: 50000, // (25000 * 2)
-        },
-        {
-            id: "#413249",
-            customer: "Victor Tobi",
-            address: "5 Abuja Lane, Abuja",
-            deliveryDate: "7 Sep, 2025",
-            paymentType: "Transfer",
-            status: "Pending",
-            phone: "+2348054321098",
-            email: "tobi@gmail.com",
-            items: [
-                { id: 1, name: "Wooden Dining Chair", price: 15000, quantity: 4 },
-            ],
-            amount: 60000, // (15000 * 4)
-        },
-        {
-            id: "#412351",
-            customer: "Murtala Muhammad",
-            address: "8 Kano Road, Kano",
-            deliveryDate: "10 Sep, 2025",
-            paymentType: "Card",
-            status: "Shipped to customer",
-            phone: "+2348012345678",
-            email: "murtala@gmail.com",
-            items: [
-                { id: 4, name: "Wooden Dining Table", price: 50000, quantity: 1 },
-                { id: 1, name: "Wooden Dining Chair", price: 15000, quantity: 4 },
-            ],
-            amount: 110000, // (50000 * 1) + (15000 * 4)
-        },
-        {
-            id: "#412352",
-            customer: "Ojo Danjuma",
-            address: "3 Badan Street, Badan",
-            deliveryDate: "12 Sep, 2025",
-            paymentType: "Transfer",
-            status: "Ready for dispatch",
-            phone: "+2348076543210",
-            email: "dan@gmail.com",
-            items: [
-                { id: 2, name: "Office Chair", price: 20000, quantity: 2 },
-                { id: 5, name: "Glass Coffee Table", price: 45000, quantity: 1 },
-            ],
-            amount: 85000, // (20000 * 2) + (45000 * 1)
-        },
-        {
-            id: "#413250",
-            customer: "Okeke Chukwuma",
-            address: "7 Anambra Avenue, Anambra",
-            deliveryDate: "13 Sep, 2025",
-            paymentType: "Card",
-            status: "Inventory arrangement",
-            phone: "+2348034567890",
-            email: "chukwuma@gmail.com",
-            items: [
-                { id: 3, name: "Leather Recliner", price: 35000, quantity: 2 },
-            ],
-            amount: 70000, // (35000 * 2)
-        },
-        {
-            id: "#412353",
-            customer: "Amina Musa",
-            address: "4 Abuja Drive, Abuja",
-            deliveryDate: "20 Sep, 2025",
-            paymentType: "Cash",
-            status: "In transit",
-            phone: "+2348098765432",
-            email: "amina@gmail.com",
-            items: [
-                { id: 6, name: "Foldable Table", price: 25000, quantity: 3 },
-            ],
-            amount: 75000, // (25000 * 3)
-        },
-    ]);
+    // Skeleton rows for loading state
+    const skeletonRows = Array.from({ length: 8 }, (_, i) => i);
+
+    // Fetch customer details
+    const fetchCustomerDetails = async (customerId) => {
+        if (customers[customerId]) return customers[customerId];
+        
+        try {
+            const response = await apiService.getCustomerById(customerId, router);
+            if (response.status === "success" && response.data) {
+                const customerData = {
+                    name: response.data.name || 'Unknown Customer',
+                    email: response.data.email || '',
+                    phone: response.data.phone_number || ''
+                };
+                setCustomers(prev => ({ ...prev, [customerId]: customerData }));
+                return customerData;
+            }
+        } catch (error) {
+            console.error(`Error fetching customer ${customerId}:`, error);
+        }
+        return { name: 'Unknown Customer', email: '', phone: '' };
+    };
+
+    // Fetch orders from backend
+    const fetchOrders = async () => {
+        try {
+            setLoading(true);
+            const response = await apiService.getOrders(router);
+            if (response.status === "success") {
+                const ordersData = response.data || [];
+                setOrders(ordersData);
+
+                // Fetch customer details for all orders
+                const customerPromises = ordersData.map(order => 
+                    fetchCustomerDetails(order.customer_id)
+                );
+                await Promise.all(customerPromises);
+            } else {
+                setError(response.message || "Failed to fetch orders");
+                toast.error(response.message || "Failed to fetch orders");
+            }
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+            setError(error.message);
+            toast.error(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
 
     const getStatusColor = (status) => {
-        switch (status) {
-            case 'Pending':
+        switch (status?.toLowerCase()) {
+            case 'pending':
                 return 'text-orange-500';
-            case 'Inventory arrangement':
+            case 'processing':
                 return 'text-yellow-500';
-            case 'Ready for dispatch':
-                return 'text-blue-500';
-            case 'In transit':
+            case 'shipped':
                 return 'text-purple-500';
-            case 'Shipped to customer':
+            case 'delivered':
                 return 'text-green-500';
+            case 'canceled':
+                return 'text-red-500';
             default:
                 return 'text-gray-500';
         }
     };
 
-    const filteredOrders = orders.filter(order =>
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.deliveryDate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.paymentType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.status.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const formatOrderData = (order) => {
+        const customer = customers[order.customer_id] || { name: 'Loading...', email: '', phone: '' };
+        
+        return {
+            id: order.order_id,
+            order_number: order.order_number,
+            customer: customer.name,
+            customer_id: order.customer_id,
+            address: order.dispatch_address,
+            deliveryDate: order.delivery_date || 'Not set',
+            paymentType: 'Transfer', // You might want to add this field to your backend
+            status: order.status,
+            phone: customer.phone || order.phone_number,
+            email: customer.email,
+            items: order.order_details?.map(detail => ({
+                id: detail.product_id?.id || detail.product_id,
+                name: detail.product_id?.name || 'Product',
+                price: detail.product_id?.price || 0,
+                quantity: detail.quantity
+            })) || [],
+            amount: order.total_amount,
+            notes: order.notes,
+            originalData: order
+        };
+    };
+
+    const filteredOrders = orders
+        .map(formatOrderData)
+        .filter(order =>
+            order.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.deliveryDate?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.status?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -183,45 +138,42 @@ const OrderListTable = () => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    const handleOrderSubmit = (newOrder) => {
-        setOrders(prev => [...prev, newOrder]);
-        setIsCreateModalOpen(false);
-        toast.success("Order created successfully!");
+    const handleOrderSubmit = async (newOrderData) => {
+        try {
+            const response = await apiService.createOrder(newOrderData, router);
+            if (response.status === "success") {
+                await fetchOrders(); // Refresh the orders list
+                setIsCreateModalOpen(false);
+                toast.success("Order created successfully!");
+            } else {
+                toast.error(response.message || "Failed to create order");
+            }
+        } catch (error) {
+            console.error("Error creating order:", error);
+            toast.error(error.message);
+        }
     };
 
-    const handleEditOrder = (updatedOrder) => {
-        if (updatedOrder.status !== "Pending") {
-            toast.error("Cannot edit order with status other than Pending");
-            return;
+    const handleEditOrder = async (updatedOrderData) => {
+        try {
+            const response = await apiService.updateOrder(selectedOrderId, updatedOrderData, router);
+            if (response.status === "success") {
+                await fetchOrders(); // Refresh the orders list
+                setIsEditModalOpen(false);
+                setSelectedOrderId(null);
+                toast.success("Order updated successfully!");
+            } else {
+                toast.error(response.message || "Failed to update order");
+            }
+        } catch (error) {
+            console.error("Error updating order:", error);
+            toast.error(error.message);
         }
-        setOrders(prev =>
-            prev.map(o => (o.id === updatedOrder.id ? updatedOrder : o))
-        );
-        setIsEditModalOpen(false);
-        setSelectedOrderId(null);
-        toast.success("Order updated successfully!");
-    };
-
-    const handleDeleteOrder = (orderId) => {
-        const order = orders.find(o => o.id === orderId);
-        if (order.status !== "Pending") {
-            toast.error("Cannot delete order with status other than Pending");
-            return;
-        }
-        setOrders(prev => prev.filter(o => o.id !== orderId));
-        setIsDeleteModalOpen(false);
-        setSelectedOrderId(null);
-        toast.success("Order deleted successfully!");
     };
 
     const openEditModal = (orderId) => {
         setSelectedOrderId(orderId);
         setIsEditModalOpen(true);
-    };
-
-    const openDeleteModal = (orderId) => {
-        setSelectedOrderId(orderId);
-        setIsDeleteModalOpen(true);
     };
 
     const openViewModal = (orderId) => {
@@ -230,8 +182,8 @@ const OrderListTable = () => {
     };
 
     return (
-        <div className="rounded-lg shadow-md p-4">
-            <div className="flex justify-between items-center mb-10">
+        <div>
+            <div className="flex justify-between items-center my-10">
                 <h2 className="text-lg font-bold">Order Table</h2>
                 <div className="flex items-center gap-2">
                     <div className="relative">
@@ -242,20 +194,38 @@ const OrderListTable = () => {
                             className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            disabled={loading}
                         />
                     </div>
                     <button
-                        className="px-4 py-2 bg-yellow-600 text-white rounded-md"
+                        className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => setIsCreateModalOpen(true)}
+                        disabled={loading}
                     >
-                        <FontAwesomeIcon icon={faPlus} /> Create sales order
+                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                        Create sales order
+                    </button>
+                    <button
+                        className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={fetchOrders}
+                        disabled={loading}
+                    >
+                        <FontAwesomeIcon icon={faRefresh} className="mr-2" />
+                        Refresh
                     </button>
                 </div>
             </div>
+
+            {error && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                    {error}
+                </div>
+            )}
+
             <table className="w-full text-left table-auto">
                 <thead>
                     <tr className="text-gray-600 text-sm border-b border-gray-300">
-                        <th className="pb-4">Order ID</th>
+                        <th className="pb-4">Order Number</th>
                         <th className="pb-4">Customer name</th>
                         <th className="pb-4">Dispatch address</th>
                         <th className="pb-4">Date of Delivery</th>
@@ -265,10 +235,38 @@ const OrderListTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentOrders.length > 0 ? (
+                    {loading ? (
+                        // Skeleton loading rows
+                        skeletonRows.map((index) => (
+                            <tr key={index} className="border-b border-gray-300 animate-pulse">
+                                <td className="py-5">
+                                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                </td>
+                                <td className="py-5">
+                                    <div className="h-4 bg-gray-200 rounded w-32"></div>
+                                </td>
+                                <td className="py-5">
+                                    <div className="h-4 bg-gray-200 rounded w-40"></div>
+                                </td>
+                                <td className="py-5">
+                                    <div className="h-4 bg-gray-200 rounded w-28"></div>
+                                </td>
+                                <td className="py-5">
+                                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                                </td>
+                                <td className="py-5">
+                                    <div className="h-6 bg-gray-200 rounded w-24"></div>
+                                </td>
+                                <td className="py-4 flex space-x-4 mt-2">
+                                    <div className="h-5 w-5 bg-gray-200 rounded"></div>
+                                    <div className="h-5 w-5 bg-gray-200 rounded"></div>
+                                </td>
+                            </tr>
+                        ))
+                    ) : currentOrders.length > 0 ? (
                         currentOrders.map((order, index) => (
-                            <tr key={index} className="border-b border-gray-300">
-                                <td className="py-5">{order.id}</td>
+                            <tr key={order.id} className="border-b border-gray-300">
+                                <td className="py-5 font-mono">{order.order_number}</td>
                                 <td className="py-5">{order.customer}</td>
                                 <td className="py-5">{order.address}</td>
                                 <td className="py-5">{order.deliveryDate}</td>
@@ -281,60 +279,57 @@ const OrderListTable = () => {
                                 <td className="py-4 flex space-x-4 mt-2">
                                     <FontAwesomeIcon
                                         icon={faEye}
-                                        className="text-blue-500 cursor-pointer"
+                                        className="text-blue-500 cursor-pointer hover:text-blue-700"
                                         onClick={() => openViewModal(order.id)}
+                                        title="View Order"
                                     />
-                                    {order.status === 'Pending' && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faEdit}
-                                                className="text-green-500 cursor-pointer"
-                                                onClick={() => openEditModal(order.id)}
-                                            />
-                                            <FontAwesomeIcon
-                                                icon={faTrash}
-                                                className="text-red-500 cursor-pointer"
-                                                onClick={() => openDeleteModal(order.id)}
-                                            />
-                                        </>
-                                    )}
+                                    <FontAwesomeIcon
+                                        icon={faEdit}
+                                        className="text-green-500 cursor-pointer hover:text-green-700"
+                                        onClick={() => openEditModal(order.id)}
+                                        title="Edit Order"
+                                    />
                                 </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
                             <td colSpan="7" className="py-4 text-center text-gray-500">
-                                No orders found
+                                {orders.length === 0 ? "No orders found" : "No orders match your search"}
                             </td>
                         </tr>
                     )}
                 </tbody>
             </table>
-            <div className="mt-4 flex justify-center items-center">
-                <button
-                    onClick={() => paginate(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 bg-[#b88b1b] text-white hover:bg-[#8b6a15] transition-all rounded-md mr-2 disabled:opacity-50"
-                >
-                    Previous
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+
+            {!loading && totalPages > 1 && (
+                <div className="mt-4 flex justify-center items-center">
                     <button
-                        key={page}
-                        onClick={() => paginate(page)}
-                        className={`px-3 py-1 mx-1 rounded-md ${currentPage === page ? 'bg-[#b88b1b] text-white' : 'bg-gray-200 text-gray-700'}`}
+                        onClick={() => paginate(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1 bg-[#b88b1b] text-white hover:bg-[#8b6a15] transition-all rounded-md mr-2 disabled:opacity-50"
                     >
-                        {page}
+                        Previous
                     </button>
-                ))}
-                <button
-                    onClick={() => paginate(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1 bg-[#b88b1b] text-white hover:bg-[#8b6a15] transition-all rounded-md ml-2 disabled:opacity-50"
-                >
-                    Next
-                </button>
-            </div>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                            key={page}
+                            onClick={() => paginate(page)}
+                            className={`px-3 py-1 mx-1 rounded-md ${currentPage === page ? 'bg-[#b88b1b] text-white' : 'bg-gray-200 text-gray-700'}`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+                    <button
+                        onClick={() => paginate(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1 bg-[#b88b1b] text-white hover:bg-[#8b6a15] transition-all rounded-md ml-2 disabled:opacity-50"
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
+
             <CreateOrderModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
@@ -347,16 +342,7 @@ const OrderListTable = () => {
                     setSelectedOrderId(null);
                 }}
                 onSubmit={handleEditOrder}
-                order={orders.find(o => o.id === selectedOrderId)}
-            />
-            <DeleteOrderModal
-                isOpen={isDeleteModalOpen}
-                onClose={() => {
-                    setIsDeleteModalOpen(false);
-                    setSelectedOrderId(null);
-                }}
-                onDelete={handleDeleteOrder}
-                order={orders.find(o => o.id === selectedOrderId)}
+                order={orders.find(o => o.order_id === selectedOrderId)}
             />
             <ViewOrderModal
                 isOpen={isViewModalOpen}
@@ -364,7 +350,8 @@ const OrderListTable = () => {
                     setIsViewModalOpen(false);
                     setSelectedOrderId(null);
                 }}
-                order={orders.find(o => o.id === selectedOrderId)}
+                order={orders.find(o => o.order_id === selectedOrderId)}
+                customer={customers[orders.find(o => o.order_id === selectedOrderId)?.customer_id]}
             />
         </div>
     );

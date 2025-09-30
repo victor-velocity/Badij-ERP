@@ -44,11 +44,7 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
     const navItems = [
         { name: "Dashboard", icon: faThLarge, path: "/sales" },
         { name: "Customers", icon: faUsers, path: "/sales/customers" },
-        { name: "Orders", icon: faClipboardList, path: "/sales/orders" },
-        { name: "Report", icon: faChartLine, path: "/sales/report" },
-        { name: "Payroll", icon: faMoneyBillAlt, path: "/sales/payroll" },
-        { name: "Documents", icon: faFileAlt, path: "/sales/documents" },
-        { name: "Settings", icon: faCog, path: "/sales/settings" }
+        { name: "Orders", icon: faClipboardList, path: "/sales/orders" }
     ];
 
     const handleLogout = async () => {

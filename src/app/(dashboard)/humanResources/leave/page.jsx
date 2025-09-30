@@ -1,9 +1,33 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { LeaveRow } from '@/components/hr/leave/LeaveRequestTable';
 import apiService from '@/app/lib/apiService';
 import toast from 'react-hot-toast';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faHourglassHalf,
+    faCheckCircle,
+    faTimesCircle,
+    faClipboardList
+} from '@fortawesome/free-solid-svg-icons';
+
+// --- MetricCard Component (Text-Left, Icon-Right Layout) ---
+const MetricCard = ({ title, value, icon, bgColor, textColor }) => (
+    <div className={`flex flex-col px-5 py-7 rounded-xl shadow-lg border-l-4 ${bgColor} min-w-[200px] flex-1 transition-transform hover:scale-[1.02]`}>
+        <div className="flex justify-between items-start w-full">
+            <div className='flex flex-col items-start'>
+                <p className="text-sm text-gray-500 font-medium">{title}</p>
+                <p className={`text-3xl font-bold mt-1 ${textColor.replace('text', 'text')}`}>{value}</p>
+            </div>
+            <div className={`p-3 rounded-full ${textColor} ${bgColor.replace('-50', '-100')}`}>
+                <FontAwesomeIcon icon={icon} className="text-2xl" />
+            </div>
+        </div>
+    </div>
+);
+// --- End MetricCard Component ---
+
 
 const LeaveRequestTable = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -16,12 +40,39 @@ const LeaveRequestTable = () => {
     const [error, setError] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
+    // --- Metric States ---
+    const [totalRequests, setTotalRequests] = useState(0);
+    const [pendingRequests, setPendingRequests] = useState(0);
+    const [approvedRequests, setApprovedRequests] = useState(0);
+    const [rejectedRequests, setRejectedRequests] = useState(0);
+    // ---------------------
+
+    // --- Metric Calculation Logic ---
+    const calculateMetrics = useCallback((data) => {
+        if (!data) return;
+
+        // Filter out 'cancelled' requests for metrics
+        const activeLeaves = data.filter(leave => leave.status?.toLowerCase() !== 'cancelled');
+
+        const total = activeLeaves.length;
+        const pending = activeLeaves.filter(leave => leave.status?.toLowerCase() === 'pending').length;
+        const approved = activeLeaves.filter(leave => leave.status?.toLowerCase() === 'approved').length;
+        const rejected = activeLeaves.filter(leave => leave.status?.toLowerCase() === 'rejected').length;
+
+        setTotalRequests(total);
+        setPendingRequests(pending);
+        setApprovedRequests(approved);
+        setRejectedRequests(rejected);
+    }, []);
+    // --------------------------------
+
     const fetchLeaves = async () => {
         try {
             setLoading(true);
             setError(null);
             const data = await apiService.getLeaves();
             setLeavesData(data);
+            calculateMetrics(data); // Calculate metrics after fetching data
         } catch (err) {
             console.error("Error fetching leave requests:", err);
             setError("Failed to load leave requests. Please try again.");
@@ -33,7 +84,7 @@ const LeaveRequestTable = () => {
 
     useEffect(() => {
         fetchLeaves();
-    }, [refreshTrigger]);
+    }, [refreshTrigger, calculateMetrics]);
 
     const handleUpdateLeaveStatus = (leaveId, newStatus) => {
         setLeavesData(prevLeaves =>
@@ -136,7 +187,6 @@ const LeaveRequestTable = () => {
         return () => clearInterval(intervalId);
     }, []);
 
-    // Loading skeleton component
     const LoadingSkeletonRow = () => (
         <tr className="animate-pulse">
             <td className="px-6 py-4 whitespace-nowrap rounded-l-lg">
@@ -175,7 +225,6 @@ const LeaveRequestTable = () => {
         </tr>
     );
 
-    // Table header component
     const TableHeader = () => (
         <thead>
             <tr>
@@ -195,8 +244,7 @@ const LeaveRequestTable = () => {
     return (
         <div className="">
             <div className="">
-                {/* Header Section */}
-                <div className='flex justify-between items-center mt-5 mb-14 flex-wrap gap-4'>
+                <div className='flex justify-between items-center mt-5 mb-10 flex-wrap gap-4'>
                     <div>
                         <h1 className='text-2xl font-bold '>Leave Request Management</h1>
                         <p className='text-[#A09D9D] font-medium mt-2'>View and manage all leave requests in your organization</p>
@@ -205,6 +253,39 @@ const LeaveRequestTable = () => {
                         {currentDateTime}
                     </span>
                 </div>
+
+                {/* --- Metric Cards Section --- */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                    <MetricCard 
+                        title="Total Requests"
+                        value={loading ? '...' : totalRequests.toString()}
+                        icon={faClipboardList}
+                        bgColor="bg-indigo-50"
+                        textColor="text-indigo-700"
+                    />
+                    <MetricCard 
+                        title="Pending"
+                        value={loading ? '...' : pendingRequests.toString()}
+                        icon={faHourglassHalf}
+                        bgColor="bg-yellow-50"
+                        textColor="text-yellow-700"
+                    />
+                    <MetricCard 
+                        title="Approved"
+                        value={loading ? '...' : approvedRequests.toString()}
+                        icon={faCheckCircle}
+                        bgColor="bg-green-50"
+                        textColor="text-green-700"
+                    />
+                    <MetricCard 
+                        title="Rejected"
+                        value={loading ? '...' : rejectedRequests.toString()}
+                        icon={faTimesCircle}
+                        bgColor="bg-red-50"
+                        textColor="text-red-700"
+                    />
+                </div>
+                {/* --- End Metric Cards Section --- */}
 
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                     <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-0">Leave list</h2>
@@ -220,7 +301,6 @@ const LeaveRequestTable = () => {
                                     setCurrentPage(1);
                                 }}
                             />
-                            {/* Search icon */}
                             <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
                     </div>

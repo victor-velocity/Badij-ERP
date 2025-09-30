@@ -1,16 +1,19 @@
+"use client"
+
 import React, { useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import toast from "react-hot-toast";
+import apiService from "@/app/lib/apiService";
 
-const AddCustomerModal = ({ isOpen, onClose, onAddCustomer }) => {
+const AddCustomerModal = ({ isOpen, onClose }) => {
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
         email: "",
         address: "",
         state: "",
-        status: "Active"
+        status: "active"
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -27,38 +30,36 @@ const AddCustomerModal = ({ isOpen, onClose, onAddCustomer }) => {
         setIsLoading(true);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const payload = {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone === "" ? null : formData.phone,
+                address: formData.address === "" ? null : formData.address,
+                state: formData.state === "" ? null : formData.state,
+                status: formData.status === "" ? null : formData.status
+            };
 
-            const phoneRegex = /^\+234\d{10}$/;
-            if (!phoneRegex.test(formData.phone)) {
-                throw new Error("Phone number must be in the format +234XXXXXXXXXX");
-            }
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(formData.email)) {
-                throw new Error("Invalid email format");
-            }
-
-            onAddCustomer({
-                ...formData,
-                lastOrder: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-                totalOrders: 0,
-                totalSpend: "N0"
-            });
-
+            await apiService.createCustomer(payload, null);
             toast.success("Customer added successfully!");
-
             setFormData({
                 name: "",
                 phone: "",
                 email: "",
                 address: "",
                 state: "",
-                status: "Active"
+                status: "active"
             });
             onClose();
         } catch (error) {
-            toast.error(error.message || "Failed to add customer");
+            let errorMessage = error.message;
+            if (errorMessage.includes('duplicate key value violates unique constraint "customers_email_key"')) {
+                errorMessage = "Customer already exists";
+            } else if (errorMessage.includes("Validation failed")) {
+                errorMessage = error.message;
+            } else {
+                errorMessage = errorMessage || "Failed to add customer";
+            }
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -96,7 +97,6 @@ const AddCustomerModal = ({ isOpen, onClose, onAddCustomer }) => {
                             value={formData.phone}
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            required
                             disabled={isLoading}
                         />
                     </div>
@@ -120,7 +120,6 @@ const AddCustomerModal = ({ isOpen, onClose, onAddCustomer }) => {
                             value={formData.address}
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            required
                             disabled={isLoading}
                         />
                     </div>
@@ -132,7 +131,6 @@ const AddCustomerModal = ({ isOpen, onClose, onAddCustomer }) => {
                             value={formData.state}
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            required
                             disabled={isLoading}
                         />
                     </div>
@@ -145,8 +143,8 @@ const AddCustomerModal = ({ isOpen, onClose, onAddCustomer }) => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                             disabled={isLoading}
                         >
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
                         </select>
                     </div>
                     <div className="flex justify-end gap-2">

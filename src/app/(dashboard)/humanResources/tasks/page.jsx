@@ -6,7 +6,14 @@ import TaskTable from "@/components/hr/tasks/TasksTable";
 import AddTaskModal from "@/components/hr/tasks/AddTaskModal";
 import ViewTaskModal from "@/components/hr/tasks/ViewTaskModal";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { 
+    faMagnifyingGlass,
+    faListCheck,
+    faClock,
+    faHourglassHalf,
+    faCircleCheck,
+    faTriangleExclamation
+} from '@fortawesome/free-solid-svg-icons';
 import apiService from "@/app/lib/apiService";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -214,26 +221,41 @@ export default function TaskPage() {
                     title="All tasks"
                     count={loading ? 0 : allTasks.filter(t => t.status !== "Cancelled").length}
                     loading={loading}
+                    icon={faListCheck}
+                    bgColor="bg-blue-50"
+                    textColor="text-blue-700"
                 />
                 <TaskCard
                     title="Pending"
                     count={loading ? 0 : allTasks.filter(t => t.status === 'Pending').length}
                     loading={loading}
+                    icon={faClock}
+                    bgColor="bg-yellow-50"
+                    textColor="text-yellow-700"
                 />
                 <TaskCard
                     title="In progress"
                     count={loading ? 0 : allTasks.filter(t => t.status === 'In Progress').length}
                     loading={loading}
+                    icon={faHourglassHalf}
+                    bgColor="bg-indigo-50"
+                    textColor="text-indigo-700"
                 />
                 <TaskCard
                     title="Completed"
                     count={loading ? 0 : allTasks.filter(t => t.status === 'Completed').length}
                     loading={loading}
+                    icon={faCircleCheck}
+                    bgColor="bg-green-50"
+                    textColor="text-green-700"
                 />
                 <TaskCard
                     title="Overdue"
                     count={loading ? 0 : allTasks.filter(t => t.isOverdue).length}
                     loading={loading}
+                    icon={faTriangleExclamation}
+                    bgColor="bg-red-50"
+                    textColor="text-red-700"
                 />
             </div>
 

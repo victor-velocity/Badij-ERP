@@ -37,7 +37,7 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
         { name: "Attendance", icon: faCheckSquare, path: "/humanResources/attendance" },
         { name: "Shift", icon: faCalendarAlt, path: "/humanResources/shift" },
         { name: "Task", icon: faClipboardList, path: "/humanResources/tasks" },
-        { name: "Payroll", icon: faMoneyBillAlt, path: "/humanResources/payroll" },
+        { name: "Payslip", icon: faMoneyBillAlt, path: "/humanResources/payroll" },
         { name: "Documents", icon: faFile, path: "/humanResources/documents" },
         // { name: "Message", icon: faEnvelope, path: "/humanResources/chat" },
         { name: "Settings", icon: faCog, path: "/humanResources/settings" },

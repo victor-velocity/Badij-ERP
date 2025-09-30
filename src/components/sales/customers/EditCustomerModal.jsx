@@ -1,18 +1,35 @@
-import React, { useState } from "react";
+"use client"
+
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import toast from "react-hot-toast";
+import apiService from "@/app/lib/apiService";
 
-const EditCustomerModal = ({ isOpen, onClose, onUpdateCustomer, customer }) => {
+const EditCustomerModal = ({ isOpen, onClose, customer }) => {
     const [formData, setFormData] = useState({
-        name: customer?.name || "",
-        phone: customer?.phone || "",
-        email: customer?.email || "",
-        address: customer?.address || "",
-        state: customer?.state || "",
-        status: customer?.status || "Active"
+        name: "",
+        phone: "",
+        email: "",
+        address: "",
+        state: "",
+        status: "active"
     });
     const [isLoading, setIsLoading] = useState(false);
+
+    // Update formData when customer prop changes
+    useEffect(() => {
+        if (customer) {
+            setFormData({
+                name: customer.name || "",
+                phone: customer.phone || "",
+                email: customer.email || "",
+                address: customer.address || "",
+                state: customer.state || "",
+                status: customer.status || "active"
+            });
+        }
+    }, [customer]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,28 +44,39 @@ const EditCustomerModal = ({ isOpen, onClose, onUpdateCustomer, customer }) => {
         setIsLoading(true);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Send all fields, converting empty strings to null for optional fields
+            const updatedFields = {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone === "" ? null : formData.phone,
+                address: formData.address === "" ? null : formData.address,
+                state: formData.state === "" ? null : formData.state,
+                status: formData.status === "" ? null : formData.status
+            };
 
-            const phoneRegex = /^\+234\d{10}$/;
-            if (!phoneRegex.test(formData.phone)) {
-                throw new Error("Phone number must be in the format +234XXXXXXXXXX");
+            // Ensure name and email are not empty
+            if (!updatedFields.name) {
+                throw new Error("Customer name is required");
+            }
+            if (!updatedFields.email) {
+                throw new Error("Customer email is required");
             }
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(formData.email)) {
-                throw new Error("Invalid email format");
-            }
-
-            onUpdateCustomer({
-                ...customer,
-                ...formData
-            });
-
+            await apiService.updateCustomer(customer.customer_id, updatedFields, null);
             toast.success("Customer updated successfully!");
-
             onClose();
         } catch (error) {
-            toast.error("Failed to update customer");
+            let errorMessage = error.message;
+            if (errorMessage.includes("null value in column \"name\"")) {
+                errorMessage = "Customer name is required";
+            } else if (errorMessage.includes("null value in column \"email\"")) {
+                errorMessage = "Customer email is required";
+            } else if (errorMessage.includes("Validation failed")) {
+                errorMessage = error.message;
+            } else {
+                errorMessage = errorMessage || "Failed to update customer";
+            }
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -86,7 +114,6 @@ const EditCustomerModal = ({ isOpen, onClose, onUpdateCustomer, customer }) => {
                             value={formData.phone}
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            required
                             disabled={isLoading}
                         />
                     </div>
@@ -110,7 +137,6 @@ const EditCustomerModal = ({ isOpen, onClose, onUpdateCustomer, customer }) => {
                             value={formData.address}
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            required
                             disabled={isLoading}
                         />
                     </div>
@@ -122,7 +148,6 @@ const EditCustomerModal = ({ isOpen, onClose, onUpdateCustomer, customer }) => {
                             value={formData.state}
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            required
                             disabled={isLoading}
                         />
                     </div>
@@ -135,8 +160,8 @@ const EditCustomerModal = ({ isOpen, onClose, onUpdateCustomer, customer }) => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                             disabled={isLoading}
                         >
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
                         </select>
                     </div>
                     <div className="flex justify-end gap-2">

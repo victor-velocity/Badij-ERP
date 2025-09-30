@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ShiftCard from "@/components/hr/shift/ShiftCard";
 import ViewShiftModal from "@/components/hr/shift/ViewShiftModal";
 import UpdateShiftModal from "@/components/hr/shift/UpdateShiftModal";
@@ -10,7 +10,13 @@ import apiService from "@/app/lib/apiService";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { 
+    faMagnifyingGlass,
+    faQuestionCircle,
+    faSun,
+    faCloudSun,
+    faMoon
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function ShiftPage() {
     const router = useRouter();
@@ -47,14 +53,19 @@ export default function ShiftPage() {
         return () => clearInterval(intervalId);
     }, []);
 
-    const fetchAssignedShifts = async () => {
+    const fetchAssignedShifts = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
             const employeesData = await apiService.getEmployees(router);
             const todayFormatted = new Date().toLocaleDateString('en-US');
 
-            const transformedAssignedShifts = employeesData.map(employee => ({
+            // Filter out terminated employees before processing, using case-insensitive comparison
+            const activeEmployees = employeesData.filter(
+                employee => employee.employment_status?.toLowerCase() !== 'terminated'
+            );
+
+            const transformedAssignedShifts = activeEmployees.map(employee => ({
                 id: employee.id,
                 employee: {
                     name: `${employee.first_name || ''} ${employee.last_name || ''}`.trim(),
@@ -80,7 +91,7 @@ export default function ShiftPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [router]);
 
     const fetchShiftTypes = async () => {
         try {
@@ -95,7 +106,7 @@ export default function ShiftPage() {
     useEffect(() => {
         fetchAssignedShifts();
         fetchShiftTypes();
-    }, [router]);
+    }, [router, fetchAssignedShifts]);
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
@@ -159,6 +170,9 @@ export default function ShiftPage() {
         );
     });
 
+    // Calculate the count of unassigned shifts based on the filtered data
+    const unassignedCount = allAssignedShifts.filter(s => s.shiftType === 'Unassigned').length;
+
     return (
         <div className="max-w-[1400px] mx-auto">
             <div className='flex justify-between items-center mt-5 mb-14 flex-wrap gap-4'>
@@ -172,10 +186,45 @@ export default function ShiftPage() {
             </div>
 
             <div className="flex flex-wrap gap-4 items-center justify-between mb-14">
-                <ShiftCard title="All Shifts" count={allAssignedShifts.length} loading={loading} />
-                <ShiftCard title="Morning Shifts" count={allAssignedShifts.filter(s => s.shiftType === 'Morning').length} loading={loading} />
-                <ShiftCard title="Afternoon Shifts" count={allAssignedShifts.filter(s => s.shiftType === 'Afternoon').length} loading={loading} />
-                <ShiftCard title="Night Shifts" count={allAssignedShifts.filter(s => s.shiftType === 'Night').length} loading={loading} />
+                {/* 'Unassigned Shifts' */}
+                <ShiftCard 
+                    title="Unassigned Shifts" 
+                    count={unassignedCount} 
+                    loading={loading} 
+                    icon={faQuestionCircle}
+                    bgColor="bg-red-50"
+                    textColor="text-red-700"
+                />
+                
+                {/* Morning Shifts Card */}
+                <ShiftCard 
+                    title="Morning Shifts" 
+                    count={allAssignedShifts.filter(s => s.shiftType === 'Morning').length} 
+                    loading={loading} 
+                    icon={faSun}
+                    bgColor="bg-yellow-50"
+                    textColor="text-yellow-700"
+                />
+                
+                {/* Afternoon Shifts Card */}
+                <ShiftCard 
+                    title="Afternoon Shifts" 
+                    count={allAssignedShifts.filter(s => s.shiftType === 'Afternoon').length} 
+                    loading={loading} 
+                    icon={faCloudSun}
+                    bgColor="bg-blue-50"
+                    textColor="text-blue-700"
+                />
+                
+                {/* Night Shifts Card */}
+                <ShiftCard 
+                    title="Night Shifts" 
+                    count={allAssignedShifts.filter(s => s.shiftType === 'Night').length} 
+                    loading={loading} 
+                    icon={faMoon}
+                    bgColor="bg-gray-50"
+                    textColor="text-gray-700"
+                />
             </div>
 
             <div className="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 bg-white border-b border-gray-200 rounded-t-lg">

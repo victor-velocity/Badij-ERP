@@ -274,8 +274,8 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                                 onChange={handleChange}
                                 className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                             >
-                                <option value="active">Active</option>
-                                <option value="on leave">On Leave</option>
+                                <option value="Active">Active</option>
+                                <option value="On Leave">On Leave</option>
                             </select>
                         </div>
                         <div>

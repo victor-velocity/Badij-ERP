@@ -1,31 +1,42 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import DashboardCard from '@/components/hr/DashboardCard';
 import Attendance from '@/components/hr/AttendanceTable';
 import ShiftManagement from '@/components/hr/ShiftsTable';
 import apiService from '@/app/lib/apiService';
 import { useRouter } from 'next/navigation';
 
+const isPending = (item) => item.status && item.status.toLowerCase() === 'pending';
+
 export default function HRManagerDashboardPage() {
     const router = useRouter();
     const [currentDateTime, setCurrentDateTime] = useState('');
 
-    const [totalLeaveRequests, setTotalLeaveRequests] = useState(0);
-    const [prevTotalLeaveRequests, setPrevTotalLeaveRequests] = useState(0);
+    const [pendingLeaveRequests, setPendingLeaveRequests] = useState(0);
     const [loadingLeaves, setLoadingLeaves] = useState(true);
+    const [allLeaves, setAllLeaves] = useState(0);
 
     const [totalEmployees, setTotalEmployees] = useState(0);
     const [prevTotalEmployees, setPrevTotalEmployees] = useState(0);
     const [loadingEmployees, setLoadingEmployees] = useState(true);
 
-    const [totalTasksIssued, setTotalTasksIssued] = useState(0);
-    const [prevTotalTasksIssued, setPrevTotalTasksIssued] = useState(0);
+    const [totalTasks, setTotalTasks] = useState(0);
+    const [pendingTasks, setPendingTasks] = useState(0);
     const [loadingTasks, setLoadingTasks] = useState(true);
 
     const [assignedShiftsDashboard, setAssignedShiftsDashboard] = useState([]);
     const [loadingShiftsDashboard, setLoadingShiftsDashboard] = useState(true);
     const [errorShiftsDashboard, setErrorShiftsDashboard] = useState(null);
+
+    const totalUnassignedShifts = useMemo(() => {
+        return assignedShiftsDashboard.filter(shift => shift.shiftType === 'Unassigned').length;
+    }, [assignedShiftsDashboard]);
+
+    const totalAssignedShifts = useMemo(() => {
+        return totalEmployees - totalUnassignedShifts;
+    }, [totalEmployees, totalUnassignedShifts]);
+
 
     useEffect(() => {
         const updateDateTime = () => {
@@ -55,26 +66,24 @@ export default function HRManagerDashboardPage() {
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
 
-            const lastMonthDate = new Date();
-            lastMonthDate.setMonth(now.getMonth() - 1);
-            const lastMonth = lastMonthDate.getMonth();
-            const lastMonthYear = lastMonthDate.getFullYear();
-
             setLoadingEmployees(true);
             try {
                 const employees = await apiService.getEmployees(router);
-                setTotalEmployees(employees.length);
+                
+                // Filter out terminated employees
+                const activeEmployees = employees.filter(emp => 
+                    emp.employment_status?.toLowerCase() !== 'terminated'
+                );
 
-                const employeesCurrentMonth = employees.filter(emp => {
+                setTotalEmployees(activeEmployees.length);
+
+                const employeesCurrentMonth = activeEmployees.filter(emp => {
                     const hireDate = new Date(emp.created_at);
                     return hireDate.getMonth() === currentMonth && hireDate.getFullYear() === currentYear;
                 });
-                const employeesLastMonth = employees.filter(emp => {
-                    const hireDate = new Date(emp.created_at);
-                    return hireDate.getMonth() === lastMonth && hireDate.getFullYear() === lastMonthYear;
-                });
-
-                const prevMonthEmployees = employees.length - employeesCurrentMonth.length;
+                
+                // Calculate previous month's total excluding current month hires (simplified metric)
+                const prevMonthEmployees = activeEmployees.length - employeesCurrentMonth.length;
                 setPrevTotalEmployees(prevMonthEmployees);
 
             } catch (error) {
@@ -86,19 +95,9 @@ export default function HRManagerDashboardPage() {
             setLoadingLeaves(true);
             try {
                 const allLeaves = await apiService.getLeaves(router);
-                setTotalLeaveRequests(allLeaves.length);
-
-                const leavesCurrentMonth = allLeaves.filter(leave => {
-                    const leaveDate = new Date(leave.created_at);
-                    return leaveDate.getMonth() === currentMonth && leaveDate.getFullYear() === currentYear;
-                });
-                const leavesLastMonth = allLeaves.filter(leave => {
-                    const leaveDate = new Date(leave.created_at);
-                    return leaveDate.getMonth() === lastMonth && leaveDate.getFullYear() === lastMonthYear;
-                });
-                
-                const prevMonthLeaves = allLeaves.length - leavesCurrentMonth.length;
-                setPrevTotalLeaveRequests(prevMonthLeaves);
+                setAllLeaves(allLeaves.length)
+                const pendingLeaves = allLeaves.filter(isPending);
+                setPendingLeaveRequests(pendingLeaves.length);
 
             } catch (error) {
                 console.error('Failed to fetch leave requests data:', error);
@@ -109,19 +108,10 @@ export default function HRManagerDashboardPage() {
             setLoadingTasks(true);
             try {
                 const allTasks = await apiService.getTasks(router);
-                setTotalTasksIssued(allTasks.length);
+                setTotalTasks(allTasks.length); 
 
-                const tasksCurrentMonth = allTasks.filter(task => {
-                    const taskDate = new Date(task.created_at);
-                    return taskDate.getMonth() === currentMonth && taskDate.getFullYear() === currentYear;
-                });
-                const tasksLastMonth = allTasks.filter(task => {
-                    const taskDate = new Date(task.created_at);
-                    return taskDate.getMonth() === lastMonth && taskDate.getFullYear() === lastMonthYear;
-                });
-                
-                const prevMonthTasks = allTasks.length - tasksCurrentMonth.length;
-                setPrevTotalTasksIssued(prevMonthTasks);
+                const pendingTasksData = allTasks.filter(isPending);
+                setPendingTasks(pendingTasksData.length);
 
             } catch (error) {
                 console.error('Failed to fetch tasks data:', error);
@@ -133,11 +123,16 @@ export default function HRManagerDashboardPage() {
             setErrorShiftsDashboard(null);
             try {
                 const employeesData = await apiService.getEmployees(router);
+                
+                // Filter terminated employees again for shifts
+                const activeEmployeesForShifts = employeesData.filter(emp => 
+                    emp.employment_status?.toLowerCase() !== 'terminated'
+                );
 
                 const today = new Date();
                 const todayFormatted = today.toLocaleDateString('en-US');
 
-                const transformedAssignedShifts = employeesData.map(employee => ({
+                const transformedAssignedShifts = activeEmployeesForShifts.map(employee => ({
                     id: employee.id,
                     employee: {
                         name: `${employee.first_name || ''} ${employee.last_name || ''}`.trim(),
@@ -170,16 +165,6 @@ export default function HRManagerDashboardPage() {
     const employeeChangeType = employeeChangeRaw >= 0 ? 'increase' : 'decrease';
     const employeeChangeDetails = employeeChangeRaw >= 0 ? `+${employeeChangeRaw} since last month` : `${employeeChangeRaw} since last month`;
 
-    const taskChangeRaw = totalTasksIssued - prevTotalTasksIssued;
-    const taskChangePercentage = prevTotalTasksIssued !== 0 ? ((taskChangeRaw / prevTotalTasksIssued) * 100).toFixed(2) : totalTasksIssued > 0 ? 100 : 0;
-    const taskChangeType = taskChangeRaw >= 0 ? 'increase' : 'decrease';
-    const taskChangeDetails = taskChangeRaw >= 0 ? `+${taskChangeRaw} since last month` : `${taskChangeRaw} since last month`;
-
-    const leaveRequestChangeRaw = totalLeaveRequests - prevTotalLeaveRequests;
-    const leaveRequestChangePercentage = prevTotalLeaveRequests !== 0 ? ((leaveRequestChangeRaw / prevTotalLeaveRequests) * 100).toFixed(2) : totalLeaveRequests > 0 ? 100 : 0;
-    const leaveRequestChangeType = leaveRequestChangeRaw >= 0 ? 'increase' : 'decrease';
-    const leaveRequestChangeDetails = leaveRequestChangeRaw >= 0 ? `+${leaveRequestChangeRaw} since last month` : `${leaveRequestChangeRaw} since last month`;
-
     return (
         <div>
             <div className='flex justify-between items-center my-5 flex-wrap gap-4'>
@@ -192,6 +177,7 @@ export default function HRManagerDashboardPage() {
                 </span>
             </div>
             <div className="flex justify-between flex-wrap gap-6 p-4 rounded-lg border border-gray-200 shadow-sm">
+                
                 <DashboardCard
                     title="Total Employee"
                     value={loadingEmployees ? '-' : totalEmployees.toString()}
@@ -202,21 +188,30 @@ export default function HRManagerDashboardPage() {
                 />
 
                 <DashboardCard
-                    title="Total Tasks Issued"
-                    value={loadingTasks ? '-' : totalTasksIssued.toString()}
-                    change={loadingTasks ? '...' : `${taskChangeType === 'increase' ? '+' : ''}${taskChangePercentage}%`}
-                    changeType={taskChangeType}
+                    title="Pending Tasks"
+                    value={loadingTasks ? '-' : pendingTasks.toString()}
+                    change={loadingTasks ? '...' : ''}
+                    changeType={'none'}
                     link="/humanResources/tasks"
-                    changedetails={loadingTasks ? '...' : taskChangeDetails}
+                    changedetails={loadingTasks ? '...' : `Total Tasks Assigned: ${totalTasks.toString()}`}
                 />
 
                 <DashboardCard
-                    title="Total Leave Request"
-                    value={loadingLeaves ? '-' : totalLeaveRequests.toString()}
-                    change={loadingLeaves ? '...' : `${leaveRequestChangeType === 'increase' ? '+' : ''}${leaveRequestChangePercentage}%`}
-                    changeType={leaveRequestChangeType}
+                    title="Pending Leave Requests"
+                    value={loadingLeaves ? '-' : pendingLeaveRequests.toString()}
+                    change={loadingLeaves ? '...' : ''}
+                    changeType={'none'}
                     link="/humanResources/leave"
-                    changedetails={loadingLeaves ? '...' : leaveRequestChangeDetails}
+                    changedetails={loadingLeaves ? '...' : `Total Leaves Requested: ${allLeaves.toString()}`}
+                />
+
+                <DashboardCard
+                    title="Unassigned Shifts"
+                    value={loadingShiftsDashboard ? '-' : totalUnassignedShifts.toString()}
+                    change={loadingShiftsDashboard ? '...' : ''}
+                    changeType={'none'}
+                    link="/humanResources/shifts"
+                    changedetails={loadingShiftsDashboard ? '...' : `Total Number of Assigned Shifts: ${totalAssignedShifts.toString()}`}
                 />
             </div>
             <div className="flex flex-wrap lg:flex-nowrap gap-6 w-full">

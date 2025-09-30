@@ -39,8 +39,12 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
             setDataError(null);
             try {
                 const employees = await apiService.getEmployees(router);
-                setAllEmployees(employees);
-                setFilteredEmployees(employees);
+                const activeEmployees = employees.filter(
+                    employee => employee.employment_status?.toLowerCase() !== 'terminated'
+                );
+                
+                setAllEmployees(activeEmployees);
+                setFilteredEmployees(activeEmployees);
             } catch (error) {
                 console.error("Failed to fetch employees:", error);
                 setDataError(error.message || "Failed to load employees.");

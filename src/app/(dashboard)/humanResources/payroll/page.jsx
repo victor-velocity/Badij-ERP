@@ -5,7 +5,7 @@ import Link from 'next/link';
 import React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faAngleLeft, faAngleRight, faUsers, faMoneyBillWave, faHandHoldingDollar, faArrowDownWideShort } from '@fortawesome/free-solid-svg-icons'; // Added new icons
 import apiService from '@/app/lib/apiService';
 import { toast } from "react-hot-toast";
 
@@ -106,13 +106,18 @@ export default function PayrollPage() {
             try {
                 const data = await apiService.getEmployeePayments();
 
+                // 1. Filter out terminated employees
+                const activeEmployeesData = data.filter(item => {
+                    const status = item['month-yearemployee_details']?.employment_status;
+                    return status !== 'Terminated';
+                });
+
                 let totalSalarySum = 0;
                 let totalGrossSum = 0;
                 let totalNetSum = 0;
                 let totalDeductionsSum = 0;
 
-                const transformedData = data.map((item) => {
-                    // Fixed: Use the correct key from API
+                const transformedData = activeEmployeesData.map((item) => {
                     const employeeDetails = item['month-yearemployee_details'] || {};
                     const firstName = employeeDetails.first_name || '';
                     const lastName = employeeDetails.last_name || '';
@@ -127,12 +132,11 @@ export default function PayrollPage() {
 
                     let totalDeductionAmount = 0;
                     const deductions = item.deductions || {};
-                    // Fixed: Check both possible detail keys for robustness
                     const detailsKey = deductions.deductions_details ? 'deductions_details' : 'deduction_details';
                     if (deductions[detailsKey] && Array.isArray(deductions[detailsKey])) {
                         totalDeductionAmount = deductions[detailsKey].reduce((sum, detail) => {
                             const instances = detail.instances || 0;
-                            const fee = detail.default_fee || 0; 
+                            const fee = detail.default_fee || 0;
                             return sum + (fee * instances);
                         }, 0);
                     }
@@ -203,7 +207,6 @@ export default function PayrollPage() {
         return () => clearInterval(intervalId);
     }, []);
 
-    // New useEffect hook to calculate the pay period on component mount and update monthly
     useEffect(() => {
         calculatePayPeriod();
 
@@ -346,10 +349,11 @@ export default function PayrollPage() {
                     ))
                 ) : (
                     <>
-                        <PayrollCard title="Total employees" value={summaryData.totalEmployees} />
-                        <PayrollCard title="Total gross(N)" value={summaryData.totalGross} />
-                        <PayrollCard title="Total deductions(N)" value={summaryData.totalDeductions} />
-                        <PayrollCard title="Total net(N)" value={summaryData.totalNet} />
+                        {/* Payroll Cards with Icons and Colors */}
+                        <PayrollCard title="Total employees" value={summaryData.totalEmployees} icon={faUsers} color="orange" />
+                        <PayrollCard title="Total gross(N)" value={summaryData.totalGross} icon={faMoneyBillWave} color="green" />
+                        <PayrollCard title="Total deductions(N)" value={summaryData.totalDeductions} icon={faArrowDownWideShort} color="red" />
+                        <PayrollCard title="Total net(N)" value={summaryData.totalNet} icon={faHandHoldingDollar} color="green" />
                     </>
                 )}
             </div>
@@ -491,7 +495,7 @@ export default function PayrollPage() {
                             ) : (
                                 <tr>
                                     <td colSpan="9" className="px-6 py-4 text-center text-gray-500">
-                                        No matching payroll activities found.
+                                        No matching payroll activities found for active employees.
                                     </td>
                                 </tr>
                             )}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { createClient } from '@/app/lib/supabase/client';
@@ -7,12 +7,12 @@ import apiService from '@/app/lib/apiService';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
-const AddDocumentModal = ({ 
-  isOpen, 
-  onClose, 
+const AddDocumentModal = ({
+  isOpen,
+  onClose,
   employees,
   currentEmployeeId,
-  onDocumentAdded 
+  onDocumentAdded
 }) => {
   const supabase = createClient();
   const [formData, setFormData] = useState({
@@ -28,6 +28,12 @@ const AddDocumentModal = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const router = useRouter();
+
+  const activeEmployees = useMemo(() => {
+    return employees.filter(
+      employee => employee.employment_status?.toLowerCase() !== 'terminated'
+    );
+  }, [employees]);
 
   const fileTypes = [
     "pdf",
@@ -50,15 +56,15 @@ const AddDocumentModal = ({
 
   useEffect(() => {
     if (uploadMode === 'others') {
-      const filtered = employees.filter(emp => {
-        const matchesSearch = 
+      const filtered = activeEmployees.filter(emp => {
+        const matchesSearch =
           `${emp.first_name} ${emp.last_name}`.toLowerCase().includes(employeeSearch.toLowerCase());
         const isNotCurrent = currentEmployeeId ? emp.id !== currentEmployeeId : true;
         return matchesSearch && isNotCurrent;
       });
       setFilteredEmployees(filtered);
     }
-  }, [employeeSearch, employees, uploadMode, currentEmployeeId]);
+  }, [employeeSearch, activeEmployees, uploadMode, currentEmployeeId]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -85,13 +91,13 @@ const AddDocumentModal = ({
 
   const detectFileType = (file) => {
     if (!file) return '';
-    
+
     // First try to detect from extension
     const extension = file.name.split('.').pop().toLowerCase();
     if (fileTypes.includes(extension)) {
       return extension;
     }
-    
+
     // If extension not in our list, try to detect from MIME type
     const mimeType = file.type;
     if (mimeType) {
@@ -101,7 +107,7 @@ const AddDocumentModal = ({
         if (fileTypes.includes(typeFromMime)) {
           return typeFromMime;
         }
-        
+
         // Handle specific MIME type mappings
         const mimeMappings = {
           'vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
@@ -110,13 +116,13 @@ const AddDocumentModal = ({
           'vnd.ms-word': 'doc',
           'jpeg': 'jpg',
         };
-        
+
         if (mimeMappings[typeFromMime]) {
           return mimeMappings[typeFromMime];
         }
       }
     }
-    
+
     // Fallback to extension even if not in our list
     return extension;
   };
@@ -124,21 +130,24 @@ const AddDocumentModal = ({
   const handleFileChange = (index, file) => {
     const updatedDocuments = [...documents];
     updatedDocuments[index].file = file;
-    
+
     // Auto-detect file type
     if (file) {
       const detectedType = detectFileType(file);
       if (detectedType) {
         updatedDocuments[index].type = detectedType;
+      } else {
+        // Clear type if no file is selected or type can't be detected
+        updatedDocuments[index].type = '';
       }
-      
+
       // Auto-populate name if empty
       if (!updatedDocuments[index].name) {
         const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
         updatedDocuments[index].name = fileNameWithoutExt;
       }
     }
-    
+
     setDocuments(updatedDocuments);
   };
 
@@ -196,22 +205,22 @@ const AddDocumentModal = ({
     const typeCounts = {};
     for (const doc of documents) {
       if (!doc.name || !doc.type || !doc.category || !doc.file) {
-        throw new Error("Please fill in all fields for each document");
+        throw new Error("Please fill in all fields (Name, Category) and select a File for each document.");
       }
-      
+
       // Check for duplicate types in this upload
       const lowerType = doc.type.toLowerCase();
       if (typeCounts[lowerType]) {
         throw new Error(`Duplicate file type "${doc.type}" in this upload. Each document must have a unique file type.`);
       }
       typeCounts[lowerType] = true;
-      
+
       // Validate file type is supported
       if (!fileTypes.includes(lowerType)) {
         throw new Error(`File type "${doc.type}" is not supported. Supported types: ${fileTypes.join(', ')}`);
       }
     }
-    
+
     if (!formData.targetEmployeeId) {
       throw new Error("Please select an employee");
     }
@@ -234,11 +243,11 @@ const AddDocumentModal = ({
       validateDocuments();
 
       // Upload all files and create payload
-      const uploadPromises = documents.map(doc => 
+      const uploadPromises = documents.map(doc =>
         uploadFileToSupabase(doc.file, 'documents', 'employee_documents')
           .then(url => ({
             name: doc.name,
-            type: doc.type,
+            type: doc.type, // Uses the automatically detected type
             category: doc.category,
             url: url
           }))
@@ -256,7 +265,7 @@ const AddDocumentModal = ({
       resetForm();
       onClose();
       onDocumentAdded();
-      
+
     } catch (error) {
       console.error("Upload failed:", error);
       if (error.message && error.message.includes('duplicate key value violates unique constraint')) {
@@ -271,12 +280,18 @@ const AddDocumentModal = ({
 
   if (!isOpen) return null;
 
+  // Helper function to find active employee details
+  const getEmployeeName = (id) => {
+    const emp = activeEmployees.find(e => e.id === id);
+    return emp ? `${emp.first_name} ${emp.last_name}` : 'Select Employee';
+  };
+
   return (
     <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Upload Document(s)</h2>
-          <button 
+          <button
             onClick={onClose}
             disabled={isSubmitting}
             className="text-gray-500 hover:text-gray-700 disabled:opacity-50"
@@ -284,7 +299,7 @@ const AddDocumentModal = ({
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2 text-gray-700">
@@ -323,16 +338,13 @@ const AddDocumentModal = ({
               <label className="block text-sm font-medium mb-1 text-gray-700">
                 Employee
               </label>
-              <div 
+              <div
                 className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:outline-none cursor-pointer"
                 onClick={() => setShowDropdown(!showDropdown)}
               >
-                {formData.targetEmployeeId 
-                  ? employees.find(e => e.id === formData.targetEmployeeId)?.first_name + ' ' + 
-                    employees.find(e => e.id === formData.targetEmployeeId)?.last_name
-                  : 'Select Employee'}
+                {getEmployeeName(formData.targetEmployeeId)}
               </div>
-              
+
               {showDropdown && (
                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
                   <div className="p-2 border-b border-gray-300">
@@ -363,7 +375,7 @@ const AddDocumentModal = ({
                         </div>
                       ))
                     ) : (
-                      <div className="p-2 text-gray-500">No employees found</div>
+                      <div className="p-2 text-gray-500">No active employees found</div>
                     )}
                   </div>
                 </div>
@@ -398,7 +410,7 @@ const AddDocumentModal = ({
                     <FontAwesomeIcon icon={faTrash} size="sm" />
                   </button>
                 )}
-                
+
                 <div className="mb-3">
                   <label className="block text-sm font-medium mb-1 text-gray-700">
                     Document Name
@@ -413,33 +425,20 @@ const AddDocumentModal = ({
                     placeholder="Enter document name"
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray-700">
-                      File Type
+                      File Type (Auto-detected)
                     </label>
-                    <select
-                      className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:outline-none disabled:opacity-50"
-                      value={doc.type}
-                      onChange={(e) => handleDocumentChange(index, 'type', e.target.value)}
-                      required
-                      disabled={isSubmitting}
-                    >
-                      <option value="">Select File Type</option>
-                      {fileTypes.map(type => (
-                        <option key={type} value={type}>
-                          {type.toUpperCase()}
-                        </option>
-                      ))}
-                    </select>
-                    {doc.type && !fileTypes.includes(doc.type.toLowerCase()) && (
-                      <p className="text-red-500 text-xs mt-1">
-                        Unsupported file type. Supported types: {fileTypes.join(', ')}
-                      </p>
-                    )}
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded bg-gray-100 border-gray-400 focus:outline-none disabled:opacity-50"
+                      value={doc.type.toUpperCase() || 'Awaiting file upload...'}
+                      disabled
+                    />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1 text-gray-700">
                       Category
@@ -460,7 +459,7 @@ const AddDocumentModal = ({
                     </select>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-1 text-gray-700">
                     File
@@ -468,10 +467,10 @@ const AddDocumentModal = ({
                   <input
                     type="file"
                     className="w-full p-2 file:mr-4 file:py-2 file:px-4
-                      file:rounded file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-[#b88b1b] file:text-white
-                      hover:file:bg-[#8d6b14] disabled:opacity-50"
+  file:rounded file:border-0
+  file:text-sm file:font-semibold
+  file:bg-[#b88b1b] file:text-white
+  hover:file:bg-[#8d6b14] disabled:opacity-50"
                     onChange={(e) => handleFileChange(index, e.target.files[0])}
                     required
                     disabled={isSubmitting}
@@ -479,14 +478,19 @@ const AddDocumentModal = ({
                   />
                   {doc.file && (
                     <p className="text-sm text-gray-600 mt-1">
-                      Selected: {doc.file.name} ({doc.type.toUpperCase()})
+                      Selected: {doc.file.name} (Detected Type: <span className='font-semibold'>{doc.type.toUpperCase()}</span>)
+                    </p>
+                  )}
+                  {!doc.type && doc.file && (
+                    <p className="text-red-500 text-xs mt-1">
+                      File type could not be automatically determined or is unsupported.
                     </p>
                   )}
                 </div>
               </div>
             ))}
           </div>
-          
+
           <div className="flex justify-end gap-2">
             <button
               type="button"

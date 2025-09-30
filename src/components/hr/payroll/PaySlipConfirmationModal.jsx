@@ -33,9 +33,6 @@ const PayslipConfirmationModal = ({ employee, isOpen, onClose, onConfirm }) => {
         setIsLoading(true);
         try {
             await apiService.generateEmployeePayment(employee.id);
-            
-            toast.success('Payslip generated successfully!');
-            
             if (onConfirm) {
                 onConfirm();
             }

@@ -70,7 +70,7 @@ const EmployeeRow = ({ employee, onEdit, onView, onDelete }) => {
                     {employee.employment_status}
                 </span>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center">
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center mt-[5px]">
                 <button
                     onClick={() => onView(employee)}
                     className="text-gray-600 hover:text-gray-800 mr-2 p-1 rounded-md hover:bg-gray-50"
