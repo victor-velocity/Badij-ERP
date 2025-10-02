@@ -83,31 +83,7 @@ const callApi = async (endpoint, method = "GET", data = null, router = null) => 
     }
 };
 
-// Utility function to check permissions (for frontend use)
-export const hasInventoryPermission = (userRole, userDepartment, requiredAction = 'read') => {
-    // Super admin has full access
-    if (userRole === 'super_admin') return true;
-
-    // Warehouse department employees have access based on role
-    if (userDepartment === 'warehouse') {
-        switch (requiredAction) {
-            case 'read':
-                return ['super_admin', 'manager', 'user'].includes(userRole);
-            case 'write':
-            case 'create':
-            case 'update':
-            case 'delete':
-                return ['super_admin', 'manager'].includes(userRole);
-            default:
-                return false;
-        }
-    }
-
-    return false;
-};
-
 const apiService = {
-    // employee APIs
     getEmployees: async (router) => {
         return callApi("/employees", "GET", null, router);
     },

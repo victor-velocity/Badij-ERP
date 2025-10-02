@@ -74,22 +74,22 @@ export default function TaskPage() {
         return () => clearInterval(intervalId);
     }, []);
 
-    useEffect(() => {
-        const fetchAndProcessTasks = async () => {
-            try {
-                setLoading(true);
-                const tasks = (await apiService.getTasks(router)) || []; 
-                setAllTasks(tasks);
-                setError(null);
-            } catch (error) {
-                console.error("Error fetching tasks:", error);
-                setError("Failed to fetch tasks.");
-                setAllTasks([]); 
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchAndProcessTasks = async () => {
+        try {
+            setLoading(true);
+            const tasks = (await apiService.getTasks(router)) || []; 
+            setAllTasks(tasks);
+            setError(null);
+        } catch (error) {
+            console.error("Error fetching tasks:", error);
+            setError("Failed to fetch tasks.");
+            setAllTasks([]); 
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchAndProcessTasks();
     }, [router]);
 
@@ -134,8 +134,8 @@ export default function TaskPage() {
         console.log(`Viewing task with ID: ${taskId}`);
     };
 
-    const handleUpdateTask = (taskId) => {
-        console.log(`Updating task with ID: ${taskId}`);
+    const handleUpdateTask = async () => {
+        await fetchAndProcessTasks();
     };
 
     const renderSearchBar = (placeholder, value, onChange) => {
