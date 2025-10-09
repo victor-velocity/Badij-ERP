@@ -13,7 +13,9 @@ import {
     faBoxes, 
     faArrowRightFromBracket, 
     faFile, 
-    faTachometerAlt
+    faTachometerAlt,
+    faBoxesStacked,
+    faBoxOpen
 } from '@fortawesome/free-solid-svg-icons';
 import { usePathname } from 'next/navigation';
 import Image from "next/image";
@@ -45,6 +47,7 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
         { name: "Dashboard", icon: faTachometerAlt, path: "/inventory" },
         { name: "Orders", icon: faClipboardList, path: "/inventory/orders" },
         { name: "Inventory management", icon: faBoxes, path: "/inventory/management" },
+        { name: "Stock management", icon: faBoxOpen, path: "/inventory/stock-management" },
         { name: "Stock location", icon: faTruck, path: "/inventory/stock-location" },
         { name: "Suppliers", icon: faUsers, path: "/inventory/suppliers" },
         { name: "Reports", icon: faFile, path: "/inventory/reports" },

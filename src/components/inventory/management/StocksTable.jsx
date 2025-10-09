@@ -2,81 +2,202 @@
 
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEdit, faTrash, faPlus, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faPlus } from "@fortawesome/free-solid-svg-icons";
 import apiService from "@/app/lib/apiService";
-import StockEntryModal from "./StockEntryModal";
-import ViewStockModal from "./ViewStockModal";
-import EditStockModal from "./EditStockModal";
-import DeleteStockModal from "./DeleteStockModal";
 import toast from 'react-hot-toast';
-import { createClient } from "@/app/lib/supabase/client";
 
-export default function StocksTable({ onDataChange }) {
+const AddComponentModal = ({ onClose, onSuccess, productId, components }) => {
+    const [formData, setFormData] = useState({
+        component_id: '',
+        required_quantity: 1
+    });
+    const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredComponents, setFilteredComponents] = useState([]);
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    useEffect(() => {
+        if (searchTerm.trim() === '') {
+            setFilteredComponents(components);
+        } else {
+            const filtered = components.filter(comp =>
+                comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                comp.sku?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredComponents(filtered);
+        }
+    }, [searchTerm, components]);
+
+    const handleChange = (e) => {
+        const { name, value, type } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'number' ? parseInt(value) || 0 : value
+        }));
+    };
+
+    const handleComponentSelect = (comp) => {
+        setFormData(prev => ({
+            ...prev,
+            component_id: comp.component_id
+        }));
+        setSearchTerm(comp.name);
+        setShowDropdown(false);
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        setShowDropdown(true);
+        if (e.target.value.trim() === '') {
+            setFormData(prev => ({ ...prev, component_id: '' }));
+        }
+    };
+
+    const handleDropdownBlur = () => {
+        setTimeout(() => setShowDropdown(false), 200);
+    };
+
+    const getSelectedComponentName = () => {
+        if (!formData.component_id) return searchTerm;
+        const selected = components.find(c => c.component_id === formData.component_id);
+        return selected ? selected.name : searchTerm;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!formData.component_id || formData.required_quantity < 1) {
+            toast.error('Component and required quantity are required');
+            return;
+        }
+        setLoading(true);
+        try {
+            // Assume apiService.addProductComponent exists; adjust as needed
+            const response = await apiService.addProductComponent({
+                product_id: productId,
+                component_id: formData.component_id,
+                required_quantity: formData.required_quantity
+            });
+            if (response.status === 'success') {
+                toast.success('Component added successfully');
+                onSuccess();
+            } else {
+                toast.error('Failed to add component');
+            }
+        } catch (error) {
+            toast.error('Error adding component');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg w-full max-w-md">
+                <div className="px-6 py-4 border-b">
+                    <h3 className="text-lg font-semibold">Add Component to Product</h3>
+                </div>
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    <div className="relative">
+                        <label className="block text-sm font-medium text-gray-700">Component</label>
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            onFocus={() => setShowDropdown(true)}
+                            onBlur={handleDropdownBlur}
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            placeholder="Search components..."
+                            required
+                        />
+                        {showDropdown && (
+                            <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+                                {filteredComponents.length === 0 ? (
+                                    <div className="px-4 py-2 text-sm text-gray-500">No components found</div>
+                                ) : (
+                                    filteredComponents.map(comp => (
+                                        <div
+                                            key={comp.component_id}
+                                            onClick={() => handleComponentSelect(comp)}
+                                            className="px-4 py-2 cursor-pointer hover:bg-blue-50"
+                                        >
+                                            {comp.name} (SKU: {comp.sku})
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    {formData.component_id && (
+                        <div className="bg-green-50 p-2 rounded">
+                            Selected: {getSelectedComponentName()}
+                        </div>
+                    )}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Required Quantity</label>
+                        <input
+                            type="number"
+                            name="required_quantity"
+                            min="1"
+                            value={formData.required_quantity}
+                            onChange={handleChange}
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            required
+                        />
+                    </div>
+                    <div className="flex justify-end space-x-3">
+                        <button type="button" onClick={onClose} className="px-4 py-2 border rounded">Cancel</button>
+                        <button type="submit" disabled={loading} className="px-4 py-2 bg-[#b88b1b] text-white rounded">
+                            {loading ? 'Adding...' : 'Add Component'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+const SkeletonRow = () => (
+    <tr>
+        <td className="px-6 py-4">
+            <div className="h-5 bg-gray-200 rounded-full w-20 animate-pulse"></div>
+        </td>
+        <td className="px-6 py-4">
+            <div className="h-5 bg-gray-200 rounded w-48 animate-pulse"></div>
+        </td>
+        <td className="px-6 py-4">
+            <div className="h-5 bg-gray-200 rounded w-24 animate-pulse"></div>
+        </td>
+        <td className="px-6 py-4">
+            <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+        </td>
+        <td className="px-6 py-4">
+            <div className="h-5 bg-gray-200 rounded w-20 animate-pulse"></div>
+        </td>
+    </tr>
+);
+
+export default function StocksTable() {
     const [items, setItems] = useState([]);
-    const [products, setProducts] = useState({});
-    const [components, setComponents] = useState({});
-    const [batches, setBatches] = useState({});
-    const [locations, setLocations] = useState({});
-    const [suppliers, setSuppliers] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [expanded, setExpanded] = useState({});
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [selectedStock, setSelectedStock] = useState(null);
-    const [importBatches, setImportBatches] = useState([]);
-
-    const supabase = createClient()
+    const [showAddComponentModal, setShowAddComponentModal] = useState(false);
+    const [selectedProductId, setSelectedProductId] = useState(null);
+    const [components, setComponents] = useState([]);
 
     useEffect(() => {
         loadStockSummary();
-        loadImportBatches();
-        loadLocations();
-        loadSuppliers();
+        loadComponents();
     }, []);
 
-    const loadImportBatches = async () => {
+    const loadComponents = async () => {
         try {
-            const response = await apiService.getImportBatches();
+            const response = await apiService.getComponents();
             if (response.status === 'success') {
-                setImportBatches(response.data || []);
+                setComponents(response.data || []);
             }
         } catch (error) {
-            console.error('Error loading import batches:', error);
-        }
-    };
-
-    const loadLocations = async () => {
-        try {
-            const { data, error } = await supabase.from('locations').select('id, name');
-            if (error) {
-                console.error('Error loading locations:', error);
-                return;
-            }
-            const locMap = data.reduce((acc, loc) => {
-                acc[loc.id] = loc.name;
-                return acc;
-            }, {});
-            setLocations(locMap);
-        } catch (error) {
-            console.error('Error loading locations:', error);
-        }
-    };
-
-    const loadSuppliers = async () => {
-        try {
-            const response = await apiService.getSuppliers();
-            if (response.status === 'success') {
-                const supMap = response.data.reduce((acc, sup) => {
-                    acc[sup.id] = sup;
-                    return acc;
-                }, {});
-                setSuppliers(supMap);
-            }
-        } catch (error) {
-            console.error('Error loading suppliers:', error);
+            console.error('Error loading components:', error);
         }
     };
 
@@ -119,36 +240,26 @@ export default function StocksTable({ onDataChange }) {
         setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
     };
 
+    const handleAddComponent = (productId) => {
+        setSelectedProductId(productId);
+        setShowAddComponentModal(true);
+    };
+
+    const handleAddComponentSuccess = () => {
+        setShowAddComponentModal(false);
+        loadStockSummary();
+    };
+
     const typeColors = {
         product: 'bg-purple-100 text-purple-800',
         component: 'bg-orange-100 text-orange-800'
     };
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b88b1b]"></div>
-            </div>
-        );
-    }
-
     return (
-        <div className="bg-white rounded-lg shadow">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Stock Summary</h3>
-                <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="bg-[#b88b1b] text-white px-4 py-2 rounded-lg transition-all hover:bg-[#856515] flex items-center"
-                >
-                    <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                    Add Stock
-                </button>
-            </div>
-
+        <div>
             {/* Error Message */}
             {error && (
-                <div className="mx-6 mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <div className=" bg-red-100 border border-red-400 text-red-700 rounded">
                     {error}
                 </div>
             )}
@@ -176,7 +287,9 @@ export default function StocksTable({ onDataChange }) {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {items.length === 0 ? (
+                        {loading ? (
+                            Array.from({ length: 5 }).map((_, index) => <SkeletonRow key={index} />)
+                        ) : items.length === 0 ? (
                             <tr>
                                 <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
                                     No stock entries found
@@ -201,16 +314,25 @@ export default function StocksTable({ onDataChange }) {
                                             {item.stock_quantity}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                            {item.type === 'product' && item.components_needed.length > 0 && (
-                                                <button
-                                                    onClick={() => toggleExpanded(item.id)}
-                                                    className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                                                    title={expanded[item.id] ? "Hide Components" : "Show Components"}
-                                                >
-                                                    <FontAwesomeIcon icon={expanded[item.id] ? faChevronUp : faChevronDown} />
-                                                </button>
+                                            {item.type === 'product' && (
+                                                <div className="flex items-center gap-3 flex-nowrap">
+                                                    <button
+                                                        onClick={() => handleAddComponent(item.id)}
+                                                        className="bg-[#b88b1b] text-white px-2 py-2 rounded-lg text-xs hover:bg-[#856515] flex items-center"
+                                                    >
+                                                        <FontAwesomeIcon icon={faPlus} />
+                                                    </button>
+                                                    {item.components_needed.length > 0 && (
+                                                        <button
+                                                            onClick={() => toggleExpanded(item.id)}
+                                                            className="text-[#b88b1b] hover:text-[#69500f] p-1 rounded hover:bg-amber-100"
+                                                            title={expanded[item.id] ? "Hide Components" : "Show Components"}
+                                                        >
+                                                            <FontAwesomeIcon icon={expanded[item.id] ? faChevronUp : faChevronDown} />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             )}
-                                            {/* Add other actions if needed, e.g., view individual stocks */}
                                         </td>
                                     </tr>
                                     {item.type === 'product' && expanded[item.id] && (
@@ -247,16 +369,12 @@ export default function StocksTable({ onDataChange }) {
                 </table>
             </div>
 
-            {/* Modals */}
-            {showCreateModal && (
-                <StockEntryModal
-                    onClose={() => setShowCreateModal(false)}
-                    onSuccess={() => {
-                        setShowCreateModal(false);
-                        loadStockSummary();
-                        onDataChange();
-                    }}
-                    importBatches={importBatches}
+            {showAddComponentModal && (
+                <AddComponentModal
+                    onClose={() => setShowAddComponentModal(false)}
+                    onSuccess={handleAddComponentSuccess}
+                    productId={selectedProductId}
+                    components={components}
                 />
             )}
         </div>
