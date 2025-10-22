@@ -20,6 +20,7 @@ const OrderListTable = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [customers, setCustomers] = useState({});
+    const [employees, setEmployees] = useState({});
     const itemsPerPage = 12;
     const router = useRouter();
 
@@ -28,23 +29,32 @@ const OrderListTable = () => {
 
     // Fetch customer details
     const fetchCustomerDetails = async (customerId) => {
-        if (customers[customerId]) return customers[customerId];
-
         try {
             const response = await apiService.getCustomerById(customerId, router);
-            if (response.status === "success" && response.data) {
-                const customerData = {
-                    name: response.data.name || 'Unknown Customer',
-                    email: response.data.email || '',
-                    phone: response.data.phone_number || ''
-                };
-                setCustomers(prev => ({ ...prev, [customerId]: customerData }));
-                return customerData;
-            }
+            const data = response.data || response;
+            return {
+                name: data.name || 'Unknown Customer',
+                email: data.email || '',
+                phone: data.phone_number || ''
+            };
         } catch (error) {
             console.error(`Error fetching customer ${customerId}:`, error);
+            return { name: 'Unknown Customer', email: '', phone: '' };
         }
-        return { name: 'Unknown Customer', email: '', phone: '' };
+    };
+
+    // Fetch employee details
+    const fetchEmployeeDetails = async (employeeId) => {
+        try {
+            const response = await apiService.getEmployeeById(employeeId, router);
+            const data = response.data || response;
+            return {
+                name: `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Unknown Employee'
+            };
+        } catch (error) {
+            console.error(`Error fetching employee ${employeeId}:`, error);
+            return { name: 'Unknown Employee' };
+        }
     };
 
     // Fetch orders from backend
@@ -56,11 +66,31 @@ const OrderListTable = () => {
                 const ordersData = response.data || [];
                 setOrders(ordersData);
 
-                // Fetch customer details for all orders
-                const customerPromises = ordersData.map(order =>
-                    fetchCustomerDetails(order.customer_id)
+                // Get unique customer and employee ids
+                const customerIds = [...new Set(ordersData.map(order => order.customer_id).filter(id => id))];
+                const employeeIds = [...new Set(ordersData.map(order => order.created_by).filter(id => id))];
+
+                // Fetch customers
+                const customersData = await Promise.all(
+                    customerIds.map(async (id) => {
+                        const data = await fetchCustomerDetails(id);
+                        return [id, data];
+                    })
                 );
-                await Promise.all(customerPromises);
+                const customersMap = Object.fromEntries(customersData);
+
+                // Fetch employees
+                const employeesData = await Promise.all(
+                    employeeIds.map(async (id) => {
+                        const data = await fetchEmployeeDetails(id);
+                        return [id, data];
+                    })
+                );
+                const employeesMap = Object.fromEntries(employeesData);
+
+                // Update state
+                setCustomers((prev) => ({ ...prev, ...customersMap }));
+                setEmployees((prev) => ({ ...prev, ...employeesMap }));
             } else {
                 setError(response.message || "Failed to fetch orders");
                 toast.error(response.message || "Failed to fetch orders");
@@ -90,13 +120,16 @@ const OrderListTable = () => {
                 return 'text-green-500';
             case 'canceled':
                 return 'text-red-500';
+            case 'unpaid':
+                return 'text-red-500';
             default:
                 return 'text-gray-500';
         }
     };
 
     const formatOrderData = (order) => {
-        const customer = customers[order.customer_id] || { name: 'Loading...', email: '', phone: '' };
+        const customer = customers[order.customer_id] || { name: 'Unknown Customer', email: '', phone: '' };
+        const employee = employees[order.created_by] || { name: 'Unknown Employee' };
 
         return {
             id: order.order_id,
@@ -104,8 +137,7 @@ const OrderListTable = () => {
             customer: customer.name,
             customer_id: order.customer_id,
             address: order.dispatch_address,
-            deliveryDate: order.delivery_date || 'Not set',
-            paymentType: 'Transfer', // You might want to add this field to your backend
+            deliveryDate: order.delivery_date ? new Date(order.delivery_date).toLocaleDateString() : 'Not set',
             status: order.status,
             phone: customer.phone || order.phone_number,
             email: customer.email,
@@ -116,7 +148,11 @@ const OrderListTable = () => {
                 quantity: detail.quantity
             })) || [],
             amount: order.total_amount,
+            additional_costs: order.additional_costs || 0,
             notes: order.notes,
+            created_by: employee.name,
+            created_at: order.created_at ? new Date(order.created_at).toLocaleString() : 'Not set',
+            created_by_id: order.created_by,
             originalData: order
         };
     };
@@ -128,7 +164,8 @@ const OrderListTable = () => {
             order.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             order.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             order.deliveryDate?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.status?.toLowerCase().includes(searchTerm.toLowerCase())
+            order.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.created_by?.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -142,7 +179,7 @@ const OrderListTable = () => {
         try {
             const response = await apiService.createOrder(newOrderData, router);
             if (response.status === "success") {
-                await fetchOrders(); // Refresh the orders list
+                await fetchOrders();
                 setIsCreateModalOpen(false);
                 toast.success("Order created successfully!");
             } else {
@@ -158,7 +195,7 @@ const OrderListTable = () => {
         try {
             const response = await apiService.updateOrder(selectedOrderId, updatedOrderData, router);
             if (response.status === "success") {
-                await fetchOrders(); // Refresh the orders list
+                await fetchOrders();
                 setIsEditModalOpen(false);
                 setSelectedOrderId(null);
                 toast.success("Order updated successfully!");
@@ -179,6 +216,10 @@ const OrderListTable = () => {
     const openViewModal = (orderId) => {
         setSelectedOrderId(orderId);
         setIsViewModalOpen(true);
+    };
+
+    const canEditOrder = (status) => {
+        return status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'unpaid';
     };
 
     return (
@@ -222,85 +263,85 @@ const OrderListTable = () => {
                 </div>
             )}
 
-            <table className="w-full text-left table-auto">
-                <thead>
-                    <tr className="text-gray-600 text-sm border-b border-gray-300">
-                        <th className="pb-4">Order Number</th>
-                        <th className="pb-4">Customer name</th>
-                        <th className="pb-4">Dispatch address</th>
-                        <th className="pb-4">Date of Delivery</th>
-                        <th className="pb-4">Payment type</th>
-                        <th className="pb-4">Status</th>
-                        <th className="pb-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {loading ? (
-                        // Skeleton loading rows
-                        skeletonRows.map((index) => (
-                            <tr key={index} className="border-b border-gray-300 animate-pulse">
-                                <td className="py-5">
-                                    <div className="h-4 bg-gray-200 rounded w-24"></div>
-                                </td>
-                                <td className="py-5">
-                                    <div className="h-4 bg-gray-200 rounded w-32"></div>
-                                </td>
-                                <td className="py-5">
-                                    <div className="h-4 bg-gray-200 rounded w-40"></div>
-                                </td>
-                                <td className="py-5">
-                                    <div className="h-4 bg-gray-200 rounded w-28"></div>
-                                </td>
-                                <td className="py-5">
-                                    <div className="h-4 bg-gray-200 rounded w-20"></div>
-                                </td>
-                                <td className="py-5">
-                                    <div className="h-6 bg-gray-200 rounded w-24"></div>
-                                </td>
-                                <td className="py-4 flex space-x-4 mt-2">
-                                    <div className="h-5 w-5 bg-gray-200 rounded"></div>
-                                    <div className="h-5 w-5 bg-gray-200 rounded"></div>
-                                </td>
-                            </tr>
-                        ))
-                    ) : currentOrders.length > 0 ? (
-                        currentOrders.map((order, index) => (
-                            <tr key={order.id} className="border-b border-gray-300">
-                                <td className="py-5 font-mono">{order.order_number}</td>
-                                <td className="py-5">{order.customer}</td>
-                                <td className="py-5">{order.address}</td>
-                                <td className="py-5">{order.deliveryDate}</td>
-                                <td className="py-5">{order.paymentType}</td>
-                                <td className="py-5">
-                                    <span className={getStatusColor(order.status)}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                <td className="py-4 flex space-x-4 mt-2">
-                                    <FontAwesomeIcon
-                                        icon={faEye}
-                                        className="text-blue-500 cursor-pointer hover:text-blue-700"
-                                        onClick={() => openViewModal(order.id)}
-                                        title="View Order"
-                                    />
-                                    <FontAwesomeIcon
-                                        icon={faEdit}
-                                        className="text-green-500 cursor-pointer hover:text-green-700"
-                                        onClick={() => openEditModal(order.id)}
-                                        title="Edit Order"
-                                    />
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="7" className="py-4 text-center text-gray-500">
-                                {orders.length === 0 ? "No orders found" : "No orders match your search"}
-                            </td>
+            <div className="overflow-x-auto">
+                <table className="min-w-full text-left table-auto">
+                    <thead>
+                        <tr className="text-gray-600 text-sm border-b border-gray-300">
+                            <th className="pb-4 px-4 whitespace-nowrap">Order Number</th>
+                            <th className="pb-4 px-4 whitespace-nowrap">Customer Name</th>
+                            <th className="pb-4 px-4">Dispatch Address</th>
+                            <th className="pb-4 px-4 whitespace-nowrap">Date of Delivery</th>
+                            <th className="pb-4 px-4 whitespace-nowrap">Created By</th>
+                            <th className="pb-4 px-4 whitespace-nowrap">Created At</th>
+                            <th className="pb-4 px-4 whitespace-nowrap">Status</th>
+                            <th className="pb-4 px-4 whitespace-nowrap">Actions</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            skeletonRows.map((index) => (
+                                <tr key={index} className="border-b border-gray-300 animate-pulse">
+                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-32"></div></td>
+                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-40"></div></td>
+                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-28"></div></td>
+                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-28"></div></td>
+                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-28"></div></td>
+                                    <td className="py-5 px-4"><div className="h-6 bg-gray-200 rounded w-24"></div></td>
+                                    <td className="py-4 px-4 flex space-x-4 mt-2">
+                                        <div className="h-5 w-5 bg-gray-200 rounded"></div>
+                                        <div className="h-5 w-5 bg-gray-200 rounded"></div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : currentOrders.length > 0 ? (
+                            currentOrders.map((order, index) => (
+                                <tr key={order.id} className="border-b border-gray-300">
+                                    <td className="py-5 px-4 font-mono whitespace-nowrap">{order.order_number}</td>
+                                    <td className="py-5 px-4 whitespace-nowrap">{order.customer}</td>
+                                    <td className="py-5 px-4 whitespace-nowrap">{order.address || 'Not specified'}</td>
+                                    <td className="py-5 px-4 whitespace-nowrap">{order.deliveryDate}</td>
+                                    <td className="py-5 px-4 whitespace-nowrap">{order.created_by}</td>
+                                    <td className="py-5 px-4 whitespace-nowrap">{order.created_at}</td>
+                                    <td className="py-5 px-4 whitespace-nowrap">
+                                        <span className={getStatusColor(order.status)}>
+                                            {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
+                                        </span>
+                                    </td>
+                                    <td className="py-4 px-4 flex space-x-4 mt-2">
+                                        <FontAwesomeIcon
+                                            icon={faEye}
+                                            className="text-blue-500 cursor-pointer hover:text-blue-700"
+                                            onClick={() => openViewModal(order.id)}
+                                            title="View Order"
+                                        />
+                                        {canEditOrder(order.status) ? (
+                                            <FontAwesomeIcon
+                                                icon={faEdit}
+                                                className="text-green-500 cursor-pointer hover:text-green-700"
+                                                onClick={() => openEditModal(order.id)}
+                                                title="Edit Order"
+                                            />
+                                        ) : (
+                                            <FontAwesomeIcon
+                                                icon={faEdit}
+                                                className="text-gray-400 cursor-not-allowed"
+                                                title="Cannot edit - Order not pending or processing"
+                                            />
+                                        )}
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="8" className="py-4 px-4 text-center text-gray-500">
+                                    {orders.length === 0 ? "No orders found" : "No orders match your search"}
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             {!loading && totalPages > 1 && (
                 <div className="mt-4 flex justify-center items-center">
@@ -352,6 +393,7 @@ const OrderListTable = () => {
                 }}
                 order={orders.find(o => o.order_id === selectedOrderId)}
                 customer={customers[orders.find(o => o.order_id === selectedOrderId)?.customer_id]}
+                createdById={orders.find(o => o.order_id === selectedOrderId)?.created_by}
             />
         </div>
     );

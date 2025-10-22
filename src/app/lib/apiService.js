@@ -88,7 +88,7 @@ const apiService = {
         try {
             const token = localStorage.getItem('access_token');
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invoice/send-email`, {
+            const response = await fetch(`${process.env.RESEND_API_KEY}/api/invoice/send-email`, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -106,7 +106,7 @@ const apiService = {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Failed to send invoice email');
+                throw new Error(data.message || 'Failed to send invoice email email');
             }
 
             return data;
@@ -419,6 +419,11 @@ const apiService = {
 
     updateOrder: async (orderId, orderData, router) => {
         return callApi(`/orders/${orderId}`, "PUT", orderData, router);
+    },
+
+    // Inventory Transactions API
+    getInventoryTransactions: async (router) => {
+        return callApi("/inventory/transactions", "GET", null, router);
     },
 };
 

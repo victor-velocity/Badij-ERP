@@ -1,37 +1,66 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faSpinner, faCalendar, faUser, faPhone, faMapMarkerAlt, faStickyNote, faBox, faReceipt, faPrint } from '@fortawesome/free-solid-svg-icons';
+import apiService from "@/app/lib/apiService";
+import { useRouter } from "next/navigation";
 
-const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
+const ViewOrderModal = ({ isOpen, onClose, order, customer, createdById }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [formattedOrder, setFormattedOrder] = useState(null);
+    const [createdByName, setCreatedByName] = useState('Loading...');
+    const router = useRouter();
+
+    useEffect(() => {
+        const fetchEmployee = async () => {
+            if (createdById) {
+                try {
+                    const response = await apiService.getEmployeeById(createdById, router);
+                    const data = response.data || response;
+                    setCreatedByName(`${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Unknown Employee');
+                } catch (error) {
+                    console.error(`Error fetching employee ${createdById}:`, error);
+                    setCreatedByName('Unknown Employee');
+                }
+            } else {
+                setCreatedByName('Unknown Employee');
+            }
+        };
+
+        fetchEmployee();
+    }, [createdById, router]);
 
     useEffect(() => {
         if (order) {
-            setIsLoading(false);
+            const items = order.order_details?.map(detail => ({
+                name: detail.product_id?.name || 'Unknown Product',
+                price: detail.product_id?.price || 0,
+                quantity: detail.quantity || 0,
+                total: (detail.product_id?.price || 0) * (detail.quantity || 0)
+            })) || [];
+
+            const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+
             const formatted = {
                 order_number: order.order_number,
                 customer: customer?.name || 'Unknown Customer',
                 address: order.dispatch_address || 'Not specified',
                 deliveryDate: order.delivery_date ? new Date(order.delivery_date).toLocaleDateString() : 'Not set',
-                paymentType: 'Transfer',
                 status: order.status,
                 phone: customer?.phone || order.phone_number || 'Not provided',
                 email: customer?.email || 'Not provided',
-                items: order.order_details?.map(detail => ({
-                    name: detail.product_id?.name || 'Unknown Product',
-                    price: detail.product_id?.price || 0,
-                    quantity: detail.quantity || 0,
-                    total: (detail.product_id?.price || 0) * (detail.quantity || 0)
-                })) || [],
+                items: items,
+                subtotal: subtotal,
+                additional_costs: order.additional_costs || 0,
                 total_amount: order.total_amount,
                 notes: order.notes,
                 created_at: order.created_at ? new Date(order.created_at).toLocaleString() : 'Unknown',
-                updated_at: order.updated_at ? new Date(order.updated_at).toLocaleString() : 'Unknown'
+                updated_at: order.updated_at ? new Date(order.updated_at).toLocaleString() : 'Unknown',
+                created_by: createdByName
             };
             setFormattedOrder(formatted);
+            setIsLoading(false);
         }
-    }, [order, customer]);
+    }, [order, customer, createdByName]);
 
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
@@ -44,6 +73,8 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
             case 'delivered':
                 return 'bg-green-100 text-green-800 border-green-200';
             case 'canceled':
+                return 'bg-red-100 text-red-800 border-red-200';
+            case 'unpaid':
                 return 'bg-red-100 text-red-800 border-red-200';
             default:
                 return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -62,6 +93,8 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
                 return '✅';
             case 'canceled':
                 return '❌';
+            case 'unpaid':
+                return '💰';
             default:
                 return '📋';
         }
@@ -117,7 +150,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
                         <div className="flex justify-between items-center mt-2">
                             <div>
                                 <p className="text-lg font-semibold">Order #: {formattedOrder.order_number}</p>
-                                <p className="text-gray-600">Date: {formattedOrder.created_at}</p>
+                                <div className="text-gray-600">Date: {formattedOrder.created_at}</div>
                             </div>
                             <div className="text-right">
                                 <p className="text-xl font-bold">STATUS: {formattedOrder.status?.toUpperCase()}</p>
@@ -154,9 +187,6 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
                             <div>
                                 <p><strong>Delivery Date:</strong> {formattedOrder.deliveryDate}</p>
                             </div>
-                            <div>
-                                <p><strong>Payment Type:</strong> {formattedOrder.paymentType}</p>
-                            </div>
                         </div>
                     </div>
 
@@ -179,12 +209,28 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
                                         <td className="border border-gray-300 p-3 text-right">₦{item.price?.toLocaleString()}</td>
                                         <td className="border border-gray-300 p-3 text-right">{item.quantity}</td>
                                         <td className="border border-gray-300 p-3 text-right font-bold">
-                                            ₦{(item.price * item.quantity).toLocaleString()}
+                                            ₦{item.total.toLocaleString()}
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                             <tfoot>
+                                <tr className="bg-gray-50">
+                                    <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">
+                                        Subtotal:
+                                    </td>
+                                    <td className="border border-gray-300 p-3 text-right font-bold">
+                                        ₦{formattedOrder.subtotal.toLocaleString()}
+                                    </td>
+                                </tr>
+                                <tr className="bg-gray-50">
+                                    <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">
+                                        Additional Costs:
+                                    </td>
+                                    <td className="border border-gray-300 p-3 text-right font-bold">
+                                        ₦{formattedOrder.additional_costs.toLocaleString()}
+                                    </td>
+                                </tr>
                                 <tr className="bg-gray-800 text-white">
                                     <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">
                                         GRAND TOTAL:
@@ -203,6 +249,9 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <p><strong>Notes:</strong> {formattedOrder.notes || 'No notes provided'}</p>
+                            </div>
+                            <div>
+                                <p><strong>Created By:</strong> {formattedOrder.created_by}</p>
                             </div>
                             <div>
                                 <p><strong>Last Updated:</strong> {formattedOrder.updated_at}</p>
@@ -321,13 +370,29 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
                                                 </td>
                                                 <td className="py-3 px-4 text-right">
                                                     <p className="font-bold text-[#b88b1b]">
-                                                        ₦{(item.price * item.quantity).toLocaleString()}
+                                                        ₦{item.total.toLocaleString()}
                                                     </p>
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                     <tfoot>
+                                        <tr>
+                                            <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">
+                                                Subtotal:
+                                            </td>
+                                            <td className="py-3 px-4 text-right font-bold">
+                                                ₦{formattedOrder.subtotal.toLocaleString()}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">
+                                                Additional Costs:
+                                            </td>
+                                            <td className="py-3 px-4 text-right font-bold">
+                                                ₦{formattedOrder.additional_costs.toLocaleString()}
+                                            </td>
+                                        </tr>
                                         <tr className="bg-gray-50">
                                             <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">
                                                 Grand Total:
@@ -362,10 +427,6 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
                                             {formattedOrder.deliveryDate}
                                         </p>
                                     </div>
-                                    <div>
-                                        <p className="text-sm text-gray-600">Payment Type</p>
-                                        <p className="font-medium">{formattedOrder.paymentType}</p>
-                                    </div>
                                 </div>
                             </div>
 
@@ -380,6 +441,10 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
                                         <p className="font-medium">
                                             {formattedOrder.notes || 'No notes provided'}
                                         </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">Created By</p>
+                                        <p className="font-medium">{formattedOrder.created_by}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-600">Last Updated</p>
@@ -450,6 +515,19 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer }) => {
                     }
                     tfoot {
                         display: table-footer-group;
+                    }
+                    .bg-gray-50 {
+                        background-color: #f9fafb !important;
+                    }
+                    .bg-gray-100 {
+                        background-color: #f3f4f6 !important;
+                    }
+                    .bg-gray-800 {
+                        background-color: #1f2937 !important;
+                        color: white !important;
+                    }
+                    .text-[#b88b1b] {
+                        color: #b88b1b !important;
                     }
                 }
             `}</style>

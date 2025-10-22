@@ -1,6 +1,6 @@
 "use client"
 
-import StocksTable from "@/components/inventory/management/StocksTable";
+import StocksTable from "@/components/sales/stocks/StocksTable";
 import React, { useState, useEffect } from "react";
 
 const StockManagement = () => {

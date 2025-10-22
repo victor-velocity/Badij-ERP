@@ -24,13 +24,14 @@ export default function OrdersPage() {
     const [greeting, setGreeting] = useState('');
     const [orderStats, setOrderStats] = useState({
         total: 0,
-        pending: 0,
+        unpaid: 0,
         processing: 0,
         shipped: 0,
         delivered: 0,
         canceled: 0
     });
     const [loading, setLoading] = useState(true);
+    const [allOrders, setAllOrders] = useState([]);
     const router = useRouter();
 
     const first_name = localStorage.getItem('first_name');
@@ -42,10 +43,11 @@ export default function OrdersPage() {
             const response = await apiService.getOrders(router);
             if (response.status === "success") {
                 const orders = response.data || [];
+                setAllOrders(orders); // ✅ STORE ALL ORDERS
                 
                 const stats = {
                     total: orders.length,
-                    pending: orders.filter(order => order.status?.toLowerCase() === 'pending').length,
+                    unpaid: orders.filter(order => order.status?.toLowerCase() === 'unpaid').length,
                     processing: orders.filter(order => order.status?.toLowerCase() === 'processing').length,
                     shipped: orders.filter(order => order.status?.toLowerCase() === 'shipped').length,
                     delivered: orders.filter(order => order.status?.toLowerCase() === 'delivered').length,
@@ -85,7 +87,7 @@ export default function OrdersPage() {
                 minute: '2-digit',
                 second: '2-digit',
                 hour12: true,
-                timeZone: 'Africa/Lagos' // WAT (West Africa Time)
+                timeZone: 'Africa/Lagos'
             };
             setCurrentDateTime(now.toLocaleString('en-US', options));
         };
@@ -141,7 +143,8 @@ export default function OrdersPage() {
                     {currentDateTime}
                 </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
                 <OrderCard
                     title="Total orders"
                     value={formatNumber(orderStats.total)}
@@ -150,18 +153,18 @@ export default function OrdersPage() {
                     textColor="text-blue-800"
                 />
                 <OrderCard
-                    title="Pending orders"
-                    value={formatNumber(orderStats.pending)}
+                    title="Unpaid orders"
+                    value={formatNumber(orderStats.unpaid)}
                     icon={faHourglassHalf}
-                    bgColor="bg-yellow-100"
-                    textColor="text-yellow-800"
+                    bgColor="bg-red-100"
+                    textColor="text-red-800"
                 />
                 <OrderCard
                     title="Processing orders"
                     value={formatNumber(orderStats.processing)}
                     icon={faBoxOpen}
-                    bgColor="bg-orange-100"
-                    textColor="text-orange-800"
+                    bgColor="bg-yellow-100"
+                    textColor="text-yellow-800"
                 />
                 <OrderCard
                     title="Shipped orders"
@@ -178,8 +181,13 @@ export default function OrdersPage() {
                     textColor="text-green-800"
                 />
             </div>
+            
             <div className="mt-8">
-                <OrderListTable onOrderUpdate={fetchOrderStats} />
+                <OrderListTable 
+                    orders={allOrders}
+                    editableStatuses={['unpaid']}
+                    onOrderUpdate={fetchOrderStats} 
+                />
             </div>
         </div>
     );

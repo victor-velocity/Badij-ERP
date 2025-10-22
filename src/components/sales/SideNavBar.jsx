@@ -3,17 +3,14 @@
 import React, { useEffect } from "react";
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faBars, 
-  faTimes, 
-  faThLarge, 
-  faUsers, 
-  faClipboardList, 
-  faChartLine, 
-  faMoneyBillAlt, 
-  faFileAlt, 
-  faCog, 
-  faArrowRightFromBracket 
+import {
+    faBars,
+    faTimes,
+    faThLarge,
+    faUsers,
+    faClipboardList,
+    faBoxOpen,
+    faArrowRightFromBracket
 } from '@fortawesome/free-solid-svg-icons';
 import { usePathname } from 'next/navigation';
 import Image from "next/image";
@@ -44,7 +41,8 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
     const navItems = [
         { name: "Dashboard", icon: faThLarge, path: "/sales" },
         { name: "Customers", icon: faUsers, path: "/sales/customers" },
-        { name: "Orders", icon: faClipboardList, path: "/sales/orders" }
+        { name: "Orders", icon: faClipboardList, path: "/sales/orders" },
+        { name: "Stocks", icon: faBoxOpen, path: "/sales/stocks" },
     ];
 
     const handleLogout = async () => {

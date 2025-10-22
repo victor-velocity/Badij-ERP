@@ -1,7 +1,7 @@
 // CreateOrderModal.js
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faSpinner, faSearch, faTrash, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faSpinner, faSearch, faTrash, faEnvelope, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import toast from "react-hot-toast";
@@ -12,7 +12,6 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
         customer_id: "",
         delivery_date: "",
-        status: "pending",
         total_amount: 0,
         dispatch_address: "",
         phone_number: "",
@@ -31,6 +30,15 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
     const [sendingEmail, setSendingEmail] = useState(false);
+    const [currentStep, setCurrentStep] = useState(1);
+    const [status, setStatus] = useState("unpaid");
+    const [paymentType, setPaymentType] = useState("transfer");
+    const [additionalCosts, setAdditionalCosts] = useState([]);
+    const [newCostName, setNewCostName] = useState("");
+    const [newCostPrice, setNewCostPrice] = useState(0);
+    const [accountName, setAccountName] = useState("");
+    const [accountNumber, setAccountNumber] = useState("");
+    const [bankName, setBankName] = useState("");
     const router = useRouter();
 
     // Fetch customers and products from backend
@@ -63,15 +71,16 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
         }
     }, [isOpen, router]);
 
-    // Update total amount when items or quantities change
     useEffect(() => {
-        const totalAmount = selectedItems.reduce((sum, item) => {
+        const itemsTotal = selectedItems.reduce((sum, item) => {
             const quantity = itemQuantities[item.product_id] || 1;
             const price = item.price || 0;
             return sum + price * quantity;
         }, 0);
+        const additionalTotal = additionalCosts.reduce((sum, cost) => sum + (cost.price || 0), 0);
+        const totalAmount = itemsTotal + additionalTotal;
         setFormData(prev => ({ ...prev, total_amount: totalAmount }));
-    }, [selectedItems, itemQuantities]);
+    }, [selectedItems, itemQuantities, additionalCosts]);
 
     // Search functionality for products only
     useEffect(() => {
@@ -117,7 +126,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
             setFormData(prev => ({
                 ...prev,
                 customer_id: customerId,
-                phone_number: customer.phone_number || '',
+                phone_number: customer.phone || '',
                 dispatch_address: ''
             }));
             setCustomerQuery(customer.name);
@@ -130,7 +139,6 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
     };
 
     const handleItemSelect = (product) => {
-        // Check if product is already selected using product_id
         if (selectedItems.some(selected => selected.product_id === product.product_id)) {
             toast.error("Product already added to order");
             return;
@@ -159,7 +167,38 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
         });
     };
 
-    const generateInvoiceHTML = (orderData, customerData, itemsData) => {
+    const handleAddAdditionalCost = () => {
+        if (!newCostName.trim() || newCostPrice <= 0) {
+            toast.error("Please enter valid cost name and price");
+            return;
+        }
+        setAdditionalCosts(prev => [...prev, { name: newCostName, price: newCostPrice }]);
+        setNewCostName('');
+        setNewCostPrice(0);
+    };
+
+    const handleRemoveAdditionalCost = (index) => {
+        setAdditionalCosts(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const generateInvoiceHTML = (orderData, customerData, itemsData, additionalCosts) => {
+        let additionalHtml = '';
+        if (additionalCosts.length > 0) {
+            additionalHtml = additionalCosts.map(cost => `
+                <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                    <span>${cost.name}:</span>
+                    <span>₦${cost.price.toLocaleString()}</span>
+                </div>
+            `).join('');
+        }
+
+        const paymentInfoHtml = `
+            <p style="margin: 5px 0;"><strong>Account Name:</strong> ${accountName}</p>
+            <p style="margin: 5px 0;"><strong>Account Number:</strong> ${accountNumber}</p>
+            <p style="margin: 5px 0;"><strong>Bank:</strong> ${bankName}</p>
+            <p style="margin: 5px 0; color: #666;">${orderData.notes || 'No additional notes provided.'}</p>
+        `;
+
         return `
         <div style="font-family: Arial, sans-serif; padding: 30px; background: white; color: #333; max-width: 100%;">
             <!-- Header Section -->
@@ -238,13 +277,13 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
 
             <!-- Summary Section -->
             <div style="display: flex; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
-                <!-- Order Notes -->
+                <!-- Payment Information (replacing Order Notes) -->
                 <div style="flex: 1; min-width: 300px; min-height: 200px;">
                     <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
-                        <strong>ORDER NOTES</strong>
+                        <strong>PAYMENT INFORMATION</strong>
                     </div>
                     <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px; height: calc(100% - 42px);">
-                        <p style="margin: 0; color: #666;">${orderData.notes || 'No additional notes provided.'}</p>
+                        ${paymentInfoHtml}
                     </div>
                 </div>
 
@@ -258,14 +297,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                             <span>Sub Total:</span>
                             <span>₦${orderData.total_amount.toLocaleString()}</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
-                            <span>VAT (0%):</span>
-                            <span>₦0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
-                            <span>Discount (0%):</span>
-                            <span>₦0</span>
-                        </div>
+                        ${additionalHtml}
                         <hr style="border: none; border-top: 2px solid #b88b1b; margin: 15px 0;">
                         <div style="display: flex; justify-content: space-between; margin: 10px 0; font-size: 18px; font-weight: bold;">
                             <span>GRAND TOTAL:</span>
@@ -357,14 +389,18 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
         setIsLoading(true);
         try {
             // Prepare data for backend
+            const additionalTotal = additionalCosts.reduce((sum, cost) => sum + (cost.price || 0), 0);
             const orderData = {
                 customer_id: formData.customer_id,
                 delivery_date: formData.delivery_date || null,
-                status: "pending",
+                status: status,
                 total_amount: formData.total_amount,
                 dispatch_address: formData.dispatch_address,
                 phone_number: formData.phone_number,
                 notes: formData.notes || "",
+                additional_costs: additionalTotal,
+                ...(status === 'processing' && { payment_type: paymentType }),
+                // REMOVED: payment_details from submission
                 products: selectedItems.map(item => ({
                     product_id: item.product_id,
                     quantity: itemQuantities[item.product_id] || 1,
@@ -387,7 +423,8 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                 invoiceElement.innerHTML = generateInvoiceHTML(
                     { ...createdOrder, order_number: createdOrder?.order_number }, 
                     selectedCustomer, 
-                    itemsData
+                    itemsData,
+                    additionalCosts
                 );
                 invoiceElement.style.width = '210mm';
                 invoiceElement.style.minHeight = '297mm';
@@ -450,7 +487,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
         <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold text-[#b88b1b]">Create New Order</h2>
+                    <h2 className="text-lg font-bold text-[#b88b1b]">Create New Order - Step {currentStep}/3</h2>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                         <FontAwesomeIcon icon={faTimes} />
                     </button>
@@ -463,192 +500,332 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div className="relative">
-                                <label className="block text-sm font-medium text-gray-700">Customer</label>
-                                <input
-                                    type="text"
-                                    value={customerQuery}
-                                    onChange={handleCustomerChange}
-                                    className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                    placeholder="Type to search customers by name..."
-                                    required
-                                />
-                                {filteredCustomers.length > 0 && (
-                                    <ul className="absolute z-10 border border-gray-300 mt-1 rounded-md max-h-40 overflow-y-auto bg-white w-full">
-                                        {filteredCustomers.map((customer) => (
-                                            <li
-                                                key={customer.customer_id}
-                                                className="p-2 hover:bg-gray-100 cursor-pointer"
-                                                onClick={() => handleCustomerSelect(customer.customer_id)}
-                                            >
-                                                {customer.name}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
+                        {currentStep === 1 && (
+                            <>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div className="relative">
+                                        <label className="block text-sm font-medium text-gray-700">Customer</label>
+                                        <input
+                                            type="text"
+                                            value={customerQuery}
+                                            onChange={handleCustomerChange}
+                                            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                            placeholder="Type to search customers by name..."
+                                            required
+                                        />
+                                        {filteredCustomers.length > 0 && (
+                                            <ul className="absolute z-10 border border-gray-300 mt-1 rounded-md max-h-40 overflow-y-auto bg-white w-full">
+                                                {filteredCustomers.map((customer) => (
+                                                    <li
+                                                        key={customer.customer_id}
+                                                        className="p-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => handleCustomerSelect(customer.customer_id)}
+                                                    >
+                                                        {customer.name}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Customer Email</label>
-                                <input
-                                    type="email"
-                                    value={selectedCustomer?.email || ''}
-                                    readOnly
-                                    className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
-                                />
-                            </div>
-                        </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Customer Email</label>
+                                        <input
+                                            type="email"
+                                            value={selectedCustomer?.email || ''}
+                                            readOnly
+                                            className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
+                                        />
+                                    </div>
+                                </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                                <input
-                                    type="text"
-                                    value={formData.phone_number}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, phone_number: e.target.value }))}
-                                    className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                    required
-                                />
-                            </div>
-                        </div>
+                                {/* ✅ BOTH EMAIL & PHONE NOW PREFILLED & READONLY */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                                        <input
+                                            type="text"
+                                            value={formData.phone_number}
+                                            readOnly  // ✅ CHANGED TO READONLY
+                                            className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
+                                        />
+                                    </div>
+                                </div>
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Dispatch Address</label>
-                            <textarea
-                                value={formData.dispatch_address}
-                                onChange={(e) => setFormData(prev => ({ ...prev, dispatch_address: e.target.value }))}
-                                className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                rows="3"
-                                required
-                            />
-                        </div>
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700">Dispatch Address</label>
+                                    <textarea
+                                        value={formData.dispatch_address}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, dispatch_address: e.target.value }))}
+                                        className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                        rows="3"
+                                        required
+                                    />
+                                </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Delivery Date</label>
-                                <input
-                                    type="date"
-                                    value={formData.delivery_date}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, delivery_date: e.target.value }))}
-                                    className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Total Amount</label>
-                                <input
-                                    type="text"
-                                    value={`₦${formData.total_amount.toLocaleString()}`}
-                                    readOnly
-                                    className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100 font-bold"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Search and Add Products Section */}
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Add Products</label>
-                            <div className="relative">
-                                <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                <input
-                                    type="text"
-                                    value={searchTerm}
-                                    onChange={handleSearchChange}
-                                    className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                    placeholder="Search products by name or SKU..."
-                                />
-                            </div>
-                            
-                            {searchResults.length > 0 && (
-                                <div className="border border-gray-300 mt-1 rounded-md max-h-40 overflow-y-auto bg-white">
-                                    {searchResults.map((product) => (
-                                        <div
-                                            key={product.product_id}
-                                            className="p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
-                                            onClick={() => handleItemSelect(product)}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Delivery Date</label>
+                                        <input
+                                            type="date"
+                                            value={formData.delivery_date}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, delivery_date: e.target.value }))}
+                                            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Status</label>
+                                        <select
+                                            value={status}
+                                            onChange={(e) => setStatus(e.target.value)}
+                                            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                                         >
-                                            <div className="flex justify-between items-center">
-                                                <div>
-                                                    <div className="font-medium">{product.name}</div>
-                                                    <div className="text-sm text-gray-500">
-                                                        SKU: {product.sku}
-                                                    </div>
-                                                </div>
-                                                <div className="text-sm font-semibold">
-                                                    ₦{product.price?.toLocaleString() || 0}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                            <option value="unpaid">Unpaid</option>
+                                            <option value="processing">Processing</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Selected Products List */}
-                        {selectedItems.length > 0 && (
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Selected Products</label>
-                                <div className="space-y-2 max-h-40 overflow-y-auto">
-                                    {selectedItems.map((product) => (
-                                        <div key={product.product_id} className="flex items-center justify-between p-3 border border-gray-300 rounded-md">
-                                            <div className="flex-1">
-                                                <div className="font-medium">{product.name}</div>
-                                                <div className="text-sm text-gray-500">
-                                                    SKU: {product.sku}
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <input
-                                                    type="number"
-                                                    min="1"
-                                                    value={itemQuantities[product.product_id] || 1}
-                                                    onChange={(e) => handleQuantityChange(product.product_id, parseInt(e.target.value) || 1)}
-                                                    className="w-20 p-1 border border-gray-300 rounded-md text-center"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveItem(product.product_id)}
-                                                    className="text-red-500 hover:text-red-700 p-1"
-                                                >
-                                                    <FontAwesomeIcon icon={faTrash} />
-                                                </button>
-                                            </div>
+                                {status === 'processing' && (
+                                    <>
+                                        <div className="mb-4">
+                                            <label className="block text-sm font-medium text-gray-700">Payment Type</label>
+                                            <select
+                                                value={paymentType}
+                                                onChange={(e) => setPaymentType(e.target.value)}
+                                                className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                            >
+                                                <option value="transfer">Transfer</option>
+                                                <option value="cash">Cash</option>
+                                                <option value="card">Card</option>
+                                            </select>
                                         </div>
-                                    ))}
+                                    </>
+                                )}
+
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700">Notes (Optional)</label>
+                                    <textarea
+                                        value={formData.notes}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                                        className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                        rows="2"
+                                        placeholder="Additional notes..."
+                                    />
                                 </div>
-                            </div>
+                            </>
                         )}
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                            <textarea
-                                value={formData.notes}
-                                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                                className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                rows="2"
-                                placeholder="Additional notes..."
-                            />
-                        </div>
+                        {currentStep === 2 && (
+                            <>
+                                {/* Search and Add Products Section */}
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Add Products</label>
+                                    <div className="relative">
+                                        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            value={searchTerm}
+                                            onChange={handleSearchChange}
+                                            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                            placeholder="Search products by name or SKU..."
+                                        />
+                                    </div>
+                                    
+                                    {searchResults.length > 0 && (
+                                        <div className="border border-gray-300 mt-1 rounded-md max-h-40 overflow-y-auto bg-white">
+                                            {searchResults.map((product) => (
+                                                <div
+                                                    key={product.product_id}
+                                                    className="p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
+                                                    onClick={() => handleItemSelect(product)}
+                                                >
+                                                    <div className="flex justify-between items-center">
+                                                        <div>
+                                                            <div className="font-medium">{product.name}</div>
+                                                            <div className="text-sm text-gray-500">
+                                                                SKU: {product.sku}
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-sm font-semibold">
+                                                            ₦{product.price?.toLocaleString() || 0}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
 
-                        <div className="flex justify-end space-x-2">
-                            <button
-                                type="submit"
-                                className="px-4 py-2 bg-[#b88b1b] hover:bg-[#8b6a15] transition-all text-white rounded-md disabled:opacity-50 flex items-center"
-                                disabled={isLoading || selectedItems.length === 0}
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
-                                        {sendingEmail ? "Sending Email..." : "Creating Order..."}
-                                    </>
-                                ) : (
-                                    <>
-                                        <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
-                                        Create Order & Send Invoice
-                                    </>
+                                {/* Selected Products List */}
+                                {selectedItems.length > 0 && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Selected Products</label>
+                                        <div className="space-y-2 max-h-40 overflow-y-auto">
+                                            {selectedItems.map((product) => (
+                                                <div key={product.product_id} className="flex items-center justify-between p-3 border border-gray-300 rounded-md">
+                                                    <div className="flex-1">
+                                                        <div className="font-medium">{product.name}</div>
+                                                        <div className="text-sm text-gray-500">
+                                                            SKU: {product.sku}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center space-x-2">
+                                                        <input
+                                                            type="number"
+                                                            min="1"
+                                                            value={itemQuantities[product.product_id] || 1}
+                                                            onChange={(e) => handleQuantityChange(product.product_id, parseInt(e.target.value) || 1)}
+                                                            className="w-20 p-1 border border-gray-300 rounded-md text-center"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveItem(product.product_id)}
+                                                            className="text-red-500 hover:text-red-700 p-1"
+                                                        >
+                                                            <FontAwesomeIcon icon={faTrash} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 )}
-                            </button>
+
+                                {/* Additional Costs */}
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Additional Costs</label>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                                        <input
+                                            type="text"
+                                            value={newCostName}
+                                            onChange={(e) => setNewCostName(e.target.value)}
+                                            className="p-2 border border-gray-300 rounded-md"
+                                            placeholder="Cost name"
+                                        />
+                                        <input
+                                            type="number"
+                                            value={newCostPrice}
+                                            onChange={(e) => setNewCostPrice(parseFloat(e.target.value) || 0)}
+                                            className="p-2 border border-gray-300 rounded-md"
+                                            placeholder="Price"
+                                            min="0"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleAddAdditionalCost}
+                                            className="p-2 bg-[#b88b1b] text-white rounded-md hover:bg-[#8b6a15] flex items-center justify-center"
+                                        >
+                                            <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
+                                            Add
+                                        </button>
+                                    </div>
+                                    {additionalCosts.length > 0 && (
+                                        <div className="space-y-2 mt-2">
+                                            {additionalCosts.map((cost, index) => (
+                                                <div key={index} className="flex justify-between items-center p-2 border border-gray-300 rounded-md">
+                                                    <span>{cost.name}</span>
+                                                    <span>₦{cost.price.toLocaleString()}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveAdditionalCost(index)}
+                                                        className="text-red-500 hover:text-red-700"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700">Total Amount</label>
+                                    <input
+                                        type="text"
+                                        value={`₦${formData.total_amount.toLocaleString()}`}
+                                        readOnly
+                                        className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100 font-bold"
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        {currentStep === 3 && (
+                            <>
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700">Account Name</label>
+                                    <input
+                                        type="text"
+                                        value={accountName}
+                                        onChange={(e) => setAccountName(e.target.value)}
+                                        className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700">Account Number</label>
+                                    <input
+                                        type="text"
+                                        value={accountNumber}
+                                        onChange={(e) => setAccountNumber(e.target.value)}
+                                        className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700">Bank Name</label>
+                                    <input
+                                        type="text"
+                                        value={bankName}
+                                        onChange={(e) => setBankName(e.target.value)}
+                                        className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                        required
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        <div className="flex justify-between space-x-2">
+                            {currentStep > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentStep(prev => prev - 1)}
+                                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100"
+                                    disabled={isLoading}
+                                >
+                                    Back
+                                </button>
+                            )}
+                            {currentStep < 3 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setCurrentStep(prev => prev + 1)}
+                                    className="px-4 py-2 bg-[#b88b1b] hover:bg-[#8b6a15] transition-all text-white rounded-md disabled:opacity-50 flex items-center"
+                                    disabled={isLoading || (currentStep === 1 && !formData.customer_id) || (currentStep === 2 && selectedItems.length === 0)}
+                                >
+                                    Next
+                                </button>
+                            )}
+                            {currentStep === 3 && (
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-[#b88b1b] hover:bg-[#8b6a15] transition-all text-white rounded-md disabled:opacity-50 flex items-center"
+                                    disabled={isLoading || !accountName || !accountNumber || !bankName}
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />
+                                            {sendingEmail ? "Sending Email..." : "Creating Order..."}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
+                                            Create Order & Send Invoice
+                                        </>
+                                    )}
+                                </button>
+                            )}
                             <button
                                 type="button"
                                 onClick={onClose}
