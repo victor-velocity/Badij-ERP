@@ -353,15 +353,13 @@ const ReportsPage = () => {
                 <p className="text-gray-500 text-center py-8">No inventory transactions found.</p>
             )}
             {selectedDetails && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full overflow-y-auto max-h-[80vh]">
                         <h2 className="text-xl font-bold mb-4">Transaction Details</h2>
                         <div className="mb-6 p-4 border border-gray-200 rounded-md bg-gray-50">
                             <h3 className="text-lg font-semibold mb-2">Transaction Information</h3>
                             {selectedDetails.transaction ? (
                                 <dl className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
-                                    <dt className="font-medium text-gray-700">Transaction ID:</dt>
-                                    <dd className="text-gray-900">{selectedDetails.transaction.transaction_id}</dd>
                                     <dt className="font-medium text-gray-700">Date:</dt>
                                     <dd className="text-gray-900">{new Date(selectedDetails.transaction.transaction_date).toLocaleString()}</dd>
                                     <dt className="font-medium text-gray-700">Type:</dt>
@@ -387,14 +385,7 @@ const ReportsPage = () => {
                                     <dd className="text-gray-900">{selectedDetails.employee.position}</dd>
                                     <dt className="font-medium text-gray-700">Department:</dt>
                                     <dd className="text-gray-900">{selectedDetails.employee.departments?.name || 'N/A'}</dd>
-                                    <dt className="font-medium text-gray-700">Shift:</dt>
-                                    <dd className="text-gray-900">{selectedDetails.employee.shift_types?.name || 'N/A'} ({selectedDetails.employee.shift_types?.start_time} - {selectedDetails.employee.shift_types?.end_time})</dd>
-                                    <dt className="font-medium text-gray-700">Hire Date:</dt>
-                                    <dd className="text-gray-900">{selectedDetails.employee.hire_date}</dd>
-                                    <dt className="font-medium text-gray-700">Status:</dt>
-                                    <dd className="text-gray-900">{selectedDetails.employee.status}</dd>
-                                    <dt className="font-medium text-gray-700">Employment Status:</dt>
-                                    <dd className="text-gray-900">{selectedDetails.employee.employment_status}</dd>
+                                    
                                     <dt className="font-medium text-gray-700">Role:</dt>
                                     <dd className="text-gray-900">{selectedDetails.employee.role}</dd>
                                     {selectedDetails.employee.phone_number && (
@@ -459,7 +450,7 @@ const ReportsPage = () => {
                             </div>
                         )}
                         <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                            className="bg-[#b88b1b] transition-all float-right text-white px-4 py-2 rounded hover:bg-[#977215]"
                             onClick={() => setSelectedDetails(null)}
                         >
                             Close

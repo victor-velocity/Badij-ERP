@@ -8,7 +8,7 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
         batch_number: '',
         received_date: '',
         expected_date: '',
-        status: 'in-transit',
+        status: 'in_transit',
         notes: ''
     });
     const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
                 batch_number: batch.batch_number || '',
                 received_date: batch.received_date || '',
                 expected_date: batch.expected_date || '',
-                status: batch.status || 'in-transit',
+                status: batch.status || 'in_transit',
                 notes: batch.notes || ''
             });
             
@@ -104,8 +104,8 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
         }
 
         // Validate received_date based on status
-        if (formData.status === 'completed' && !formData.received_date) {
-            toast.error('Received date is required when status is "Completed"');
+        if ((formData.status === 'completed' || formData.status === 'processing') && !formData.received_date) {
+            toast.error('Received date is required when status is "Processing" or "Completed"');
             return;
         }
 
@@ -121,11 +121,11 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
             submitData.expected_date = formData.expected_date;
         }
 
-        // Only include received_date if status is completed and provided
-        if (formData.status === 'completed' && formData.received_date) {
+        // Only include received_date if status is processing or completed and provided
+        if ((formData.status === 'processing' || formData.status === 'completed') && formData.received_date) {
             submitData.received_date = formData.received_date;
-        } else if (formData.status !== 'completed' && formData.received_date) {
-            // Clear received_date if status is not completed but there's a received_date
+        } else if (formData.status === 'in_transit' && formData.received_date) {
+            // Clear received_date if status is in_transit but there's a received_date
             submitData.received_date = null;
         }
 
@@ -163,8 +163,8 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
             [name]: value
         }));
 
-        // Reset received_date when status changes from completed
-        if (name === 'status' && value !== 'completed') {
+        // Reset received_date when status changes to in_transit
+        if (name === 'status' && value === 'in_transit') {
             setFormData(prev => ({
                 ...prev,
                 received_date: ''
@@ -209,6 +209,8 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
 
     if (!batch) return null;
 
+    const isProcessing = batch.status === 'processing';
+
     return (
         <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -216,27 +218,33 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
                     <h3 className="text-lg font-semibold">Edit Import Batch</h3>
                 </div>
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {/* Supplier Search Dropdown */}
+                    {/* Supplier */}
                     <div className="relative">
                         <label htmlFor="supplier_search" className="block text-sm font-medium text-gray-700">
                             Supplier
                         </label>
-                        <div className="relative mt-1">
-                            <input
-                                type="text"
-                                id="supplier_search"
-                                value={searchTerm}
-                                onChange={handleSearchChange}
-                                onFocus={() => setShowDropdown(true)}
-                                onBlur={handleDropdownBlur}
-                                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                placeholder="Search suppliers by name, email, or phone..."
-                                required
-                            />
-                        </div>
+                        {isProcessing ? (
+                            <p className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 text-gray-900">
+                                {getSelectedSupplierName()}
+                            </p>
+                        ) : (
+                            <div className="relative mt-1">
+                                <input
+                                    type="text"
+                                    id="supplier_search"
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                    onFocus={() => setShowDropdown(true)}
+                                    onBlur={handleDropdownBlur}
+                                    className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                    placeholder="Search suppliers by name, email, or phone..."
+                                    required
+                                />
+                            </div>
+                        )}
 
                         {/* Dropdown List */}
-                        {showDropdown && (
+                        {!isProcessing && showDropdown && (
                             <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                                 {suppliersLoading ? (
                                     <div className="px-4 py-2 text-sm text-gray-500">Loading suppliers...</div>
@@ -272,43 +280,46 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
                         />
                     </div>
 
-                    {/* Selected Supplier Info */}
-                    {formData.supplier_id && (
-                        <div className="bg-green-50 border border-green-200 rounded-md p-3">
-                            <div className="text-sm text-green-800">
-                                <strong>Selected:</strong> {getSelectedSupplierName()}
-                            </div>
-                        </div>
-                    )}
-
                     <div>
                         <label htmlFor="batch_number" className="block text-sm font-medium text-gray-700">
                             Batch Number
                         </label>
-                        <input
-                            type="text"
-                            id="batch_number"
-                            name="batch_number"
-                            required
-                            value={formData.batch_number}
-                            onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            placeholder="Enter batch number"
-                        />
+                        {isProcessing ? (
+                            <p className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 text-gray-900">
+                                {formData.batch_number}
+                            </p>
+                        ) : (
+                            <input
+                                type="text"
+                                id="batch_number"
+                                name="batch_number"
+                                required
+                                value={formData.batch_number}
+                                onChange={handleChange}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                placeholder="Enter batch number"
+                            />
+                        )}
                     </div>
 
                     <div>
                         <label htmlFor="expected_date" className="block text-sm font-medium text-gray-700">
                             Expected Date
                         </label>
-                        <input
-                            type="date"
-                            id="expected_date"
-                            name="expected_date"
-                            value={formData.expected_date}
-                            onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                        />
+                        {isProcessing ? (
+                            <p className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 text-gray-900">
+                                {formData.expected_date || 'Not set'}
+                            </p>
+                        ) : (
+                            <input
+                                type="date"
+                                id="expected_date"
+                                name="expected_date"
+                                value={formData.expected_date}
+                                onChange={handleChange}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            />
+                        )}
                     </div>
 
                     <div>
@@ -322,28 +333,43 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
                             onChange={handleChange}
                             className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                         >
-                            <option value="in-transit">In Transit</option>
-                            <option value="processing">Processing</option>
-                            <option value="completed">Completed</option>
+                            {isProcessing ? (
+                                <>
+                                    <option value="processing">Processing</option>
+                                    <option value="completed">Completed</option>
+                                </>
+                            ) : (
+                                <>
+                                    <option value="in_transit">In Transit</option>
+                                    <option value="processing">Processing</option>
+                                    <option value="completed">Completed</option>
+                                </>
+                            )}
                         </select>
                     </div>
 
-                    {/* Received Date - Only show when status is completed */}
-                    {formData.status === 'completed' && (
+                    {/* Received Date - Show when status is processing or completed */}
+                    {(formData.status === 'processing' || formData.status === 'completed') && (
                         <div>
                             <label htmlFor="received_date" className="block text-sm font-medium text-gray-700">
                                 Received Date *
                             </label>
-                            <input
-                                type="date"
-                                id="received_date"
-                                name="received_date"
-                                required
-                                value={formData.received_date}
-                                onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">Required when status is "Completed"</p>
+                            {isProcessing ? (
+                                <p className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 text-gray-900">
+                                    {formData.received_date}
+                                </p>
+                            ) : (
+                                <input
+                                    type="date"
+                                    id="received_date"
+                                    name="received_date"
+                                    required
+                                    value={formData.received_date}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                />
+                            )}
+                            <p className="text-xs text-gray-500 mt-1">Required when status is "Processing" or "Completed"</p>
                         </div>
                     )}
 
@@ -351,15 +377,21 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
                         <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
                             Notes
                         </label>
-                        <textarea
-                            id="notes"
-                            name="notes"
-                            value={formData.notes}
-                            onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            rows="3"
-                            placeholder="Additional notes..."
-                        />
+                        {isProcessing ? (
+                            <p className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100 text-gray-900">
+                                {formData.notes || 'None'}
+                            </p>
+                        ) : (
+                            <textarea
+                                id="notes"
+                                name="notes"
+                                value={formData.notes}
+                                onChange={handleChange}
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                rows="3"
+                                placeholder="Additional notes..."
+                            />
+                        )}
                     </div>
 
                     <div className="flex justify-end space-x-3 pt-4">
@@ -373,7 +405,7 @@ const EditBatchModal = ({ batch, onClose, onSuccess }) => {
                         </button>
                         <button
                             type="submit"
-                            disabled={loading || !formData.supplier_id || !formData.batch_number}
+                            disabled={loading || !formData.supplier_id || !formData.batch_number || (isProcessing && formData.status !== 'completed')}
                             className="px-4 py-2 bg-[#b88b1b] text-white rounded-md transition-all hover:bg-[#b88b1b] disabled:opacity-50"
                         >
                             {loading ? 'Updating...' : 'Update'}

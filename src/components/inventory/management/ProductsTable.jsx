@@ -6,8 +6,6 @@ import { faSearch, faTrash, faAngleLeft, faAngleRight, faTimes, faEdit, faCubes 
 import toast from 'react-hot-toast';
 import apiService from '@/app/lib/apiService';
 import ProductModal from './ProductModal';
-import DeleteModal from './DeleteModal';
-import AssignComponentsModal from './AssignComponentsModal';
 
 const ITEMS_PER_PAGE = 8;
 const goldColor = '#b88b1b';
@@ -259,20 +257,6 @@ export default function ProductsTable({ onDataChange }) {
                                             >
                                                 <FontAwesomeIcon icon={faEdit} />
                                             </button>
-                                            <button 
-                                                className="hover:text-purple-700 text-purple-500 transition-colors duration-200" 
-                                                aria-label="Assign Components"
-                                                onClick={() => handleAssignComponentsClick(product)}
-                                            >
-                                                <FontAwesomeIcon icon={faCubes} />
-                                            </button>
-                                            <button 
-                                                className="hover:text-red-700 text-red-500 transition-colors duration-200" 
-                                                aria-label="Delete" 
-                                                onClick={() => handleDeleteClick(product)}
-                                            >
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -317,32 +301,6 @@ export default function ProductsTable({ onDataChange }) {
                         setSelectedProduct(null);
                     }}
                     onSave={handleSave}
-                />
-            )}
-
-            {showDeleteModal && productToDelete && (
-                <DeleteModal
-                    product={productToDelete}
-                    onClose={() => {
-                        setShowDeleteModal(false);
-                        setProductToDelete(null);
-                    }}
-                    onDelete={handleDelete}
-                />
-            )}
-
-            {showAssignModal && productToAssign && (
-                <AssignComponentsModal
-                    product={productToAssign}
-                    onClose={() => {
-                        setShowAssignModal(false);
-                        setProductToAssign(null);
-                    }}
-                    onSave={() => {
-                        if (onDataChange) {
-                            onDataChange();
-                        }
-                    }}
                 />
             )}
 

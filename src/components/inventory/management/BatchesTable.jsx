@@ -228,14 +228,16 @@ export default function BatchesTable({ onDataChange }) {
                                         </button>
                                         <button
                                             onClick={() => openEditModal(batch)}
-                                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                                            disabled={batch.status === 'completed'}
+                                            className={`p-1 rounded ${batch.status === 'completed' ? 'text-gray-400 cursor-not-allowed' : 'text-green-600 hover:text-green-900 hover:bg-green-50'}`}
                                             title="Edit Batch"
                                         >
                                             <FontAwesomeIcon icon={faEdit} />
                                         </button>
                                         <button
                                             onClick={() => openDeleteModal(batch)}
-                                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                                            disabled={batch.status === 'completed'}
+                                            className={`p-1 rounded ${batch.status === 'completed' ? 'text-gray-400 cursor-not-allowed' : 'text-red-600 hover:text-red-900 hover:bg-red-50'}`}
                                             title="Delete Batch"
                                         >
                                             <FontAwesomeIcon icon={faTrash} />

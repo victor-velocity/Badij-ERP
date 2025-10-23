@@ -8,6 +8,7 @@ import StocksTable from "@/components/inventory/management/StocksTable";
 import { InventoryCard } from "@/components/inventory/management/InventoryCard";
 import { faBoxOpen, faExclamationTriangle, faBan, faCogs, faBoxes, faWarehouse } from "@fortawesome/free-solid-svg-icons";
 import apiService from "@/app/lib/apiService";
+import StockEntryModal from "@/components/inventory/management/StockEntryModal";
 
 export default function InventoryOrders() {
     const [currentDateTime, setCurrentDateTime] = useState('');
@@ -24,6 +25,7 @@ export default function InventoryOrders() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [retrying, setRetrying] = useState(false);
+    const [isStockEntryModalOpen, setIsStockEntryModalOpen] = useState(false);
 
     const first_name = localStorage.getItem('first_name');
 
@@ -326,9 +328,25 @@ export default function InventoryOrders() {
                 ) : activeTab === 'batches' ? (
                     <BatchesTable onDataChange={() => loadInventoryStats(false)} />
                 ) : (
-                    <StocksTable onDataChange={() => loadInventoryStats(false)} />
+                    <div>
+                        <div className="flex justify-end mb-4">
+                            <button 
+                                onClick={() => setIsStockEntryModalOpen(true)}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                            >
+                                Add Stock Entry
+                            </button>
+                        </div>
+                        <StocksTable onDataChange={() => loadInventoryStats(false)} />
+                    </div>
                 )}
             </div>
+
+            <StockEntryModal 
+                isOpen={isStockEntryModalOpen} 
+                onClose={() => setIsStockEntryModalOpen(false)}
+                onSuccess={() => loadInventoryStats(false)}
+            />
         </div>
     );
 }

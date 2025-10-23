@@ -8,7 +8,7 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
         batch_number: '',
         received_date: '',
         expected_date: '',
-        status: 'in-transit',
+        status: 'in_transit',
         notes: ''
     });
     const [loading, setLoading] = useState(false);
@@ -63,8 +63,8 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
         }
 
         // Validate received_date based on status
-        if (formData.status === 'completed' && !formData.received_date) {
-            toast.error('Received date is required when status is "Completed"');
+        if (formData.status === 'processing' && !formData.received_date) {
+            toast.error('Received date is required when status is "Processing"');
             return;
         }
 
@@ -80,8 +80,8 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
             submitData.expected_date = formData.expected_date;
         }
 
-        // Only include received_date if status is completed and provided
-        if (formData.status === 'completed' && formData.received_date) {
+        // Only include received_date if status is processing and provided
+        if (formData.status === 'processing' && formData.received_date) {
             submitData.received_date = formData.received_date;
         }
 
@@ -117,8 +117,8 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
             [name]: value
         }));
 
-        // Reset received_date when status changes from completed
-        if (name === 'status' && value !== 'completed') {
+        // Reset received_date when status changes from processing
+        if (name === 'status' && value !== 'processing') {
             setFormData(prev => ({
                 ...prev,
                 received_date: ''
@@ -274,14 +274,13 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
                             onChange={handleChange}
                             className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                         >
-                            <option value="in-transit">In Transit</option>
+                            <option value="in_transit">In Transit</option>
                             <option value="processing">Processing</option>
-                            <option value="completed">Completed</option>
                         </select>
                     </div>
 
-                    {/* Received Date - Only show when status is completed */}
-                    {formData.status === 'completed' && (
+                    {/* Received Date - Only show when status is processing */}
+                    {formData.status === 'processing' && (
                         <div>
                             <label htmlFor="received_date" className="block text-sm font-medium text-gray-700">
                                 Received Date *
@@ -295,7 +294,7 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
                                 onChange={handleChange}
                                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                             />
-                            <p className="text-xs text-gray-500 mt-1">Required when status is "Completed"</p>
+                            <p className="text-xs text-gray-500 mt-1">Required when status is "Processing"</p>
                         </div>
                     )}
 
