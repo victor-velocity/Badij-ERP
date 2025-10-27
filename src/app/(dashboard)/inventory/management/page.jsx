@@ -342,11 +342,13 @@ export default function InventoryOrders() {
                 )}
             </div>
 
-            <StockEntryModal 
-                isOpen={isStockEntryModalOpen} 
-                onClose={() => setIsStockEntryModalOpen(false)}
-                onSuccess={() => loadInventoryStats(false)}
-            />
+            {isStockEntryModalOpen && (
+                <StockEntryModal 
+                    isOpen={isStockEntryModalOpen} 
+                    onClose={() => setIsStockEntryModalOpen(false)}
+                    onSuccess={() => loadInventoryStats(false)}
+                />
+            )}
         </div>
     );
 }

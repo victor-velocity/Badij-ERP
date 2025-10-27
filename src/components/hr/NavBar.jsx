@@ -3,12 +3,13 @@
 import React, { useEffect } from "react";
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes, faThLarge, faUsers, faPlaneDeparture, faCheckSquare, faCalendarAlt, faClipboardList, faMoneyBillAlt, faEnvelope, faCog, faArrowRightFromBracket, faFile } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes, faThLarge, faUsers, faPlaneDeparture, faCheckSquare, faCalendarAlt, faClipboardList, faMoneyBillAlt, faEnvelope, faCog, faArrowRightFromBracket, faFile, faBrain } from '@fortawesome/free-solid-svg-icons';
 import { usePathname } from 'next/navigation';
 import Image from "next/image";
 import { createClient } from "@/app/lib/supabase/client";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { faKeybase } from "@fortawesome/free-brands-svg-icons";
 
 export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesktopSidebarExpanded, toggleDesktopSidebar }) {
     const pathname = usePathname();
@@ -39,6 +40,8 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
         { name: "Task", icon: faClipboardList, path: "/humanResources/tasks" },
         { name: "Payslip", icon: faMoneyBillAlt, path: "/humanResources/payroll" },
         { name: "Documents", icon: faFile, path: "/humanResources/documents" },
+        { name: "Knowledge Sharing", icon: faBrain, path: "/humanResources/kss" },
+        { name: "Key Performance", icon: faKeybase, path: "/humanResources/kpi" },
         // { name: "Message", icon: faEnvelope, path: "/humanResources/chat" },
         { name: "Settings", icon: faCog, path: "/humanResources/settings" },
     ];

@@ -37,7 +37,7 @@ const callApi = async (endpoint, method = "GET", data = null, router = null) => 
     const config = {
         method,
         headers,
-        body: data && (method === "POST" || method === "PUT" || method === "PATCH") ? JSON.stringify(data) : undefined,
+        body: data ? JSON.stringify(data) : undefined,
     };
 
     try {
@@ -424,6 +424,156 @@ const apiService = {
     // Inventory Transactions API
     getInventoryTransactions: async (router) => {
         return callApi("/inventory/transactions", "GET", null, router);
+    },
+
+    // KSS Modules APIs (assuming GET endpoints exist based on comments in backend code)
+    getModules: async (router) => {
+        return callApi("/kss/modules", "GET", null, router);
+    },
+
+    getModuleById: async (moduleId, router) => {
+        return callApi(`/kss/modules/${moduleId}`, "GET", null, router);
+    },
+
+    createModule: async (moduleData, router) => {
+        return callApi("/kss/modules", "POST", moduleData, router);
+    },
+
+    updateModule: async (moduleId, moduleData, router) => {
+        return callApi(`/kss/modules/${moduleId}`, "PUT", moduleData, router);
+    },
+
+    deleteModule: async (moduleId, router) => {
+        return callApi(`/kss/modules/${moduleId}`, "DELETE", null, router);
+    },
+
+    // KSS Lessons APIs
+    getLessons: async (router) => {
+        return callApi("/kss/lessons", "GET", null, router);
+    },
+
+    getLessonById: async (lessonId, router) => {
+        return callApi(`/kss/lessons/${lessonId}`, "GET", null, router);
+    },
+
+    createLesson: async (lessonData, router) => {
+        return callApi("/kss/lessons", "POST", lessonData, router);
+    },
+
+    updateLesson: async (lessonId, lessonData, router) => {
+        return callApi(`/kss/lessons/${lessonId}`, "PUT", lessonData, router);
+    },
+
+    deleteLesson: async (lessonId, router) => {
+        return callApi(`/kss/lessons/${lessonId}`, "DELETE", null, router);
+    },
+
+    // KSS Assignments APIs (assuming GET endpoint for assignments per module)
+    getAssignments: async (moduleId, router) => {
+        return callApi(`/kss/modules/${moduleId}/assignments`, "GET", null, router);
+    },
+
+    createAssignment: async (moduleId, assignmentData, router) => {
+        return callApi(`/kss/modules/${moduleId}/assignments`, "POST", assignmentData, router);
+    },
+
+    deleteAssignment: async (assignmentId, router) => {
+        return callApi(`/kss/modules/assignments/${assignmentId}`, "DELETE", null, router);
+    },
+
+    // KSS Employee Lesson Progress APIs
+    trackLessonProgress: async (lessonId, progressData, router) => {
+        return callApi(`/kss/lessons/${lessonId}/progress`, "POST", progressData, router);
+    },
+
+    checkModuleCompletion: async (moduleId, completionData, router) => {
+        return callApi(`/kss/modules/${moduleId}/completion`, "GET", completionData, router);
+    },
+
+    // KSS Questions APIs
+    getQuestions: async (moduleId, router) => {
+        return callApi(`/kss/questions/${moduleId}`, "GET", null, router);
+    },
+
+    createQuestion: async (questionData, router) => {
+        return callApi("/kss/questions", "POST", questionData, router);
+    },
+
+    updateQuestion: async (questionId, questionData, router) => {
+        return callApi(`/kss/questions/${questionId}`, "PUT", questionData, router);
+    },
+
+    deleteQuestion: async (questionId, router) => {
+        return callApi(`/kss/questions/${questionId}`, "DELETE", null, router);
+    },
+
+    // KSS Test Submission API
+    submitTest: async (testData, router) => {
+        return callApi("/kss/test/submit", "POST", testData, router);
+    },
+
+    // KPI Templates APIs
+    getKPITemplates: async (router) => {
+        return callApi("/hr/kpi/templates", "GET", null, router);
+    },
+
+    createKPITemplate: async (templateData, router) => {
+        return callApi("/hr/kpi/templates", "POST", templateData, router);
+    },
+
+    updateKPITemplate: async (templateId, templateData, router) => {
+        return callApi(`/hr/kpi/templates/${templateId}`, "PUT", templateData, router);
+    },
+
+    deleteKPITemplate: async (templateId, router) => {
+        return callApi(`/hr/kpi/templates/${templateId}`, "DELETE", null, router);
+    },
+
+    getKPIRoleAssignments: async () => {
+        const { data, error } = await supabase.from('kpi_role_assignments').select('*');
+        if (error) throw new Error(error.message);
+        return data;
+    },
+
+    createKPIRoleAssignment: async (assignmentData, router) => {
+        return callApi("/hr/kpi/role-assignments", "POST", assignmentData, router);
+    },
+
+    updateKPIRoleAssignment: async (assignmentId, assignmentData, router) => {
+        return callApi(`/hr/kpi/role-assignments/${assignmentId}`, "PUT", assignmentData, router);
+    },
+
+    deleteKPIRoleAssignment: async (assignmentId, router) => {
+        return callApi(`/hr/kpi/role-assignments/${assignmentId}`, "DELETE", null, router);
+    },
+
+    getEmployeeKPIAssignments: async () => {
+        const { data, error } = await supabase.from('employee_kpi_assignments').select('*');
+        if (error) throw new Error(error.message);
+        return data;
+    },
+
+    getMyEmployeeKPIAssignments: async () => {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !sessionData.session) throw new Error('No authenticated session');
+        const userId = sessionData.session.user.id;
+        const { data: employee, error: empError } = await supabase.from('employees').select('id').eq('user_id', userId).is_('deleted_at', 'null').single();
+        if (empError || !employee) throw new Error('Employee not found');
+        const { data, error } = await supabase.from('employee_kpi_assignments').select('*').eq('employee_id', employee.id);
+        if (error) throw new Error(error.message);
+        return data;
+    },
+
+    createEmployeeKPIAssignment: async (assignmentData, router) => {
+        return callApi("/hr/kpi/employee-assignments", "POST", assignmentData, router);
+    },
+
+    updateEmployeeKPIAssignment: async (assignmentId, assignmentData, router) => {
+        return callApi(`/hr/kpi/employee-assignments/${assignmentId}`, "PUT", assignmentData, router);
+    },
+
+    deleteEmployeeKPIAssignment: async (assignmentId, router) => {
+        return callApi(`/hr/kpi/employee-assignments/${assignmentId}`, "DELETE", null, router);
     },
 };
 
