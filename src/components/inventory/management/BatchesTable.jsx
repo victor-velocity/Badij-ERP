@@ -139,8 +139,54 @@ export default function BatchesTable({ onDataChange }) {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b88b1b]"></div>
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <div className="flex justify-between items-center">
+                        <div className="h-7 bg-gray-200 rounded w-32 animate-pulse"></div>
+                        <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                {['Batch Number', 'Supplier', 'Expected Date', 'Received Date', 'Status', 'Actions'].map((header) => (
+                                    <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <div className="h-4 bg-gray-200 rounded w-16 animate-pulse mx-auto"></div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <tr key={i}>
+                                    <td className="px-6 py-4">
+                                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse mx-auto"></div>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <div className="flex justify-center space-x-2">
+                                            {Array.from({ length: 3 }).map((_, j) => (
+                                                <div key={j} className="w-6 h-6 bg-gray-200 rounded animate-pulse"></div>
+                                            ))}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         );
     }

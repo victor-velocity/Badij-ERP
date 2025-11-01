@@ -106,7 +106,7 @@ export default function TopNavBar({ onMobileMenuToggle, profile }) {
                         )}
                         <div className="hidden md:flex flex-col text-left text-sm">
                             <span className="font-semibold text-gray-800">{profile.full_name || profile.username || 'Guest'}</span>
-                            <span className="text-gray-600 capitalize">{profile.role?.replace('_', ' ') || 'User'}</span>
+                            <span className="text-gray-600 capitalize">{profile.role?.replace('_', ' ') || 'User'} Employee</span>
                         </div>
                         {/* Dropdown Indicator Icon */}
                         <FontAwesomeIcon

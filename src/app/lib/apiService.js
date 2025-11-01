@@ -540,7 +540,9 @@ const apiService = {
         return callApi("/kss/test/submit", "POST", testData, router);
     },
 
-    // KPI Templates APIs
+    // Add these to your existing apiService object
+
+    // === KPI TEMPLATES ===
     getKPITemplates: async (router) => {
         return callApi("/hr/kpi/templates", "GET", null, router);
     },
@@ -557,10 +559,9 @@ const apiService = {
         return callApi(`/hr/kpi/templates/${templateId}`, "DELETE", null, router);
     },
 
-    getKPIRoleAssignments: async () => {
-        const { data, error } = await supabase.from('kpi_role_assignments').select('*');
-        if (error) throw new Error(error.message);
-        return data;
+    // === KPI ROLE ASSIGNMENTS ===
+    getKPIRoleAssignments: async (router) => {
+        return callApi("/hr/kpi/role-assignments", "GET", null, router);
     },
 
     createKPIRoleAssignment: async (assignmentData, router) => {
@@ -575,29 +576,32 @@ const apiService = {
         return callApi(`/hr/kpi/role-assignments/${assignmentId}`, "DELETE", null, router);
     },
 
-    getEmployeeKPIAssignments: async () => {
-        const { data, error } = await supabase.from('employee_kpi_assignments').select('*');
-        if (error) throw new Error(error.message);
-        return data;
+    // === EMPLOYEE KPI ASSIGNMENTS ===
+    getEmployeeKPIAssignments: async (router) => {
+        return callApi("/hr/kpi/employee-assignments", "GET", null, router);
     },
 
-    getMyEmployeeKPIAssignments: async () => {
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError || !sessionData.session) throw new Error('No authenticated session');
-        const userId = sessionData.session.user.id;
-        const { data: employee, error: empError } = await supabase.from('employees').select('id').eq('user_id', userId).is_('deleted_at', 'null').single();
-        if (empError || !employee) throw new Error('Employee not found');
-        const { data, error } = await supabase.from('employee_kpi_assignments').select('*').eq('employee_id', employee.id);
-        if (error) throw new Error(error.message);
-        return data;
+    getMyKPIAssignments: async (router) => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+
+        const { data: employee } = await supabase
+            .from('employees')
+            .select('id')
+            .eq('user_id', user.id)
+            .single();
+
+        if (!employee) throw new Error("Employee not found");
+
+        return callApi(`/hr/kpi/employee-assignments?employee_id=${employee.id}`, "GET", null, router);
     },
 
     createEmployeeKPIAssignment: async (assignmentData, router) => {
         return callApi("/hr/kpi/employee-assignments", "POST", assignmentData, router);
     },
 
-    updateEmployeeKPIAssignment: async (assignmentId, assignmentData, router) => {
-        return callApi(`/hr/kpi/employee-assignments/${assignmentId}`, "PUT", assignmentData, router);
+    submitKPIAssignment: async (assignmentId, submissionData, router) => {
+        return callApi(`/hr/kpi/employee-assignments/${assignmentId}`, "PUT", submissionData, router);
     },
 
     deleteEmployeeKPIAssignment: async (assignmentId, router) => {

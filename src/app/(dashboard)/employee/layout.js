@@ -12,7 +12,7 @@ export default function UserLayout({ children }) {
     const supabase = createClient();
     const router = useRouter();
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [isUser, setIsUser] = useState(false);
     const [profile, setProfile] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -40,42 +40,59 @@ export default function UserLayout({ children }) {
                 router.replace('/login');
                 toast.error('You must be logged in to access this page.');
                 setLoading(false);
-                localStorage.removeItem('user_id')
+                localStorage.removeItem('user_id');
                 return;
             }
 
-            localStorage.setItem('user_id', authUser.id)
+            localStorage.setItem('user_id', authUser.id);
 
             const { data: employeeData, error: employeeError } = await supabase
                 .from('employees')
-                .select('id, first_name, last_name, email, user_id, avatar_url')
+                .select('id, first_name, last_name, email, user_id, avatar_url, department_id')
                 .eq('user_id', authUser.id)
                 .single();
 
             if (employeeError || !employeeData) {
-                console.error('Error fetching employee profile:', employeeError?.message || 'Employee data not found.');
-                toast.error('Failed to load employee profile. Please ensure your employee record exists.');
+                console.error('Error fetching employee:', employeeError?.message);
+                toast.error('Failed to load employee profile.');
                 router.replace('/login');
                 setLoading(false);
                 return;
             }
 
-            const userRole = authUser.app_metadata?.role;
+            let departmentName = 'Employee';
+            let isSalesEmployee = false;
 
+            if (employeeData.department_id) {
+                const { data: deptData, error: deptError } = await supabase
+                    .from('departments')
+                    .select('name')
+                    .eq('id', employeeData.department_id)
+                    .single();
+
+                if (!deptError && deptData) {
+                    departmentName = deptData.name;
+                    isSalesEmployee = deptData.name.toLowerCase() === 'sales';
+                } else {
+                    console.warn('Could not fetch department:', deptError?.message);
+                }
+            }
+
+            const userRole = authUser.app_metadata?.role;
             const employeeFullName = `${employeeData.first_name} ${employeeData.last_name}`;
             const employeeUsername = employeeData.email.split('@')[0];
             const employeeAvatarUrl = employeeData.avatar_url || "/default-profile.png";
 
-            localStorage.setItem('first_name', employeeData.first_name)
-
+            localStorage.setItem('first_name', employeeData.first_name);
 
             if (userRole) {
                 setProfile({
                     username: employeeUsername,
                     full_name: employeeFullName,
                     avatar_url: employeeAvatarUrl,
-                    role: userRole,
-                    employee_id: employeeData.id
+                    role: departmentName,
+                    employee_id: employeeData.id,
+                    isSalesEmployee,
                 });
 
                 if (userRole === 'user') {
@@ -85,8 +102,7 @@ export default function UserLayout({ children }) {
                     router.replace('/login');
                 }
             } else {
-                console.error('Error: User role not found in user metadata for auth user:', authUser.id);
-                toast.error('Failed to load user profile. Role not found in authentication data.');
+                toast.error('Role not found in user metadata.');
                 router.replace('/login');
             }
 
@@ -96,28 +112,12 @@ export default function UserLayout({ children }) {
         checkUserAndRole();
     }, [supabase, router]);
 
-    const handleMobileMenuToggle = () => {
-        setIsMobileMenuOpen(prev => !prev);
-    };
+    const handleMobileMenuToggle = () => setIsMobileMenuOpen(prev => !prev);
+    const handleCloseMobileMenu = () => setIsMobileMenuOpen(false);
+    const handleDesktopSidebarToggle = () => setIsDesktopSidebarExpanded(prev => !prev);
 
-    const handleCloseMobileMenu = () => {
-        setIsMobileMenuOpen(false);
-    };
-
-    const handleDesktopSidebarToggle = () => {
-        setIsDesktopSidebarExpanded(prev => !prev);
-    };
-
-    if (loading) {
-        return <Loading />;
-    }
-
-    if (!isUser) {
-        return (
-            <div className="flex justify-center items-center min-h-screen bg-gray-100">
-            </div>
-        );
-    }
+    if (loading) return <Loading />;
+    if (!isUser) return null;
 
     return (
         <div className='flex flex-nowrap h-screen'>
@@ -126,6 +126,7 @@ export default function UserLayout({ children }) {
                 onCloseMobileMenu={handleCloseMobileMenu}
                 isDesktopSidebarExpanded={isDesktopSidebarExpanded}
                 toggleDesktopSidebar={handleDesktopSidebarToggle}
+                isSalesEmployee={profile?.isSalesEmployee}
             />
             <div className="flex-1 flex flex-col overflow-x-auto">
                 <TopNavBar

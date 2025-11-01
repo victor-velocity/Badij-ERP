@@ -133,7 +133,9 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess }) => {
                             required
                         >
                             <option value="">Select Leave Type</option>
-                            <option value="vacation">Vacation</option>
+                            <option value="maternity">Maternity Leave</option>
+                            <option value="paternity">Paternity Leave</option>
+                            <option value="annual">Annual Leave</option>
                             <option value="sick">Sick Leave</option>
                             <option value="personal">Personal Leave</option>
                             <option value="unpaid">Unpaid Leave</option>

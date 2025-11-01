@@ -1,243 +1,290 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faEye, faEdit, faTrash, faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
-import apiService from '@/app/lib/apiService';
-import { useRouter } from 'next/navigation';
+import React, { useState, useMemo } from "react";
+import { format } from "date-fns";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSearch,
+  faEye,
+  faEdit,
+  faChevronLeft,
+  faChevronRight,
+  faBox,
+  faTruck,
+  faCheckCircle,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-hot-toast";
+import apiService from "@/app/lib/apiService";
 
 const ITEMS_PER_PAGE = 8;
-const goldColor = '#b88b1b';
+const goldColor = "#b88b1b";
 
-export default function OrderListTable({ orders }) {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [filteredOrders, setFilteredOrders] = useState(orders);
-    const [customerNames, setCustomerNames] = useState({}); // Store customer names
-    const router = useRouter();
+const statusFlow = {
+  processing: "shipped",
+  shipped: "delivered",
+  delivered: null,
+};
 
-    // Fetch customer names for orders
-    const fetchCustomerNames = async () => {
-        try {
-            const customers = await apiService.getCustomers(router);
-            const customerMap = customers?.data?.reduce((map, customer) => {
-                map[customer.customer_id] = customer.name || 'Unknown';
-                return map;
-            }, {}) || {};
-            setCustomerNames(customerMap);
-        } catch (err) {
-            console.error("Error fetching customers:", err.message);
-        }
-    };
+const statusConfig = {
+  processing: { label: "Processing", color: "bg-yellow-100 text-yellow-800", icon: faBox },
+  shipped: { label: "Shipped", color: "bg-blue-100 text-blue-800", icon: faTruck },
+  delivered: { label: "Delivered", color: "bg-green-100 text-green-800", icon: faCheckCircle },
+};
 
-    useEffect(() => {
-        fetchCustomerNames(); // Fetch customer names on mount
-    }, []);
+export default function OrderListTable({ orders, router }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
-    useEffect(() => {
-        const results = orders.filter(order =>
-            Object.values({
-                order_number: order.order_number,
-                customer: customerNames[order.customer_id] || '',
-                product: order.order_details?.map(detail => detail.product_id.name).join(', ') || '',
-                price: order.total_amount?.toString(),
-                date: new Date(order.created_at).toLocaleDateString(),
-                status: order.status
-            }).some(value =>
-                value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-            )
-        );
-        setFilteredOrders(results);
-        setCurrentPage(1);
-    }, [searchTerm, orders, customerNames]);
+  const filteredOrders = useMemo(() => {
+    return orders
+      .filter((o) => ["processing", "shipped", "delivered"].includes(o.status))
+      .filter((o) =>
+        [o.order_number, o.status, format(new Date(o.created_at), "PP")]
+          .join(" ")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      );
+  }, [orders, searchTerm]);
 
-    const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    const getStatusColor = (status) => {
-        switch (status.toLowerCase()) {
-            case 'completed':
-            case 'delivered':
-                return 'text-green-500';
-            case 'unpaid':
-            case 'processing':
-                return 'text-yellow-500';
-            case 'cancelled':
-                return 'text-red-500';
-            default:
-                return 'text-gray-500';
-        }
-    };
+  const openModal = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
 
-    const renderPaginationNumbers = () => {
-        const pageNumbers = [];
-        const maxPagesToShow = 7;
-        let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-        let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
 
-        if (endPage - startPage + 1 < maxPagesToShow) {
-            startPage = Math.max(1, endPage - maxPagesToShow + 1);
-        }
+  const updateStatus = async () => {
+    if (!selectedOrder || updating) return;
+    const nextStatus = statusFlow[selectedOrder.status];
+    if (!nextStatus) return;
 
-        if (startPage > 1) {
-            pageNumbers.push(
-                <span
-                    key="1"
-                    className="px-3 py-1 rounded-md border border-gray-300 cursor-pointer"
-                    onClick={() => setCurrentPage(1)}
-                >
-                    1
-                </span>
-            );
-            if (startPage > 2) {
-                pageNumbers.push(
-                    <span key="ellipsis-start" className="px-3 py-1 rounded-md border border-gray-300">
-                        ...
-                    </span>
-                );
-            }
-        }
+    const toastId = toast.loading(`Marking order as ${nextStatus}...`);
+    setUpdating(true);
 
-        for (let i = startPage; i <= endPage; i++) {
-            pageNumbers.push(
-                <span
-                    key={i}
-                    className={`px-3 py-1 rounded-md border border-gray-300 cursor-pointer ${currentPage === i ? 'text-white font-medium' : 'text-gray-600'}`}
-                    style={currentPage === i ? { backgroundColor: goldColor } : {}}
-                    onClick={() => setCurrentPage(i)}
-                >
-                    {i}
-                </span>
-            );
-        }
+    try {
+      // Matches your apiService.updateOrder
+      await apiService.updateOrder(selectedOrder.order_id, { status: nextStatus }, router);
 
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                pageNumbers.push(
-                    <span key="ellipsis-end" className="px-3 py-1 rounded-md border border-gray-300">
-                        ...
-                    </span>
-                );
-            }
-            pageNumbers.push(
-                <span
-                    key={totalPages}
-                    className="px-3 py-1 rounded-md border border-gray-300 cursor-pointer"
-                    onClick={() => setCurrentPage(totalPages)}
-                >
-                    {totalPages}
-                </span>
-            );
-        }
+      setSelectedOrder((prev) => ({ ...prev, status: nextStatus }));
+      toast.success(`Order #${selectedOrder.order_number} is now ${nextStatus}!`, { id: toastId });
 
-        return pageNumbers;
-    };
+      // Optional: reload after 1s to reflect server state
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (err) {
+      console.error("Update failed:", err);
+      toast.error(err.message || "Failed to update order status.", { id: toastId });
+    } finally {
+      setUpdating(false);
+    }
+  };
 
-    return (
-        <div>
-            <div className="flex flex-col sm:flex-row justify-between w-full items-start sm:items-center mb-6 gap-4">
-                <h2 className="text-xl font-bold flex-shrink-0">Order List</h2>
-                <div className="flex w-full sm:w-auto">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search orders"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-300"
-                        />
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <FontAwesomeIcon icon={faSearch} className="text-gray-400" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+  const renderPagination = () => {
+    const pages = [];
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages, start + maxVisible - 1);
+    if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
 
-            {/* Table */}
-            <div className="overflow-x-auto mb-6">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-white">
-                        <tr>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product(s)</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Date</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {currentOrders.length === 0 ? (
-                            <tr>
-                                <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
-                                    No orders found
-                                </td>
-                            </tr>
-                        ) : (
-                            currentOrders.map((order) => (
-                                <tr key={order.order_id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.order_number}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customerNames[order.customer_id] || 'Loading...'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {order.order_details?.map(detail => detail.product_id.name).join(', ') || 'N/A'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {order.total_amount?.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' })}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {new Date(order.created_at).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={getStatusColor(order.status)}>
-                                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                        <div className="flex items-center justify-center space-x-4 text-gray-500">
-                                            <button className="hover:text-gray-700 transition-colors duration-200" aria-label="View">
-                                                <FontAwesomeIcon icon={faEye} />
-                                            </button>
-                                            <button className="hover:text-green-700 transition-colors duration-200" aria-label="Edit">
-                                                <FontAwesomeIcon icon={faEdit} />
-                                            </button>
-                                            <button className="hover:text-red-700 transition-colors duration-200" aria-label="Delete">
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+    for (let i = start; i <= end; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => setCurrentPage(i)}
+          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+            currentPage === i
+              ? "bg-[#b88b1b] text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pages;
+  };
 
-            {/* Pagination controls */}
-            <div className="flex justify-center items-center gap-2">
-                <button
-                    className="flex items-center justify-center p-2 rounded-md border border-gray-300 disabled:opacity-50"
-                    style={{ backgroundColor: goldColor }}
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    aria-label="Previous page"
-                >
-                    <FontAwesomeIcon icon={faAngleLeft} className="text-white" />
-                </button>
-                <div className="flex gap-2 text-sm font-medium">
-                    {renderPaginationNumbers()}
-                </div>
-                <button
-                    className="flex items-center justify-center p-2 rounded-md border border-gray-300 disabled:opacity-50"
-                    style={{ backgroundColor: goldColor }}
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                    aria-label="Next page"
-                >
-                    <FontAwesomeIcon icon={faAngleRight} className="text-white" />
-                </button>
-            </div>
+  return (
+    <>
+      <div>
+        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-5">
+          <h2 className="text-xl font-bold text-gray-900">Inventory Orders</h2>
+          <div className="relative max-w-xs w-full">
+            <input
+              type="text"
+              placeholder="Search order ID, status, date..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:border-transparent"
+            />
+            <FontAwesomeIcon
+              icon={faSearch}
+              className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+            />
+          </div>
         </div>
-    );
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Order ID</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Products</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Order Date</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {currentOrders.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                    No inventory orders found
+                  </td>
+                </tr>
+              ) : (
+                currentOrders.map((order) => {
+                  const config = statusConfig[order.status] || {};
+                  return (
+                    <tr key={order.order_id} className={`hover:bg-gray-50 transition-colors ${config.color || ""}`}>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{order.order_number}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {order.order_details?.map((d) => `${d.product_id.name} (x${d.quantity})`).join(", ") || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{format(new Date(order.created_at), "PP p")}</td>
+                      <td className="px-6 py-4">
+                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${config.color}`}>
+                          <FontAwesomeIcon icon={config.icon} className="w-4 h-4" />
+                          {config.label}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex items-center justify-center gap-3">
+                          <button
+                            onClick={() => openModal(order)}
+                            className="text-gray-600 hover:text-[#b88b1b] transition-colors"
+                            aria-label="View order"
+                          >
+                            <FontAwesomeIcon icon={faEye} className="w-5 h-5" />
+                          </button>
+                          {statusFlow[order.status] && (
+                            <button
+                              onClick={() => openModal(order)}
+                              className="text-gray-600 hover:text-green-600 transition-colors"
+                              aria-label="Update status"
+                            >
+                              <FontAwesomeIcon icon={faEdit} className="w-5 h-5" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 p-4 border-t border-gray-200">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-md bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors"
+            >
+              <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
+            </button>
+            <div className="flex gap-1">{renderPagination()}</div>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-md bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors"
+            >
+              <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* View & Update Modal */}
+      {isModalOpen && selectedOrder && (
+        <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Order #{selectedOrder.order_number}</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Created: {format(new Date(selectedOrder.created_at), "PPP 'at' p")}
+                  </p>
+                </div>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faTimes} className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Products</h4>
+                <div className="space-y-2">
+                  {selectedOrder.order_details?.map((item, i) => (
+                    <div key={i} className="flex justify-between text-sm">
+                      <span className="text-gray-600">{item.product_id.name}</span>
+                      <span className="font-medium">x{item.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${statusConfig[selectedOrder.status]?.color}`}>
+                    <FontAwesomeIcon icon={statusConfig[selectedOrder.status]?.icon} className="w-5 h-5" />
+                    {statusConfig[selectedOrder.status]?.label}
+                  </div>
+                  {statusFlow[selectedOrder.status] && (
+                    <span className="text-xs text-gray-500">
+                      Next: {statusConfig[statusFlow[selectedOrder.status]]?.label}
+                    </span>
+                  )}
+                </div>
+
+                {statusFlow[selectedOrder.status] && (
+                  <button
+                    onClick={updateStatus}
+                    disabled={updating}
+                    className="px-5 py-2 bg-[#b88b1b] text-white rounded-lg text-sm font-medium hover:bg-[#9a7516] disabled:opacity-70 transition-colors flex items-center gap-2"
+                  >
+                    {updating ? (
+                      "Updating..."
+                    ) : (
+                      <>
+                        <FontAwesomeIcon icon={faEdit} />
+                        Mark as {statusConfig[statusFlow[selectedOrder.status]]?.label}
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
