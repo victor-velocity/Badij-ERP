@@ -47,7 +47,7 @@ export default function LessonForm({ moduleId, initialData, onSuccess }) {
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm"
+          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
         />
       </div>
 
@@ -57,7 +57,7 @@ export default function LessonForm({ moduleId, initialData, onSuccess }) {
           rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm"
+          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
         />
       </div>
 
@@ -68,19 +68,22 @@ export default function LessonForm({ moduleId, initialData, onSuccess }) {
           value={youtubeLink}
           onChange={(e) => setYoutubeLink(e.target.value)}
           placeholder="https://youtube.com/…"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm"
+          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
         />
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-[#b88b1b] px-4 py-2 text-white hover:bg-[#a57a17] disabled:opacity-70"
-      >
-        {loading ? "Saving…" : initialData?.id ? "Update Lesson" : "Create Lesson"}
-      </button>
+      {/* Form owns the submit button */}
+      <div className="flex justify-end mt-8">
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded bg-[#d4a53b] px-6 py-2 text-white hover:bg-[#c49632] disabled:opacity-70 transition"
+        >
+          {loading ? "Saving…" : initialData?.id ? "Update Lesson" : "Create Lesson"}
+        </button>
+      </div>
     </form>
   );
 }

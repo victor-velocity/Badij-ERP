@@ -36,34 +36,36 @@ export default function ModuleForm({ initialData, onSuccess }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-md font-medium text-gray-700 mb-2">Title *</label>
+        <label className="block text-sm font-medium text-gray-700">Title *</label>
         <input
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 px-2 py-4 border border-solid shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b]"
+          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
         />
       </div>
 
       <div>
-        <label className="block text-md font-medium text-gray-700 mb-2">Description</label>
+        <label className="block text-sm font-medium text-gray-700">Description</label>
         <textarea
           rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 px-2 py-4 border border-solid shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b]"
+          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
         />
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-[#b88b1b] px-4 py-2 text-white hover:bg-[#a57a17] disabled:opacity-70"
-      >
-        {loading ? "Saving…" : initialData?.id ? "Update Module" : "Create Module"}
-      </button>
+      <div className="flex justify-end mt-7">
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded bg-[#d4a53b] px-6 py-2 text-white hover:bg-[#c49632] disabled:opacity-70 transition"
+        >
+          {loading ? "Saving…" : initialData?.id ? "Update Module" : "Create Module"}
+        </button>
+      </div>
     </form>
   );
 }
