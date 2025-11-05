@@ -514,7 +514,11 @@ const apiService = {
     },
 
     checkModuleCompletion: async (moduleId, completionData, router) => {
-        return callApi(`/kss/modules/${moduleId}/completion`, "GET", completionData, router);
+        const employeeId = completionData?.employee_id;
+        if (!employeeId) throw new Error("employee_id is required");
+
+        const query = `?employee_id=${encodeURIComponent(employeeId)}`;
+        return callApi(`/kss/modules/${moduleId}/completion${query}`, "GET", null, router);
     },
 
     // KSS Questions APIs
