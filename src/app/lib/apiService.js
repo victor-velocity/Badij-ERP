@@ -43,7 +43,6 @@ const callApi = async (endpoint, method = "GET", data = null, router = null) => 
     try {
         const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
-        // Check for 204 No Content status code
         if (response.status === 204) {
             return null;
         }
@@ -116,6 +115,20 @@ const apiService = {
         }
     },
 
+    getDepartments: async (router) => {
+        const cacheKey = 'cached_departments';
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) return JSON.parse(cached);
+
+        const { data, error } = await supabase.from('departments')
+            .select('id, name')
+            .order('name');
+
+        if (error) throw new Error(error.message);
+        sessionStorage.setItem(cacheKey, JSON.stringify(data));
+        return data;
+    },
+
     getEmployees: async (router) => {
         return callApi("/employees", "GET", null, router);
     },
@@ -136,7 +149,6 @@ const apiService = {
         return callApi(`/employees/${employeeId}`, "DELETE", employeeData, router);
     },
 
-    // leave APIs
     getLeaves: async (router) => {
         return callApi("/leave_requests", "GET", null, router);
     },
@@ -153,7 +165,6 @@ const apiService = {
         return callApi("/leave_requests", "POST", leaveData, router);
     },
 
-    // Enhanced Task APIs (from Flask backend)
     getTasks: async (router) => {
         return callApi("/tasks", "GET", null, router);
     },
@@ -174,9 +185,6 @@ const apiService = {
         return callApi(`/tasks/${taskId}`, "DELETE", null, router);
     },
 
-
-
-    // Task Document APIs
     addTaskDocument: async (taskId, documentData, router) => {
         return callApi(`/tasks/${taskId}/documents`, "POST", documentData, router);
     },
@@ -197,7 +205,6 @@ const apiService = {
         return callApi(`/tasks/${taskId}/assignments/${employeeId}`, "DELETE", null, router);
     },
 
-    // shift APIs
     getShifts: async (router) => {
         return callApi("/shift_types", "GET", null, router);
     },
@@ -238,7 +245,6 @@ const apiService = {
         return callApi(`/shift_schedules/${scheduleId}`, "DELETE", null, router);
     },
 
-    // payment APIs
     getEmployeePayments: async (router) => {
         return callApi("/employee_payments", "GET", null, router);
     },
@@ -251,7 +257,6 @@ const apiService = {
         return callApi(`/employee_payments/payroll/${employeeId}`, "GET", null, router);
     },
 
-    // deduction APIs
     getDeductions: async (router) => {
         return callApi("/deductions", "GET", null, router);
     },
@@ -268,7 +273,6 @@ const apiService = {
         return callApi(`/deductions/${deductionId}`, "PUT", deductionData, router);
     },
 
-    // default charges APIs
     getDefaultCharges: async (router) => {
         return callApi("/default_charges", "GET", null, router);
     },
@@ -296,7 +300,6 @@ const apiService = {
         return callApi(`/employee_documents/${documentId}`, 'DELETE', null, router);
     },
 
-    // Supplier APIs
     getSuppliers: async (router) => {
         return callApi("/suppliers", "GET", null, router);
     },
@@ -317,7 +320,6 @@ const apiService = {
         return callApi(`/suppliers/${supplierId}`, "DELETE", null, router);
     },
 
-    // Components APIs
     getComponents: async (router) => {
         return callApi("/components", "GET", null, router);
     },
@@ -338,7 +340,6 @@ const apiService = {
         return callApi(`/components/${componentId}`, "DELETE", null, router);
     },
 
-    // Products APIs
     getProducts: async (router) => {
         return callApi("/products", "GET", null, router);
     },
@@ -359,7 +360,6 @@ const apiService = {
         return callApi(`/products/${productId}`, "DELETE", null, router);
     },
 
-    // BOM APIs
     addComponentToBOM: async (productId, bomData, router) => {
         return callApi(`/products/${productId}/component`, "POST", bomData, router);
     },
@@ -368,7 +368,6 @@ const apiService = {
         return callApi(`/products/${productId}/component/${componentId}`, "DELETE", null, router);
     },
 
-    // Import Batches APIs
     getImportBatches: async (router) => {
         return callApi("/import_batches", "GET", null, router);
     },
@@ -389,7 +388,6 @@ const apiService = {
         return callApi(`/import_batches/${batchId}`, "DELETE", null, router);
     },
 
-    // Stock APIs
     createStockEntry: async (stockData, router) => {
         return callApi("/stocks", "POST", stockData, router);
     },
@@ -410,12 +408,10 @@ const apiService = {
         return callApi(`/stocks/${stockId}`, "DELETE", null, router);
     },
 
-    // Stock Locations API
     getStockByLocation: async (locationId, router) => {
         return callApi(`/stocks/locations/${locationId}`, "GET", null, router);
     },
 
-    // Customer APIs
     getCustomers: async (router) => {
         return callApi("/customers", "GET", null, router);
     },
@@ -432,7 +428,6 @@ const apiService = {
         return callApi(`/customers/${customerId}`, "PUT", customerData, router);
     },
 
-    // Order APIs
     getOrders: async (router) => {
         return callApi("/orders", "GET", null, router);
     },
@@ -449,12 +444,10 @@ const apiService = {
         return callApi(`/orders/${orderId}`, "PUT", orderData, router);
     },
 
-    // Inventory Transactions API
     getInventoryTransactions: async (router) => {
         return callApi("/inventory/transactions", "GET", null, router);
     },
 
-    // KSS Modules APIs (assuming GET endpoints exist based on comments in backend code)
     getModules: async (router) => {
         return callApi("/kss/modules", "GET", null, router);
     },
@@ -475,7 +468,6 @@ const apiService = {
         return callApi(`/kss/modules/${moduleId}`, "DELETE", null, router);
     },
 
-    // KSS Lessons APIs
     getLessons: async (router) => {
         return callApi("/kss/lessons", "GET", null, router);
     },
@@ -508,7 +500,6 @@ const apiService = {
         return callApi(`/kss/modules/assignments/${assignmentId}`, "DELETE", null, router);
     },
 
-    // KSS Employee Lesson Progress APIs
     trackLessonProgress: async (lessonId, progressData, router) => {
         return callApi(`/kss/lessons/${lessonId}/progress`, "POST", progressData, router);
     },
@@ -521,7 +512,6 @@ const apiService = {
         return callApi(`/kss/modules/${moduleId}/completion${query}`, "GET", null, router);
     },
 
-    // KSS Questions APIs
     getQuestions: async (moduleId, router) => {
         return callApi(`/kss/questions/${moduleId}`, "GET", null, router);
     },
@@ -538,14 +528,10 @@ const apiService = {
         return callApi(`/kss/questions/${questionId}`, "DELETE", null, router);
     },
 
-    // KSS Test Submission API
     submitTest: async (testData, router) => {
         return callApi("/kss/test/submit", "POST", testData, router);
     },
 
-    // Add these to your existing apiService object
-
-    // === KPI TEMPLATES ===
     getKPITemplates: async (router) => {
         return callApi("/hr/kpi/templates", "GET", null, router);
     },
@@ -562,7 +548,6 @@ const apiService = {
         return callApi(`/hr/kpi/templates/${templateId}`, "DELETE", null, router);
     },
 
-    // === KPI ROLE ASSIGNMENTS ===
     getKPIRoleAssignments: async (router) => {
         return callApi("/hr/kpi/role-assignments", "GET", null, router);
     },
@@ -576,27 +561,30 @@ const apiService = {
     },
 
     deleteKPIRoleAssignment: async (assignmentId, router) => {
-        return callApi(`/hr/kpi/role-assignments/${assignmentId}`, "DELETE", null, router);
+        return callApi(`/hr/k9pi/role-assignments/${assignmentId}`, "DELETE", null, router);
     },
 
-    // === EMPLOYEE KPI ASSIGNMENTS ===
-    getEmployeeKPIAssignments: async (router) => {
-        return callApi("/hr/kpi/employee-assignments", "GET", null, router);
+    getEmployeeKPIAssignments: async (employeeId, router) => {
+        return callApi(`/hr/kpi/employee-assignments/${employeeId}`, "GET", null, router);
     },
 
     getMyKPIAssignments: async (router) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("Not authenticated");
 
-        const { data: employee } = await supabase
+        const { data: employee, error } = await supabase
             .from('employees')
             .select('id')
             .eq('user_id', user.id)
             .single();
 
-        if (!employee) throw new Error("Employee not found");
+        if (error || !employee) throw new Error("Employee record not found");
 
-        return callApi(`/hr/kpi/employee-assignments?employee_id=${employee.id}`, "GET", null, router);
+        return callApi(`/hr/kpi/employee-assignments/${employee.id}`, "GET", null, router);
+    },
+
+    getEmployeeKPIAssignmentsById: async (employeeId, router) => {
+        return callApi(`/hr/kpi/employee-assignments/${employeeId}`, "GET", null, router);
     },
 
     createEmployeeKPIAssignment: async (assignmentData, router) => {

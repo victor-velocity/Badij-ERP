@@ -130,7 +130,7 @@ export default function KSS() {
             console.warn(`Questions for module ${mod.id} failed:`, e.message);
           }
 
-          // === PROGRESS STATS ===
+          // === PROGRESS STATS (kept only for possible future use) ===
           let progressStats = {
             totalAssignedEmployees: 0,
             lessonCompleteCount: {},
@@ -386,17 +386,6 @@ export default function KSS() {
                           <div className="mt-1 flex items-center gap-2 text-xs">
                             <FontAwesomeIcon icon={faUsers} className="text-yellow-200" />
                             <span>{stats.totalAssignedEmployees} employees</span>
-                            <FontAwesomeIcon
-                              icon={faCheckCircle}
-                              className={`ml-2 ${
-                                stats.moduleCompletionPercent >= 80
-                                  ? "text-green-300"
-                                  : stats.moduleCompletionPercent >= 50
-                                  ? "text-yellow-300"
-                                  : "text-red-300"
-                              }`}
-                            />
-                            <span>{stats.moduleCompletionPercent}% complete</span>
                           </div>
                         )}
                       </div>
@@ -458,7 +447,6 @@ export default function KSS() {
                           {mod.lessons.map((les, lesIdx) => {
                             const completed = stats.lessonCompleteCount?.[les.id] || 0;
                             const total = stats.totalAssignedEmployees || 0;
-                            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
 
                             return (
                               <div
@@ -488,18 +476,14 @@ export default function KSS() {
                                     )}
                                   </div>
                                 </div>
+
+                                {/* Removed progress bar – only show count */}
                                 <div className="text-right min-w-[120px]">
                                   <div className="text-sm font-medium text-gray-700">
                                     {completed}/{total}
                                   </div>
-                                  <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                                    <div
-                                      className="bg-gradient-to-r from-[#d4a53b] to-[#e6c070] h-2 rounded-full transition-all duration-500"
-                                      style={{ width: `${percent}%` }}
-                                    />
-                                  </div>
-                                  <div className="text-xs text-gray-500 mt-1">{percent}%</div>
                                 </div>
+
                                 <div className="flex gap-2 ml-4">
                                   <button
                                     onClick={() => openEditLesson(les)}
@@ -656,29 +640,7 @@ export default function KSS() {
                         </p>
                       )}
 
-                      {/* Module Completion Summary */}
-                      {hasProgress && (
-                        <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                          <div className="flex items-center justify-between mb-3">
-                            <h5 className="font-bold text-blue-800 flex items-center gap-2">
-                              <FontAwesomeIcon icon={faCheckCircle} />
-                              Module Completion
-                            </h5>
-                            <span className="font-bold text-blue-700">
-                              {stats.moduleCompleted}/{stats.totalAssignedEmployees}
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-3">
-                            <div
-                              className="bg-gradient-to-r from-blue-500 to-[#d4a53b] h-3 rounded-full transition-all duration-700"
-                              style={{ width: `${stats.moduleCompletionPercent}%` }}
-                            />
-                          </div>
-                          <p className="text-sm text-blue-700 mt-2 font-medium">
-                            {stats.moduleCompletionPercent}% of employees completed all lessons
-                          </p>
-                        </div>
-                      )}
+                      {/* Module Completion Summary – REMOVED */}
                     </div>
                   </div>
                 </div>

@@ -24,6 +24,7 @@ export default function ShiftPage() {
     const [isViewShiftModalOpen, setIsViewShiftModalOpen] = useState(false);
     const [allAssignedShifts, setAllAssignedShifts] = useState([]);
     const [shiftTypes, setShiftTypes] = useState([]);
+    const [allEmployees, setAllEmployees] = useState([]); // New state for all employees
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [employeeToUpdateShift, setEmployeeToUpdateShift] = useState(null);
@@ -60,7 +61,7 @@ export default function ShiftPage() {
                     id: schedule.employee?.id || 'N/A',
                     name: `${schedule.employee?.first_name || ''} ${schedule.employee?.last_name || ''}`.trim() || 'N/A',
                     email: schedule.employee?.email || 'N/A',
-                    avatar: schedule.employee?.avatar_url || '/default-profile.png',
+                    avatar_url: schedule.employee?.avatar_url || '/default-profile.png',
                     first_name: schedule.employee?.first_name || '',
                     last_name: schedule.employee?.last_name || ''
                 },
@@ -94,9 +95,20 @@ export default function ShiftPage() {
         }
     };
 
+    const fetchAllEmployees = async () => {
+        try {
+            const data = await apiService.getEmployees(router);
+            setAllEmployees(data);
+        } catch (err) {
+            console.error("Failed to fetch employees:", err);
+            toast.error(err.message || "Failed to load employees.");
+        }
+    };
+
     useEffect(() => {
         fetchAssignedShifts();
         fetchShiftTypes();
+        fetchAllEmployees(); // New fetch for employees
     }, [fetchAssignedShifts, router]);
 
     const handleSearchChange = (e) => {
@@ -105,7 +117,7 @@ export default function ShiftPage() {
 
     const handleUpdateShiftSchedule = async (assignmentData) => {
         try {
-            const { scheduleId, shiftTypeId, startDate, endDate } = assignmentData;
+            const { scheduleId, shiftTypeId, startDate, endDate, employeeId } = assignmentData;
             if (scheduleId) {
                 const updatedScheduleData = {
                     shift_type_id: shiftTypeId === "unassign" ? null : shiftTypeId,
@@ -116,7 +128,7 @@ export default function ShiftPage() {
                 toast.success("Shift schedule updated successfully!");
             } else {
                 const newScheduleData = {
-                    employee_id: assignmentData.employeeId,
+                    employee_id: employeeId, // Use selected employeeId for new assignments
                     shift_type_id: shiftTypeId,
                     start_date: startDate,
                     end_date: endDate
@@ -239,6 +251,21 @@ export default function ShiftPage() {
                 <h1 className="text-2xl font-semibold text-gray-900 mb-4 md:mb-0">Shift Schedules</h1>
                 <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
                     {renderSearchBar()}
+
+                    <button
+                        onClick={() => {
+                            // Open the modal without pre-filling any employee → it will be in “Assign” mode
+                            setEmployeeToUpdateShift({
+                                employee: { id: null, name: '', email: '', avatar_url: '' },
+                                originalScheduleData: null   // <-- tells the modal it’s a new assignment
+                            });
+                            setIsAssignShiftModalOpen(true);
+                        }}
+                        className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b] w-full md:w-auto"
+                    >
+                        Assign Shift
+                    </button>
+
                     <button
                         onClick={() => setIsCreateShiftTypeModalOpen(true)}
                         className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b] w-full md:w-auto"
@@ -279,6 +306,7 @@ export default function ShiftPage() {
                 onAssignShift={handleUpdateShiftSchedule}
                 shiftTypes={shiftTypes}
                 employee={employeeToUpdateShift}
+                allEmployees={allEmployees} // Pass allEmployees to modal
             />
 
             <ViewShiftModal
