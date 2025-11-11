@@ -2,7 +2,7 @@ import { createClient } from "./supabase/client";
 
 const supabase = createClient();
 
-const BASE_URL = "https://madisonjay-backend-8e7912547948.herokuapp.com/api/v1";
+const BASE_URL = "http://localhost:5000/api/v1";
 
 const getAuthToken = async (router = null) => {
     const {
@@ -37,8 +37,7 @@ const callApi = async (endpoint, method = "GET", data = null, router = null) => 
     const config = {
         method,
         headers,
-        body: data ? JSON.stringify(data) : undefined,
-        credentials: 'include'
+        body: data ? JSON.stringify(data) : undefined
     };
 
     try {

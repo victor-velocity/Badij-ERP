@@ -218,65 +218,92 @@ const KPITemplatesTable = ({ kpiTemplates = [], loading, setKpiTemplates }) => {
     }
   };
 
-    // Save Assignments – Optimized: No extra getKPIRoleAssignments unless needed
-  const handleSaveAssignments = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const { roles, departments } = assignmentForm;
-      const kpi_id = assignmentTemplate.kpi_id;
+  // ---------- inside KPITemplatesTable ----------
+const handleSaveAssignments = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  try {
+    const { roles, departments } = assignmentForm;
+    const kpi_id = assignmentTemplate.kpi_id; // string from Supabase
 
-      // 1. Get current assignments for this KPI only
-      const allAssignments = await apiService.getKPIRoleAssignments(); // GET /hr/kpi/role-assignments
-      const currentAssignments = allAssignments.filter(a => a.kpi_id === kpi_id);
+    // -------------------------------------------------
+    // 1. CURRENT STATE – from the template (RPC already gave us the arrays)
+    // -------------------------------------------------
+    const tmpl = kpiTemplates.find(t => t.kpi_id === kpi_id);
+    if (!tmpl) throw new Error('Template not found');
 
-      // Build lookup maps
-      const existingRoleMap = new Map();   // role → assignment
-      const existingDeptMap = new Map();   // dept_id → assignment
-      currentAssignments.forEach(a => {
-        if (a.role) existingRoleMap.set(a.role, a);
-        if (a.department_id) existingDeptMap.set(a.department_id, a);
-      });
+    const curRoles = new Set(tmpl.assigned_roles ?? []);
+    const curDeptIds = new Set(
+      (tmpl.assigned_departments ?? [])
+        .map(name => departments.find(d => d.name === name)?.id)
+        .filter(Boolean)
+    );
 
-      const newRoles = new Set(roles);
-      const newDeptIds = new Set(departments);
+    const newRoles = new Set(roles);
+    const newDeptIds = new Set(departments);
 
-      // 2. ROLES: Add missing, delete removed
-      for (const role of newRoles) {
-        if (!existingRoleMap.has(role)) {
-          await apiService.createKPIRoleAssignment({ kpi_id, role });
-        }
+    // -------------------------------------------------
+    // 2. ADD NEW ROLES / DEPARTMENTS
+    // -------------------------------------------------
+    // add missing roles
+    for (const r of newRoles) {
+      if (!curRoles.has(r)) {
+        await apiService.createKPIRoleAssignment({
+          kpi_id,          // string – backend expects it
+          role: r          // only role
+        });
       }
-      for (const [role, assignment] of existingRoleMap) {
-        if (!newRoles.has(role)) {
-          await apiService.deleteKPIRoleAssignment(assignment.assignment_id);
-        }
-      }
-
-      // 3. DEPARTMENTS: Add missing, delete removed
-      for (const deptId of newDeptIds) {
-        if (!existingDeptMap.has(deptId)) {
-          await apiService.createKPIRoleAssignment({ kpi_id, department_id: deptId });
-        }
-      }
-      for (const [deptId, assignment] of existingDeptMap) {
-        if (!newDeptIds.has(deptId)) {
-          await apiService.deleteKPIRoleAssignment(assignment.assignment_id);
-        }
-      }
-
-      // 4. Refresh templates (includes updated assignments via RPC)
-      const refreshed = await apiService.getKPITemplates();
-      setKpiTemplates(refreshed.templates || refreshed);
-
-      toast.success('Assignments saved');
-      setShowAssignmentModal(false);
-    } catch (err) {
-      toast.error(err.message || 'Failed to save assignments');
-    } finally {
-      setIsLoading(false);
     }
-  };
+
+    // add missing departments
+    for (const d of newDeptIds) {
+      if (!curDeptIds.has(d)) {
+        await apiService.createKPIRoleAssignment({
+          kpi_id,
+          department_id: d // only department_id
+        });
+      }
+    }
+
+    const allAssign = await apiService.getKPIRoleAssignments();
+    const thisKpiAssign = allAssign.filter(a => a.kpi_id === kpi_id);
+
+    const roleIdMap = new Map();
+    const deptIdMap = new Map();
+    thisKpiAssign.forEach(a => {
+      if (a.role) roleIdMap.set(a.role, a.assignment_id);
+      if (a.department_id) deptIdMap.set(a.department_id, a.assignment_id);
+    });
+
+    // delete unchecked roles
+    for (const r of curRoles) {
+      if (!newRoles.has(r) && roleIdMap.has(r)) {
+        await apiService.deleteKPIRoleAssignment(roleIdMap.get(r));
+      }
+    }
+
+    // delete unchecked departments
+    for (const d of curDeptIds) {
+      if (!newDeptIds.has(d) && deptIdMap.has(d)) {
+        await apiService.deleteKPIRoleAssignment(deptIdMap.get(d));
+      }
+    }
+
+    // -------------------------------------------------
+    // 4. REFRESH UI – pull fresh templates (RPC includes assignments)
+    // -------------------------------------------------
+    const fresh = await apiService.getKPITemplates();
+    setKpiTemplates(fresh.templates ?? fresh);
+
+    toast.success('Assignments saved');
+    setShowAssignmentModal(false);
+  } catch (err) {
+    console.error(err);
+    toast.error(err.message ?? 'Failed to save assignments');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // Format
   const formatTargetValue = (t) => {

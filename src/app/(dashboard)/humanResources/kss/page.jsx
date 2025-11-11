@@ -17,23 +17,24 @@ import {
   faUsers,
   faCheckCircle,
   faQuestionCircle,
-  faChevronRight,
+  faEye,
 } from "@fortawesome/free-solid-svg-icons";
+import { createClient } from "@/app/lib/supabase/client";
 
 const CustomModal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-        <h3 className="mb-4 text-xl font-bold text-gray-900">{title}</h3>
+      <div className="w-full max-w-5xl rounded-xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        {title && <h3 className="mb-4 text-xl font-bold text-gray-900">{title}</h3>}
         <div className="mb-6">{children}</div>
         <div className="flex justify-end">
           <button
             onClick={onClose}
             className="rounded bg-gray-500 px-6 py-2 text-white hover:bg-gray-600 transition"
           >
-            Cancel
+            Close
           </button>
         </div>
       </div>
@@ -55,7 +56,6 @@ export default function KSS() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [now, setNow] = useState("");
-  const [openModuleId, setOpenModuleId] = useState(null);
 
   // Modal states
   const [modModal, setModModal] = useState(false);
@@ -63,14 +63,26 @@ export default function KSS() {
   const [assModal, setAssModal] = useState(false);
   const [quesModal, setQuesModal] = useState(false);
   const [delModal, setDelModal] = useState(false);
+  const [viewModal, setViewModal] = useState(false);
   const [selModule, setSelModule] = useState(null);
   const [selLesson, setSelLesson] = useState(null);
   const [selAssignment, setSelAssignment] = useState(null);
   const [selQuestion, setSelQuestion] = useState(null);
+  const [selectedModule, setSelectedModule] = useState(null);
   const [delType, setDelType] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Clock
+  // Employee progress states
+  const [employeeData, setEmployeeData] = useState([]);
+  const [employeeLessonMap, setEmployeeLessonMap] = useState({});
+  const [employeeQuizMap, setEmployeeQuizMap] = useState({});
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const supabase = createClient();
+
+  // Live Clock (WAT - Nigeria)
   useEffect(() => {
     const tick = () => {
       const d = new Date();
@@ -83,20 +95,21 @@ export default function KSS() {
         minute: "2-digit",
         second: "2-digit",
         hour12: true,
+        timeZone: "Africa/Lagos",
       };
-      setNow(d.toLocaleString("en-US", opts));
+      const formatted = d.toLocaleString("en-US", opts);
+      setNow(formatted.replace(", ", " • "));
     };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
 
-  // -----------------------------------------------------------------
-  // FETCH ALL – modules + lessons + assignments + questions + PROGRESS
-  // -----------------------------------------------------------------
+  // FETCH ALL – modules + lessons + assignments + questions + PROGRESS + QUIZ + EMPLOYEES
   const fetchAll = async () => {
     try {
       setLoading(true);
+
       const modulesData = await apiService.getModules(router);
       if (!modulesData || !Array.isArray(modulesData))
         throw new Error("No modules returned");
@@ -105,16 +118,18 @@ export default function KSS() {
         (a, b) => new Date(a.created_at) - new Date(b.created_at)
       );
 
+      const { data: allDepts = [], error: deptErr } = await supabase
+        .from("departments")
+        .select("id, name");
+      if (deptErr) console.warn("Dept load error:", deptErr);
+      const deptMap = Object.fromEntries(allDepts.map((d) => [d.id, d.name]));
+
       const modulesWithData = await Promise.all(
         sortedModules.map(async (mod) => {
-          // Sort lessons
           const sortedLessons = [...(mod.lessons || [])].sort(
-            (a, b) =>
-              new Date(a.created_at || new Date()) -
-              new Date(b.created_at || new Date())
+            (a, b) => new Date(a.created_at) - new Date(b.created_at)
           );
 
-          // Assignments
           let assignments = [];
           try {
             assignments = await apiService.getAssignments(mod.id, router);
@@ -122,7 +137,19 @@ export default function KSS() {
             console.warn(`Assignments for module ${mod.id} failed:`, e.message);
           }
 
-          // Questions
+          const enrichedAssignments = assignments.map((ass) => {
+            const parts = [];
+            // if (ass.role) {
+            //   parts.push(`Role: ${ass.role.charAt(0).toUpperCase() + ass.role.slice(1)}`);
+            // }
+            if (ass.department_id && deptMap[ass.department_id]) {
+              parts.push(`Department: ${deptMap[ass.department_id]}`);
+            }
+            const displayLabel =
+              parts.length ? parts.join(", ") : `ID: ${ass.id.slice(0, 8)}…`;
+            return { ...ass, displayLabel };
+          });
+
           let questions = [];
           try {
             questions = await apiService.getQuestions(mod.id, router);
@@ -130,77 +157,130 @@ export default function KSS() {
             console.warn(`Questions for module ${mod.id} failed:`, e.message);
           }
 
-          // === PROGRESS STATS (kept only for possible future use) ===
-          let progressStats = {
+          const progressStats = {
             totalAssignedEmployees: 0,
             lessonCompleteCount: {},
             moduleCompleted: 0,
             moduleCompletionPercent: 0,
+            quizCompleted: 0,
+            quizPassed: 0,
+            averageScore: 0,
           };
 
-          if (assignments.length > 0) {
+          let employees = [];
+          let lessonMap = {};
+          let quizMap = {};
+
+          if (assignments.length) {
             const employeeIds = new Set();
 
             for (const ass of assignments) {
-              if (ass.target_type === "all") {
-                const allEmps = await supabase.from('employees').select('id').execute();
-                allEmps.data?.forEach(e => employeeIds.add(e.id));
-              } else if (ass.target_type === "department") {
-                const depts = await supabase
-                  .from('employees')
-                  .select('id')
-                  .eq('department', ass.target_value)
-                  .execute();
-                depts.data?.forEach(e => employeeIds.add(e.id));
-              } else if (ass.target_type === "role") {
-                const roles = await supabase
-                  .from('employees')
-                  .select('id')
-                  .eq('role', ass.target_value)
-                  .execute();
-                roles.data?.forEach(e => employeeIds.add(e.id));
+              if (!ass.role && !ass.department_id) {
+                const { data: emps = [] } = await supabase
+                  .from("employees")
+                  .select("id")
+                .neq("employment_status", "terminated");
+                emps.forEach((e) => employeeIds.add(e.id));
+                continue;
               }
+
+              if (ass.department_id) {
+                const { data: emps = [] } = await supabase
+                  .from("employees")
+                  .select("id")
+                  .eq("department_id", ass.department_id)
+                .neq("employment_status", "terminated");
+                emps.forEach((e) => employeeIds.add(e.id));
+              }
+
+              // ROLE ASSIGNMENT COMMENTED OUT
+              // if (ass.role) { ... }
             }
 
-            progressStats.totalAssignedEmployees = employeeIds.size;
+            const empArr = Array.from(employeeIds);
+            progressStats.totalAssignedEmployees = empArr.length;
 
-            if (progressStats.totalAssignedEmployees > 0 && sortedLessons.length > 0) {
-              const progressResp = await supabase
-                .from('employee_lesson_progress')
-                .select('lesson_id, employee_id, is_completed')
-                .in_('employee_id', Array.from(employeeIds))
-                .in_('lesson_id', sortedLessons.map(l => l.id))
-                .execute();
+            // FILTER OUT TERMINATED EMPLOYEES
+            if (empArr.length > 0) {
+              const { data: emps = [] } = await supabase
+                .from("employees")
+                .select("id, user_id, first_name, last_name, email, employment_status")
+                .in("id", empArr)
+                .neq("employment_status", "terminated");
+
+              employees = emps.map(e => ({
+                ...e,
+                name: `${e.first_name || ""} ${e.last_name || ""}`.trim() || "Unknown",
+              }));
+            }
+
+            // Lesson progress
+            if (sortedLessons.length && employees.length) {
+              const { data: prog = [] } = await supabase
+                .from("employee_lesson_progress")
+                .select("employee_id, lesson_id, is_completed")
+                .in("employee_id", employees.map(e => e.id))
+                .in("lesson_id", sortedLessons.map(l => l.id));
 
               const lessonCompleteCount = {};
               const employeeLessonCounts = {};
 
-              progressResp.data?.forEach(p => {
+              prog.forEach((p) => {
                 if (p.is_completed) {
-                  lessonCompleteCount[p.lesson_id] = (lessonCompleteCount[p.lesson_id] || 0) + 1;
-                  employeeLessonCounts[p.employee_id] = (employeeLessonCounts[p.employee_id] || 0) + 1;
+                  lessonCompleteCount[p.lesson_id] =
+                    (lessonCompleteCount[p.lesson_id] || 0) + 1;
+                  employeeLessonCounts[p.employee_id] =
+                    (employeeLessonCounts[p.employee_id] || 0) + 1;
                 }
               });
 
               const completedAll = Object.values(employeeLessonCounts).filter(
-                count => count === sortedLessons.length
+                (c) => c === sortedLessons.length
               ).length;
 
-              progressStats = {
-                ...progressStats,
-                lessonCompleteCount,
-                moduleCompleted: completedAll,
-                moduleCompletionPercent: Math.round((completedAll / progressStats.totalAssignedEmployees) * 100),
-              };
+              progressStats.lessonCompleteCount = lessonCompleteCount;
+              progressStats.moduleCompleted = completedAll;
+              progressStats.moduleCompletionPercent = employees.length
+                ? Math.round((completedAll / employees.length) * 100)
+                : 0;
+
+              lessonMap = Object.fromEntries(
+                employees.map(e => [e.id, { completed: employeeLessonCounts[e.id] || 0 }])
+              );
+            }
+
+            // Quiz results
+            if (questions.length && employees.length) {
+              const { data: quiz = [] } = await supabase
+                .from("employee_test_results")
+                .select("employee_id, score, passed")
+                .eq("module_id", mod.id)
+                .in("employee_id", employees.map(e => e.id));
+
+              const scores = quiz.map(r => r.score).filter(s => s != null);
+              const passed = quiz.filter(r => r.passed).length;
+
+              progressStats.quizCompleted = scores.length;
+              progressStats.quizPassed = passed;
+              progressStats.averageScore = scores.length
+                ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+                : 0;
+
+              quizMap = Object.fromEntries(
+                quiz.map(q => [q.employee_id, { score: q.score, passed: q.passed }])
+              );
             }
           }
 
           return {
             ...mod,
             lessons: sortedLessons,
-            assignments: Array.isArray(assignments) ? assignments : [],
+            assignments: enrichedAssignments,
             questions: Array.isArray(questions) ? questions : [],
             progressStats,
+            employees,
+            employeeLessonMap: lessonMap,
+            employeeQuizMap: quizMap,
           };
         })
       );
@@ -219,11 +299,6 @@ export default function KSS() {
   useEffect(() => {
     fetchAll();
   }, [router]);
-
-  // Accordion
-  const toggleModule = (moduleId) => {
-    setOpenModuleId((prev) => (prev === moduleId ? null : moduleId));
-  };
 
   // CRUD Handlers
   const openCreateModule = () => {
@@ -256,12 +331,21 @@ export default function KSS() {
     setSelQuestion(q);
     setQuesModal(true);
   };
+  const openViewDetails = (m) => {
+    setSelectedModule(m);
+    setEmployeeData(m.employees || []);
+    setEmployeeLessonMap(m.employeeLessonMap || {});
+    setEmployeeQuizMap(m.employeeQuizMap || {});
+    setEmployeeSearch("");
+    setCurrentPage(1);
+    setViewModal(true);
+  };
 
   const openDelete = (item, type) => {
     if (type === "module") setSelModule(item);
     else if (type === "lesson") {
       setSelLesson(item);
-      setSelModule(item.module || modules.find(m => m.id === item.module_id));
+      setSelModule(item.module || modules.find((m) => m.id === item.module_id));
     } else if (type === "assignment") {
       setSelAssignment(item);
       setSelModule({ id: item.module_id });
@@ -311,6 +395,20 @@ export default function KSS() {
     await fetchAll();
   };
 
+  // Pagination & Filter
+  const filteredEmployees = employeeData
+    .filter(emp => emp.employment_status !== "terminated") // Extra safety
+    .filter(emp =>
+      emp.name.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+      emp.email.toLowerCase().includes(employeeSearch.toLowerCase())
+    );
+
+  const totalPages = Math.ceil(filteredEmployees.length / pageSize);
+  const paginatedEmployees = filteredEmployees.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
     <div className="">
       {/* Header */}
@@ -327,7 +425,7 @@ export default function KSS() {
       </div>
 
       {/* Content */}
-      <div className="space-y-10">
+      <div className="space-y-7">
         {loading ? (
           <>
             <SkeletonCard />
@@ -349,48 +447,62 @@ export default function KSS() {
           </div>
         ) : (
           modules.map((mod, modIdx) => {
-            const isOpen = openModuleId === mod.id;
             const stats = mod.progressStats || {};
             const hasProgress = stats.totalAssignedEmployees > 0;
 
             return (
               <div
                 key={mod.id}
-                className="overflow-hidden rounded-lg border border-solid border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-xl border border-solid border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow"
               >
-                {/* Accordion Header */}
-                <div
-                  onClick={() => toggleModule(mod.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      toggleModule(mod.id);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  className="w-full text-left bg-gradient-to-r from-[#d4a53b] to-[#e6c070] p-5 text-white hover:from-[#c49632] hover:to-[#d4a53b] transition-all cursor-pointer"
-                >
+                <div className="bg-white p-5">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <FontAwesomeIcon
-                        icon={faChevronRight}
-                        className={`h-5 w-5 transform transition-transform ${isOpen ? "rotate-90" : ""}`}
-                      />
-                      <div>
-                        <h3 className="text-lg font-bold">
-                          Module {modIdx + 1}: {mod.title}
-                        </h3>
-                        <p className="text-sm opacity-90">{mod.description}</p>
-                        {hasProgress && (
-                          <div className="mt-1 flex items-center gap-2 text-xs">
-                            <FontAwesomeIcon icon={faUsers} className="text-yellow-200" />
-                            <span>{stats.totalAssignedEmployees} employees</span>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-[#b88b1b]">
+                        Module {modIdx + 1}: {mod.title}
+                      </h3>
+                      <p className="text-sm opacity-90 text-gray-900 font-bold">{mod.description}</p>
+
+                      {hasProgress && (
+                        <div className="mt-2 space-y-1 text-xs">
+                          <div className="flex items-center gap-2">
+                            <FontAwesomeIcon icon={faUsers} className="text-yellow-700" />
+                            <span>{stats.totalAssignedEmployees} assigned</span>
                           </div>
-                        )}
-                      </div>
+                          <div className="flex items-center gap-2">
+                            <FontAwesomeIcon icon={faCheckCircle} className="text-green-600" />
+                            <span>
+                              {stats.moduleCompleted} completed lessons (
+                              {stats.moduleCompletionPercent}%)
+                            </span>
+                          </div>
+                          {stats.quizCompleted > 0 && (
+                            <div className="flex items-center gap-2">
+                              <FontAwesomeIcon icon={faQuestionCircle} className="text-blue-700" />
+                              <span>
+                                {stats.quizCompleted} took quiz • {stats.quizPassed} passed •
+                                Avg: {stats.averageScore}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
+
                     <div className="flex gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openViewDetails(mod);
+                        }}
+                        className="p-2"
+                        title="View details"
+                      >
+                        <FontAwesomeIcon
+                          className="text-yellow-500 hover:text-yellow-800 transition"
+                          icon={faEye}
+                        />
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -420,230 +532,6 @@ export default function KSS() {
                     </div>
                   </div>
                 </div>
-
-                {/* Accordion Body */}
-                <div
-                  className={`transition-all duration-300 ease-in-out overflow-y-auto ${
-                    isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-                  }`}
-                >
-                  <div className="bg-gray-50 p-5 border-t border-gray-300 space-y-6">
-                    {/* Lessons */}
-                    <div>
-                      <div className="mb-4 flex items-center justify-between">
-                        <h4 className="font-bold text-gray-700">
-                          Lessons ({mod.lessons?.length ?? 0})
-                        </h4>
-                        <button
-                          onClick={() => openCreateLesson(mod)}
-                          className="text-sm font-medium text-[#b88b1b] hover:underline"
-                        >
-                          + Add Lesson
-                        </button>
-                      </div>
-
-                      {mod.lessons?.length ? (
-                        <div className="space-y-3">
-                          {mod.lessons.map((les, lesIdx) => {
-                            const completed = stats.lessonCompleteCount?.[les.id] || 0;
-                            const total = stats.totalAssignedEmployees || 0;
-
-                            return (
-                              <div
-                                key={les.id}
-                                className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-shadow"
-                              >
-                                <div className="flex items-center gap-4">
-                                  <span className="font-bold text-[#b88b1b] text-sm min-w-[40px]">
-                                    {modIdx + 1}.{lesIdx + 1}
-                                  </span>
-                                  <div className="flex-1 min-w-0">
-                                    <h5 className="font-semibold text-gray-900 truncate">
-                                      {les.title}
-                                    </h5>
-                                    <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                                      {les.description}
-                                    </p>
-                                    {les.youtube_link && (
-                                      <a
-                                        href={les.youtube_link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="mt-2 inline-flex items-center text-xs text-[#b88b1b] font-medium hover:underline"
-                                      >
-                                        Watch Video
-                                      </a>
-                                    )}
-                                  </div>
-                                </div>
-
-                                {/* Removed progress bar – only show count */}
-                                <div className="text-right min-w-[120px]">
-                                  <div className="text-sm font-medium text-gray-700">
-                                    {completed}/{total}
-                                  </div>
-                                </div>
-
-                                <div className="flex gap-2 ml-4">
-                                  <button
-                                    onClick={() => openEditLesson(les)}
-                                    className="p-2 text-blue-600 hover:text-blue-800"
-                                    title="Edit lesson"
-                                  >
-                                    <FontAwesomeIcon icon={faEdit} />
-                                  </button>
-                                  <button
-                                    onClick={() => openDelete(les, "lesson")}
-                                    className="p-2 text-red-600 hover:text-red-800"
-                                    title="Delete lesson"
-                                  >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="italic text-sm text-gray-500">No lessons yet.</p>
-                      )}
-                    </div>
-
-                    {/* Quiz Questions */}
-                    <div>
-                      <div className="mb-4 flex items-center justify-between">
-                        <h4 className="font-bold text-gray-700">
-                          Quiz Questions ({mod.questions?.length ?? 0})
-                        </h4>
-                        <button
-                          onClick={() => openCreateQuestion(mod)}
-                          className="text-sm font-medium text-[#b88b1b] hover:underline"
-                        >
-                          + Add Question
-                        </button>
-                      </div>
-
-                      {mod.questions?.length ? (
-                        <div className="space-y-3">
-                          {mod.questions.map((q, qIdx) => (
-                            <div
-                              key={q.id}
-                              className="p-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-shadow"
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-bold text-[#b88b1b] text-sm">
-                                      Q{qIdx + 1}.
-                                    </span>
-                                    <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                                      {q.question_type === "multiple_choice" ? "Multiple Choice" : "Short Answer"}
-                                    </span>
-                                  </div>
-                                  <p className="font-medium text-gray-900">{q.question_text}</p>
-
-                                  {q.question_type === "multiple_choice" && (
-                                    <div className="mt-2 space-y-1 text-sm">
-                                      {Object.entries(q.options || {}).map(([key, val]) => (
-                                        <div
-                                          key={key}
-                                          className={`pl-6 ${
-                                            key === q.correct_answer
-                                              ? "text-green-700 font-medium"
-                                              : "text-gray-600"
-                                          }`}
-                                        >
-                                          {key}. {val}
-                                          {key === q.correct_answer && " (Correct)"}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-
-                                  {q.question_type === "short_answer" && (
-                                    <p className="mt-2 text-sm text-green-700 font-medium pl-6">
-                                      Answer: {q.correct_answer}
-                                    </p>
-                                  )}
-                                </div>
-
-                                <div className="flex gap-2 ml-4">
-                                  <button
-                                    onClick={() => openEditQuestion(q)}
-                                    className="p-2 text-blue-600 hover:text-blue-800"
-                                    title="Edit question"
-                                  >
-                                    <FontAwesomeIcon icon={faEdit} />
-                                  </button>
-                                  <button
-                                    onClick={() => openDelete(q, "question")}
-                                    className="p-2 text-red-600 hover:text-red-800"
-                                    title="Delete question"
-                                  >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="italic text-sm text-gray-500">No quiz questions yet.</p>
-                      )}
-                    </div>
-
-                    {/* Assignments & Module Progress */}
-                    <div>
-                      <div className="mb-4 flex items-center justify-between">
-                        <h4 className="font-bold text-gray-700">
-                          Assignments ({mod.assignments?.length ?? 0})
-                        </h4>
-                        <button
-                          onClick={() => openCreateAssignment(mod)}
-                          className="text-sm font-medium text-[#b88b1b] hover:underline"
-                        >
-                          + Assign Module
-                        </button>
-                      </div>
-
-                      {mod.assignments?.length ? (
-                        <div className="space-y-3 mb-6">
-                          {mod.assignments.map((ass) => {
-                            const type = ass.target_type?.toLowerCase();
-                            const label =
-                              type === "all"
-                                ? "All Employees"
-                                : type === "department"
-                                ? `Department: ${ass.target_value}`
-                                : `Role: ${ass.target_value}`;
-
-                            return (
-                              <div
-                                key={ass.id}
-                                className="flex items-center justify-between p-4 bg-white rounded-lg border hover:shadow-sm transition-shadow"
-                              >
-                                <span className="font-medium text-gray-800">{label}</span>
-                                <button
-                                  onClick={() => openDelete(ass, "assignment")}
-                                  className="p-2 text-red-600 hover:text-red-800 transition"
-                                  title="Remove assignment"
-                                >
-                                  <FontAwesomeIcon icon={faTrash} />
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="italic text-sm text-gray-500 mb-6">
-                          Not assigned to anyone yet.
-                        </p>
-                      )}
-
-                      {/* Module Completion Summary – REMOVED */}
-                    </div>
-                  </div>
-                </div>
               </div>
             );
           })
@@ -654,14 +542,414 @@ export default function KSS() {
       {!loading && modules.length > 0 && (
         <button
           onClick={openCreateModule}
-          className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#d4a53b] text-3xl text-white shadow-lg hover:bg-[#c49632] transition-all duration-300"
+          className="fixed bottom-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-[#d4a53b] text-3xl text-white shadow-lg hover:bg-[#c49632] transition-all duration-300"
           title="Create new module"
         >
           <FontAwesomeIcon icon={faPlus} />
         </button>
       )}
 
-      {/* Modals */}
+      {/* VIEW DETAILS MODAL */}
+      <CustomModal
+        isOpen={viewModal}
+        onClose={() => setViewModal(false)}
+        title=""
+      >
+        {selectedModule && (
+          <div className="space-y-6">
+            {/* Header: Title + Live Info */}
+            <div className="border-b border-gray-200 pb-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-[#b88b1b]">
+                    {selectedModule.title}
+                  </h2>
+                  {selectedModule.description && (
+                    <p className="mt-1 text-sm text-gray-700">{selectedModule.description}</p>
+                  )}
+                </div>
+                <div className="text-right text-sm">
+                  <div className="flex items-center justify-end gap-2 text-gray-500 font-medium">
+                    <span>{now}</span>
+                  </div>
+                  <div className="flex items-center justify-end gap-1 mt-1">
+                    <span className="text-lg">NG</span>
+                    <span className="text-xs text-gray-500">Nigeria</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Progress Summary */}
+            {selectedModule.progressStats.totalAssignedEmployees > 0 && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+                <h3 className="text-sm font-semibold text-indigo-700 mb-3">Training Progress</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-gray-800">
+                      {selectedModule.progressStats.totalAssignedEmployees}
+                    </div>
+                    <div className="text-xs text-gray-600">Assigned</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {selectedModule.progressStats.moduleCompleted}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Completed Lessons ({selectedModule.progressStats.moduleCompletionPercent}%)
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {selectedModule.progressStats.quizCompleted}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Took Quiz • <strong className="text-green-600">
+                        {selectedModule.progressStats.quizPassed} Passed
+                      </strong> • Avg: {selectedModule.progressStats.averageScore}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Employee Table */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                Employee Progress ({selectedModule.progressStats.totalAssignedEmployees} total)
+              </h4>
+
+              <input
+                type="text"
+                placeholder="Search employees..."
+                value={employeeSearch}
+                onChange={(e) => setEmployeeSearch(e.target.value)}
+                className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a53b]"
+              />
+
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Employee
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Lessons
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Quiz
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {paginatedEmployees.map((emp) => {
+                      const lessonCount = employeeLessonMap[emp.id]?.completed || 0;
+                      const quiz = employeeQuizMap[emp.id];
+                      return (
+                        <tr key={emp.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm">
+                            <div>
+                              <div className="font-medium text-gray-900">{emp.name}</div>
+                              <div className="text-xs text-gray-500">{emp.email}</div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-center text-sm">
+                            <div>
+                              <span className="font-medium">{lessonCount}</span>/{selectedModule.lessons.length}
+                            </div>
+                            {selectedModule.lessons.length > 0 && (
+                              <div className="text-xs text-gray-500">
+                                {Math.round((lessonCount / selectedModule.lessons.length) * 100)}%
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center text-sm">
+                            {quiz ? (
+                              <div>
+                                <span className={`font-medium ${quiz.passed ? "text-green-600" : "text-red-600"}`}>
+                                  {quiz.score}%
+                                </span>
+                                <div className="text-xs text-gray-500">
+                                  {quiz.passed ? "Passed" : "Failed"}
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">Not taken</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="text-sm text-gray-700">
+                    Showing {(currentPage - 1) * pageSize + 1} to{" "}
+                    {Math.min(currentPage * pageSize, filteredEmployees.length)} of{" "}
+                    {filteredEmployees.length} employees
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Lessons */}
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h4 className="text-lg font-semibold text-gray-800">
+                  Lessons ({selectedModule.lessons?.length ?? 0})
+                </h4>
+                <button
+                  onClick={() => {
+                    setSelModule(selectedModule);
+                    setSelLesson(null);
+                    setLesModal(true);
+                    setViewModal(false);
+                  }}
+                  className="text-sm font-medium text-[#b88b1b] hover:underline"
+                >
+                  + Add Lesson
+                </button>
+              </div>
+
+              {selectedModule.lessons?.length ? (
+                <div className="space-y-3">
+                  {selectedModule.lessons.map((les, lesIdx) => {
+                    const completed =
+                      selectedModule.progressStats.lessonCompleteCount?.[les.id] || 0;
+                    const total = selectedModule.progressStats.totalAssignedEmployees || 0;
+
+                    return (
+                      <div
+                        key={les.id}
+                        className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-shadow"
+                      >
+                        <div className="flex items-center gap-4 flex-1">
+                          <span className="font-bold text-[#b88b1b] text-sm min-w-[40px]">
+                            {lesIdx + 1}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <h5 className="font-semibold text-gray-900 truncate">
+                              {les.title}
+                            </h5>
+                            <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                              {les.description}
+                            </p>
+                            {les.youtube_link && (
+                              <a
+                                href={les.youtube_link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-2 inline-flex items-center text-xs text-[#b88b1b] font-medium hover:underline"
+                              >
+                                Watch Video
+                              </a>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="text-right min-w-[100px] px-4">
+                          <div className="text-sm font-medium text-gray-700">
+                            {completed}/{total}
+                          </div>
+                          {total > 0 && (
+                            <div className="text-xs text-gray-500">
+                              {Math.round((completed / total) * 100)}%
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              setSelLesson(les);
+                              setLesModal(true);
+                              setViewModal(false);
+                            }}
+                            className="p-2 text-blue-600 hover:text-blue-800"
+                            title="Edit lesson"
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button
+                            onClick={() => openDelete(les, "lesson")}
+                            className="p-2 text-red-600 hover:text-red-800"
+                            title="Delete lesson"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="italic text-sm text-gray-500">No lessons yet.</p>
+              )}
+            </div>
+
+            {/* Quiz Questions */}
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h4 className="text-lg font-semibold text-gray-800">
+                  Quiz Questions ({selectedModule.questions?.length ?? 0})
+                </h4>
+                <button
+                  onClick={() => {
+                    setSelModule(selectedModule);
+                    setSelQuestion(null);
+                    setQuesModal(true);
+                    setViewModal(false);
+                  }}
+                  className="text-sm font-medium text-[#b88b1b] hover:underline"
+                >
+                  + Add Question
+                </button>
+              </div>
+
+              {selectedModule.questions?.length ? (
+                <div className="space-y-3">
+                  {selectedModule.questions.map((q, qIdx) => (
+                    <div
+                      key={q.id}
+                      className="p-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-shadow"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-[#b88b1b] text-sm">
+                              Q{qIdx + 1}.
+                            </span>
+                            <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                              {q.question_type === "multiple_choice"
+                                ? "Multiple Choice"
+                                : "Short Answer"}
+                            </span>
+                          </div>
+                          <p className="font-medium text-gray-900">{q.question_text}</p>
+
+                          {q.question_type === "multiple_choice" && (
+                            <div className="mt-2 space-y-1 text-sm">
+                              {Object.entries(q.options || {}).map(([key, val]) => (
+                                <div
+                                  key={key}
+                                  className={`pl-6 ${key === q.correct_answer
+                                    ? "text-green-700 font-medium"
+                                    : "text-gray-600"
+                                    }`}
+                                >
+                                  {key}. {val}
+                                  {key === q.correct_answer && " (Correct)"}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {q.question_type === "short_answer" && (
+                            <p className="mt-2 text-sm text-green-700 font-medium pl-6">
+                              Answer: {q.correct_answer}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2 ml-4">
+                          <button
+                            onClick={() => {
+                              setSelQuestion(q);
+                              setQuesModal(true);
+                              setViewModal(false);
+                            }}
+                            className="p-2 text-blue-600 hover:text-blue-800"
+                            title="Edit question"
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button
+                            onClick={() => openDelete(q, "question")}
+                            className="p-2 text-red-600 hover:text-red-800"
+                            title="Delete question"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="italic text-sm text-gray-500">No quiz questions yet.</p>
+              )}
+            </div>
+
+            {/* Assignments */}
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h4 className="text-lg font-semibold text-gray-800">
+                  Assignments ({selectedModule.assignments?.length ?? 0})
+                </h4>
+                <button
+                  onClick={() => {
+                    setSelModule(selectedModule);
+                    setAssModal(true);
+                    setViewModal(false);
+                  }}
+                  className="text-sm font-medium text-[#b88b1b] hover:underline"
+                >
+                  + Assign Module
+                </button>
+              </div>
+
+              {selectedModule.assignments?.length ? (
+                <div className="space-y-3">
+                  {selectedModule.assignments.map((ass) => (
+                    <div
+                      key={ass.id}
+                      className="flex items-center justify-between p-4 bg-white rounded-lg border hover:shadow-sm transition-shadow"
+                    >
+                      <span className="font-medium text-gray-800">{ass.displayLabel}</span>
+                      <button
+                        onClick={() => openDelete(ass, "assignment")}
+                        className="p-2 text-red-600 hover:text-red-800 transition"
+                        title="Remove assignment"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="italic text-sm text-gray-500">
+                  Not assigned to anyone yet.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </CustomModal>
+
+      {/* OTHER MODALS */}
       <CustomModal
         isOpen={modModal}
         onClose={() => setModModal(false)}
@@ -708,19 +996,17 @@ export default function KSS() {
         title="Confirm Delete"
       >
         <div className="text-gray-700 space-y-3">
-          <p>Are you sure you want to delete this <strong>{delType}</strong>?</p>
+          <p>
+            Are you sure you want to delete this <strong>{delType}</strong>?
+          </p>
           <p className="font-medium text-gray-900 bg-gray-50 p-3 rounded">
             {delType === "module"
               ? selModule?.title
               : delType === "lesson"
               ? selLesson?.title
               : delType === "assignment"
-              ? (() => {
-                  const type = selAssignment?.target_type?.toLowerCase();
-                  return type === "all"
-                    ? "All Employees"
-                    : `${type === "department" ? "Department" : "Role"}: ${selAssignment?.target_value}`;
-                })()
+              ? selAssignment?.displayLabel ||
+                `Assignment ${selAssignment?.id?.slice(0, 8)}…`
               : delType === "question"
               ? selQuestion?.question_text?.slice(0, 60) + "..."
               : "Unknown"}
@@ -730,12 +1016,6 @@ export default function KSS() {
           </p>
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={() => setDelModal(false)}
-            className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-          >
-            Cancel
-          </button>
           <button
             onClick={confirmDelete}
             disabled={deleting}
@@ -747,7 +1027,11 @@ export default function KSS() {
           >
             {deleting ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
                   <circle
                     className="opacity-25"
                     cx="12"

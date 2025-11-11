@@ -117,7 +117,7 @@ export default function AssignmentForm({ moduleId, onSuccess }) {
         >
           <option value="all">All Employees</option>
           <option value="department">Department</option>
-          <option value="role">Role</option>
+          {/* <option value="role">Role</option> */}
         </select>
       </div>
 
@@ -151,7 +151,7 @@ export default function AssignmentForm({ moduleId, onSuccess }) {
         </div>
       )}
 
-      {/* ---------- ROLE SELECT ---------- */}
+      {/* ---------- ROLE SELECT ----------
       {targetType === "role" && (
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -169,13 +169,13 @@ export default function AssignmentForm({ moduleId, onSuccess }) {
             <option value="hr_manager">HR Manager</option>
           </select>
         </div>
-      )}
+      )} */}
 
       {/* ---------- ERROR ---------- */}
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {/* ---------- SUBMIT ---------- */}
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-5">
         <button
           type="submit"
           disabled={loading || deptLoading}
