@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
-const ShiftTable = ({ shifts = [], onViewShift, onOpenUpdateShiftModal, loading, error }) => {
+const ShiftTable = ({ shifts = [], onOpenUpdateShiftModal, loading, error }) => {
     const calculateHours = (startTime, endTime) => {
         if (!startTime || !endTime || startTime === 'N/A' || endTime === 'N/A') {
             return 'N/A';
@@ -92,21 +92,12 @@ const ShiftTable = ({ shifts = [], onViewShift, onOpenUpdateShiftModal, loading,
                     </div>
                 </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-4 bg-gray-300 rounded w-20"></div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-6 bg-gray-300 rounded-full w-20"></div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-4 bg-gray-300 rounded w-32"></div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-4 bg-gray-300 rounded w-16"></div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-8 bg-gray-300 rounded w-16"></div>
-            </td>
+            <td className="px-6 py-4 whitespace-nowrap"><div className="h-4 bg-gray-300 rounded w-20"></div></td>
+            <td className="px-6 py-4 whitespace-nowrap"><div className="h-4 bg-gray-300 rounded w-20"></div></td>
+            <td className="px-6 py-4 whitespace-nowrap"><div className="h-6 bg-gray-300 rounded-full w-20"></div></td>
+            <td className="px-6 py-4 whitespace-nowrap"><div className="h-4 bg-gray-300 rounded w-32"></div></td>
+            <td className="px-6 py-4 whitespace-nowrap"><div className="h-4 bg-gray-300 rounded w-16"></div></td>
+            <td className="px-6 py-4 whitespace-nowrap"><div className="h-8 bg-gray-300 rounded w-16"></div></td>
         </tr>
     );
 
@@ -117,6 +108,7 @@ const ShiftTable = ({ shifts = [], onViewShift, onOpenUpdateShiftModal, loading,
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shift Type</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Range</th>
@@ -126,7 +118,7 @@ const ShiftTable = ({ shifts = [], onViewShift, onOpenUpdateShiftModal, loading,
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                         <tr>
-                            <td colSpan="6" className="px-6 py-8 text-center">
+                            <td colSpan="7" className="px-6 py-8 text-center">
                                 <div className="text-red-500 font-medium">{error}</div>
                             </td>
                         </tr>
@@ -142,6 +134,7 @@ const ShiftTable = ({ shifts = [], onViewShift, onOpenUpdateShiftModal, loading,
                 <thead className="bg-gray-50">
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shift Type</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Range</th>
@@ -156,7 +149,7 @@ const ShiftTable = ({ shifts = [], onViewShift, onOpenUpdateShiftModal, loading,
                         ))
                     ) : !sortedShifts || sortedShifts.length === 0 ? (
                         <tr>
-                            <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                            <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                                 No shift schedules found
                             </td>
                         </tr>
@@ -177,7 +170,7 @@ const ShiftTable = ({ shifts = [], onViewShift, onOpenUpdateShiftModal, loading,
                                             <div className="flex-shrink-0 h-10 w-10">
                                                 <img 
                                                     className="h-10 w-10 rounded-full" 
-                                                    src={shift.employee?.avatar || '/default-profile.png'} 
+                                                    src={shift.employee?.avatar_url || '/default-profile.png'} 
                                                     alt={shift.employee?.name || 'Employee'} 
                                                 />
                                             </div>
@@ -190,6 +183,9 @@ const ShiftTable = ({ shifts = [], onViewShift, onOpenUpdateShiftModal, loading,
                                                 </div>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {shift.position || 'N/A'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {shift.department || 'N/A'}
@@ -207,12 +203,6 @@ const ShiftTable = ({ shifts = [], onViewShift, onOpenUpdateShiftModal, loading,
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div className="flex space-x-2 ml-3">
-                                            <button
-                                                onClick={() => onViewShift(shift)}
-                                                className="text-blue-600 hover:text-blue-900"
-                                            >
-                                                <FontAwesomeIcon icon={faEye} />
-                                            </button>
                                             <button
                                                 onClick={() => onOpenUpdateShiftModal(shift)}
                                                 className="text-green-600 hover:text-green-900"

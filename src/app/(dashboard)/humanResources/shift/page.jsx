@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import ShiftCard from "@/components/hr/shift/ShiftCard";
-import ViewShiftModal from "@/components/hr/shift/ViewShiftModal";
 import UpdateShiftModal from "@/components/hr/shift/UpdateShiftModal";
 import ManageShiftTypesModal from "@/components/hr/shift/ManageShiftTypesModal";
 import CreateShiftTypeModal from "@/components/hr/shift/CreateShiftTypeModal";
@@ -19,8 +18,6 @@ export default function ShiftPage() {
     const [isAssignShiftModalOpen, setIsAssignShiftModalOpen] = useState(false);
     const [isManageShiftTypesModalOpen, setIsManageShiftTypesModalOpen] = useState(false);
     const [isCreateShiftTypeModalOpen, setIsCreateShiftTypeModalOpen] = useState(false);
-    const [selectedShift, setSelectedShift] = useState(null);
-    const [isViewShiftModalOpen, setIsViewShiftModalOpen] = useState(false);
     const [allAssignedShifts, setAllAssignedShifts] = useState([]);
     const [shiftTypes, setShiftTypes] = useState([]);
     const [allEmployees, setAllEmployees] = useState([]);
@@ -30,6 +27,7 @@ export default function ShiftPage() {
     const [currentShift, setCurrentShift] = useState({ name: 'No Active Shift', start_time: '--:--', end_time: '--:--' });
 
     const shiftCache = useRef(new Map());
+    const employeeCache = useRef(new Map()); // Cache for employee details
 
     useEffect(() => {
         const update = () => {
@@ -51,6 +49,7 @@ export default function ShiftPage() {
                 let shiftName = 'Unassigned';
                 let startTime = 'N/A';
                 let endTime = 'N/A';
+
                 if (s.shift_type_id) {
                     let shift = shiftCache.current.get(s.shift_type_id);
                     if (!shift) {
@@ -67,6 +66,26 @@ export default function ShiftPage() {
                         endTime = shift.end_time.substring(0, 5);
                     }
                 }
+
+                // Fetch full employee details (position + department)
+                let position = 'N/A';
+                let department = 'N/A';
+                if (s.employee?.id) {
+                    let emp = employeeCache.current.get(s.employee.id);
+                    if (!emp) {
+                        try {
+                            emp = await apiService.getEmployeeById(s.employee.id, router);
+                            employeeCache.current.set(s.employee.id, emp);
+                        } catch (e) {
+                            console.error("Failed to fetch employee:", e);
+                        }
+                    }
+                    if (emp) {
+                        position = emp.position ?? 'N/A';
+                        department = emp.departments?.name ?? 'N/A';
+                    }
+                }
+
                 return {
                     id: s.id,
                     employee: {
@@ -77,7 +96,8 @@ export default function ShiftPage() {
                         first_name: s.employee?.first_name || '',
                         last_name: s.employee?.last_name || ''
                     },
-                    department: s.employee?.departments?.name || 'N/A',
+                    department,
+                    position,
                     shiftType: shiftName,
                     shiftTypeId: s.shift_type_id || null,
                     date: s.start_date ? new Date(s.start_date).toLocaleDateString('en-US') : 'N/A',
@@ -226,6 +246,7 @@ export default function ShiftPage() {
         const low = searchTerm.toLowerCase();
         return s.employee?.name?.toLowerCase().includes(low) ||
                s.department?.toLowerCase().includes(low) ||
+               s.position?.toLowerCase().includes(low) ||
                s.shiftType?.toLowerCase().includes(low);
     });
 
@@ -290,7 +311,6 @@ export default function ShiftPage() {
 
             <div className="mt-0">
                 <ShiftTable shifts={filteredShifts}
-                            onViewShift={s=>{setSelectedShift(s);setIsViewShiftModalOpen(true);}}
                             onOpenUpdateShiftModal={s=>{setEmployeeToUpdateShift(s);setIsAssignShiftModalOpen(true);}}
                             loading={loading} error={error}/>
             </div>
@@ -299,7 +319,6 @@ export default function ShiftPage() {
                 onClose={()=>{setIsAssignShiftModalOpen(false);setEmployeeToUpdateShift(null);}}
                 onAssignShift={handleUpdateShiftSchedule}
                 shiftTypes={shiftTypes} employee={employeeToUpdateShift} allEmployees={allEmployees}/>
-            <ViewShiftModal isOpen={isViewShiftModalOpen} onClose={()=>setIsViewShiftModalOpen(false)} shift={selectedShift}/>
             <ManageShiftTypesModal isOpen={isManageShiftTypesModalOpen}
                 onClose={()=>setIsManageShiftTypesModalOpen(false)}
                 shiftTypes={shiftTypes}
