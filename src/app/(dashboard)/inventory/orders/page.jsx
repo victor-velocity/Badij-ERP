@@ -59,7 +59,7 @@ export default function InventoryOrders() {
 
   useEffect(() => {
     fetchOrders();
-    const id = setInterval(fetchOrders, 30_000);
+    const id = setInterval(fetchOrders, 100_000);
     return () => clearInterval(id);
   }, [router]);
 

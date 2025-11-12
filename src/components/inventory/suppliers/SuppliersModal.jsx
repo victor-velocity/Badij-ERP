@@ -171,7 +171,8 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
                   : 'border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b]'
                 }`}
               placeholder="Enter supplier name"
-              disabled={isLoading}
+              disabled={isLoading} 
+              required
             />
             {errors.name && (
               <p className="mt-1 text-sm text-red-500">{errors.name}</p>
@@ -196,6 +197,7 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
                 }`}
               placeholder="Enter supplier contact email (optional)"
               disabled={isLoading}
+              required
             />
             {errors.contact_email && (
               <p className="mt-1 text-sm text-red-500">{errors.contact_email}</p>
@@ -217,6 +219,7 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
               className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-2 focus:outline-none"
               placeholder="Enter supplier contact phone (optional)"
               disabled={isLoading}
+              required
             />
           </div>
 
@@ -235,6 +238,7 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
               className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-2 focus:outline-none"
               placeholder="Enter supplier address (optional)"
               disabled={isLoading}
+              required
             ></textarea>
           </div>
 

@@ -14,6 +14,7 @@ const StockManagement = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
     const [isStockEntryModalOpen, setIsStockEntryModalOpen] = useState(false);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     const first_name = localStorage.getItem('first_name');
 
@@ -64,7 +65,7 @@ const StockManagement = () => {
                     {currentDateTime}
                 </span>
             </div>
-            
+
             <div className="mb-9">
                 <div className="flex flex-wrap gap-4 items-center justify-between">
                     {/* Left: Filter & Search */}
@@ -112,7 +113,8 @@ const StockManagement = () => {
             </div>
 
             <div>
-                <StocksTable 
+                <StocksTable
+                    refreshTrigger={refreshTrigger}
                     filter={filter}
                     searchTerm={searchTerm}
                     currentPage={currentPage}
@@ -122,11 +124,12 @@ const StockManagement = () => {
             </div>
 
             {isStockEntryModalOpen && (
-                <StockEntryModal 
+                <StockEntryModal
                     isOpen={isStockEntryModalOpen}
                     onClose={() => setIsStockEntryModalOpen(false)}
                     onSuccess={() => {
                         setIsStockEntryModalOpen(false);
+                        setRefreshTrigger(prev => prev + 1);
                     }}
                 />
             )}

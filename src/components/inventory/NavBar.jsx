@@ -17,7 +17,8 @@ import {
     faBoxesStacked,
     faBoxOpen,
     faUserGroup,
-    faFolder
+    faFolder,
+    faArchive
 } from '@fortawesome/free-solid-svg-icons';
 import { usePathname } from 'next/navigation';
 import Image from "next/image";
@@ -54,7 +55,7 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
         { name: "Suppliers", icon: faUsers, path: "/inventory/suppliers" },
         { name: "Employees", icon: faUserGroup, path: "/inventory/employees" },
         { name: "Reports", icon: faFile, path: "/inventory/reports" },
-        { name: "Documents", icon: faFolder, path: "/inventory/documents" },
+        { name: "Documents", icon: faArchive, path: "/inventory/documents" },
         { name: "Tasks", icon: faFolder, path: "/inventory/tasks" },
     ];
 

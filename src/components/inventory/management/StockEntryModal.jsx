@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import apiService from '@/app/lib/apiService';
+import BarcodeSuccessModal from './BarCodeSuccessModal';
 import toast from 'react-hot-toast';
 
 const StockEntryModal = ({ onClose, onSuccess }) => {
@@ -15,6 +16,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
         batch_id: '',
         boxes_count: 1
     });
+
     const [loading, setLoading] = useState(false);
     const [products, setProducts] = useState([]);
     const [components, setComponents] = useState([]);
@@ -26,11 +28,15 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [itemsLoading, setItemsLoading] = useState(false);
     const [batchesLoading, setBatchesLoading] = useState(false);
+    const [locationsLoading, setLocationsLoading] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successData, setSuccessData] = useState(null);
+
 
     useEffect(() => {
         loadProducts();
         loadComponents();
-        loadLocations();
+        loadLocationsFromSupabase();
         loadSuppliers();
         loadProcessingBatches();
     }, []);
@@ -83,12 +89,20 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
         }
     };
 
-    const loadLocations = async () => {
+    // Load locations directly from Supabase
+    const loadLocationsFromSupabase = async () => {
         try {
-            const response = await apiService.getLocations?.() || { data: [] };
-            setLocations(response.data || []);
+            setLocationsLoading(true);
+            const response = await apiService.getLocationsFromSupabase();
+            if (response.status === 'success') {
+                setLocations(response.data || []);
+            } else {
+                toast.error('Failed to load locations');
+            }
         } catch (error) {
-            toast.error('Failed to load locations');
+            toast.error('Failed to load locations from Supabase');
+        } finally {
+            setLocationsLoading(false);
         }
     };
 
@@ -97,7 +111,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
             const response = await apiService.getSuppliers();
             if (response.status === 'success') {
                 const supMap = (response.data || []).reduce((acc, sup) => {
-                    acc[sup.id] = sup.name;
+                    acc[sup.supplier_id] = sup.name; // Use supplier_id
                     return acc;
                 }, {});
                 setSuppliers(supMap);
@@ -141,15 +155,32 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
 
         try {
             const response = await apiService.createStockEntry(formData);
+
             if (response.status === 'success') {
+                // FIX: Define firstBox from response.data[0]
+                const firstBox = response.data?.[0] ?? {};
+
+                setSuccessData({
+                    barcodes: response.barcodes,
+                    pdf: response.pdf,
+                    itemName: firstBox.name ?? 'Unknown Item',
+                    batchId: formData.batch_id,
+                    boxesCount: formData.boxes_count,
+                    quantityInBox: firstBox.quantity_in_box ?? formData.quantity_in_box, // fallback
+                });
+
+                setShowSuccessModal(true);
                 toast.success('Stock entry created successfully');
-                onClose();
-                onSuccess();
             } else {
                 toast.error(response.message || 'Failed to create stock entry');
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to create stock entry');
+            console.error('Stock entry error:', error); // Debug
+            toast.error(
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to create stock entry'
+            );
         } finally {
             setLoading(false);
         }
@@ -165,8 +196,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
         if (name === 'contents_type') {
             setFormData(prev => ({
                 ...prev,
-                contents_id: '',
-                content_name: ''
+                contents_id: ''
             }));
             setSearchTerm('');
         }
@@ -176,8 +206,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
         const contentIdField = formData.contents_type === 'product' ? 'product_id' : 'component_id';
         setFormData(prev => ({
             ...prev,
-            contents_id: item[contentIdField],
-            content_name: item.name
+            contents_id: item[contentIdField]
         }));
         setSearchTerm(item.name);
         setShowDropdown(false);
@@ -210,6 +239,21 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                 </div>
             </div>
         );
+    };
+
+    // Helper to get supplier name with fallback loading
+    const getSupplierName = async (supplierId) => {
+        if (suppliers[supplierId]) return suppliers[supplierId];
+        try {
+            const sup = await apiService.getSupplierById(supplierId);
+            if (sup) {
+                setSuppliers(prev => ({ ...prev, [supplierId]: sup.name }));
+                return sup.name;
+            }
+        } catch (err) {
+            console.warn('Failed to fetch supplier:', err);
+        }
+        return 'Unknown';
     };
 
     return (
@@ -264,7 +308,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                                     filteredItems.map((item) => (
                                         <div
                                             key={formData.contents_type === 'product' ? item.product_id : item.component_id}
-                                            onClick={() => handleItemSelect(item)}
+                                            onMouseDown={() => handleItemSelect(item)}
                                             className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
                                         >
                                             {getItemDisplay(item)}
@@ -303,7 +347,11 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                                 <option disabled>No processing batches</option>
                             ) : (
                                 batches.map((batch) => {
-                                    const supplierName = suppliers[batch.supplier_id] || 'Unknown';
+                                    const supplierName = suppliers[batch.supplier_id] || 'Loading...';
+                                    // Fire-and-forget to fill missing supplier
+                                    if (!suppliers[batch.supplier_id]) {
+                                        getSupplierName(batch.supplier_id);
+                                    }
                                     return (
                                         <option key={batch.batch_id} value={batch.batch_id}>
                                             {batch.batch_number} - {supplierName}
@@ -358,14 +406,19 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">Location</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                Location {locationsLoading && '(Loading...)'}
+                            </label>
                             <select
                                 name="location_id"
                                 value={formData.location_id}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                disabled={locationsLoading}
                             >
-                                <option value="">Select location</option>
+                                <option value="">
+                                    {locationsLoading ? 'Loading...' : 'Select location'}
+                                </option>
                                 {locations.map(loc => (
                                     <option key={loc.id} value={loc.id}>{loc.name}</option>
                                 ))}
@@ -403,7 +456,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                         </button>
                         <button
                             type="submit"
-                            disabled={loading || !formData.contents_id || !formData.batch_id}
+                            disabled={loading || !formData.contents_id || !formData.batch_id || locationsLoading}
                             className="px-6 py-2.5 bg-[#b88b1b] text-white rounded-xl font-medium hover:bg-[#9a7516] disabled:opacity-50 transition-all shadow-sm hover:shadow-md"
                         >
                             {loading ? 'Creating...' : 'Add Stock'}
@@ -411,6 +464,22 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                     </div>
                 </form>
             </div>
+            {showSuccessModal && (
+                <BarcodeSuccessModal
+                    isOpen={showSuccessModal}
+                    onClose={() => {
+                        setShowSuccessModal(false);
+                        onSuccess();
+                        onClose();
+                    }}
+                    barcodes={successData.barcodes}
+                    pdfData={successData.pdf}
+                    itemName={successData.itemName}
+                    batchId={successData.batchId}
+                    boxesCount={successData.boxesCount}
+                    quantityInBox={successData.quantityInBox} // PASS IT
+                />
+            )}
         </div>
     );
 };

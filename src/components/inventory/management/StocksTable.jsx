@@ -198,6 +198,7 @@ export default function StocksTable({
   currentPage = 1,
   setCurrentPage,
   itemsPerPage = 10,
+  refreshTrigger
 }) {
   const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -209,6 +210,9 @@ export default function StocksTable({
 
   useEffect(() => {
     loadStockSummary();
+  }, [refreshTrigger]);
+
+  useEffect(() => {
     loadComponents();
   }, []);
 
@@ -259,15 +263,15 @@ export default function StocksTable({
   };
 
   const filteredItems = useMemo(() => {
-    return allItems.filter((item) => {
-      const matchesFilter = filter === "all" || item.type === filter;
-      const matchesSearch =
-        searchTerm === "" ||
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.sku && item.sku.toLowerCase().includes(searchTerm.toLowerCase()));
-      return matchesFilter && matchesSearch;
-    });
-  }, [allItems, filter, searchTerm]);
+  return allItems.filter((item) => {
+    const matchesFilter = filter === "all" || item.type === filter;
+    const matchesSearch =
+      searchTerm === "" ||
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.sku && item.sku.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchesFilter && matchesSearch;
+  });
+}, [allItems, filter, searchTerm]);
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;

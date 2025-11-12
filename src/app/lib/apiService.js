@@ -117,6 +117,21 @@ const apiService = {
         return data;
     },
 
+    getLocationsFromSupabase: async (router) => {
+        try {
+            const { data, error } = await supabase
+                .from('locations')
+                .select('id, name')
+                .order('name', { ascending: true });
+
+            if (error) throw error;
+            return { status: 'success', data };
+        } catch (err) {
+            console.error('Supabase locations error:', err);
+            return { status: 'error', data: [], message: err.message };
+        }
+    },
+
     getEmployees: async (router) => {
         return callApi("/employees", "GET", null, router);
     },
@@ -293,7 +308,17 @@ const apiService = {
     },
 
     getSupplierById: async (supplierId, router) => {
-        return callApi(`/suppliers/${supplierId}`, "GET", null, router);
+        const cacheKey = `supplier_${supplierId}`;
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) return JSON.parse(cached);
+
+        const resp = await callApi(`/suppliers/${supplierId}`, "GET", null, router);
+        if (resp?.status === 'success') {
+            const sup = resp.data;
+            sessionStorage.setItem(cacheKey, JSON.stringify(sup));
+            return sup;
+        }
+        return null;
     },
 
     createSupplier: async (supplierData, router) => {
