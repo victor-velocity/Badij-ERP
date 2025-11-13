@@ -8,17 +8,15 @@ import apiService from "@/app/lib/apiService";
 
 export default function QRScannerModal({ order, onClose, onComplete }) {
   const [scanner, setScanner] = useState(null);
-  const [isScanning, setIsScanning] = useState(false); // ← prevents double scan
+  const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef(null);
   const hasScanned = useRef(new Set());
 
-  // Expected total items to scan
   const expectedQty = order.order_details?.reduce((sum, d) => sum + d.quantity, 0) || 0;
   const scannedCount = hasScanned.current.size;
 
   useEffect(() => {
-    if (!scannerRef.current) return;
-
+    // Always create scanner — remove the guard
     const html5Scanner = new Html5QrcodeScanner(
       "reader",
       {
@@ -31,43 +29,51 @@ export default function QRScannerModal({ order, onClose, onComplete }) {
       false
     );
 
-    html5Scanner.render(
-      async (decodedText) => {
-        if (isScanning || hasScanned.current.has(decodedText)) {
-          return; // ← block duplicate or in-progress scans
-        }
+    const onScanSuccess = async (decodedText) => {
+      if (isScanning || hasScanned.current.has(decodedText)) {
+        return;
+      }
 
-        setIsScanning(true);
-        toast.loading("Selling item...");
+      setIsScanning(true);
+      toast.loading("Selling item...");
 
-        try {
-          await apiService.sellStockByBarcode(decodedText, order.order_id);
-          hasScanned.current.add(decodedText);
+      try {
+        await apiService.sellStockByBarcode(decodedText, order.order_id);
+        hasScanned.current.add(decodedText);
 
-          // Play success sound
-          const audio = new Audio("/sounds/scan-success.mp3");
-          audio.volume = 0.7;
-          await audio.play().catch(() => {});
+        // Play sound
+        const audio = new Audio("/sounds/scan-success.mp3");
+        audio.volume = 0.7;
+        await audio.play().catch(() => {});
 
-          toast.success("Item sold!");
-        } catch (err) {
-          toast.error(err.message || "Invalid QR");
-        } finally {
-          setIsScanning(false);
-          toast.dismiss(); // clear loading
-        }
-      },
-      (err) => console.warn("Scan error:", err)
-    );
-
-    setScanner(html5Scanner);
-    scannerRef.current = html5Scanner;
-
-    return () => {
-      html5Scanner.clear();
-      scannerRef.current = null;
+        toast.success("Item sold!");
+      } catch (err) {
+        toast.error(err.message || "Invalid QR");
+      } finally {
+        setIsScanning(false);
+        toast.dismiss();
+      }
     };
-  }, [order.order_id]);
+
+    const onScanError = (err) => {
+      console.warn("Scan error:", err);
+    };
+
+    // Render scanner
+    html5Scanner.render(onScanSuccess, onScanError);
+
+    // Save reference
+    scannerRef.current = html5Scanner;
+    setScanner(html5Scanner);
+
+    // Cleanup
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+        scannerRef.current = null;
+      }
+    };
+  }, [order.order_id]); // Re-init only if order changes
 
   const completeAndShip = async () => {
     if (scannedCount < expectedQty) {
@@ -103,8 +109,8 @@ export default function QRScannerModal({ order, onClose, onComplete }) {
           )}
         </div>
 
-        {/* Camera */}
-        <div id="reader" className="w-full mb-4"></div>
+        {/* Camera Container */}
+        <div id="reader" className="w-full mb-4 min-h-64"></div>
 
         {/* Buttons */}
         <div className="flex gap-2">
