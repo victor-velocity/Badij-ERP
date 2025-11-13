@@ -21,6 +21,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-hot-toast";
 import apiService from "@/app/lib/apiService";
+import QRScannerModal from "../management/QRScannerModal";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -77,6 +78,7 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
   const [updating, setUpdating] = useState(false);
   const [customer, setCustomer] = useState(null);
   const [loadingCustomer, setLoadingCustomer] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   // Use prop loading or fallback
   const isLoading = isLoadingProp || initialOrders === undefined;
@@ -154,11 +156,10 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
         <button
           key={i}
           onClick={() => setCurrentPage(i)}
-          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-            currentPage === i
-              ? "bg-[#b88b1b] text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
+          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${currentPage === i
+            ? "bg-[#b88b1b] text-white"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
         >
           {i}
         </button>
@@ -281,7 +282,7 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
 
       {/* ===== MODAL ===== */}
       {isModalOpen && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="p-6 border-b border-gray-200">
@@ -396,7 +397,17 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
                   )}
                 </div>
 
-                {statusFlow[selectedOrder.status] && (
+                {selectedOrder.status === 'processing' && (
+                  <button
+                    onClick={() => setShowScanner(true)}
+                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2"
+                  >
+                    <FontAwesomeIcon icon={faTruck} />
+                    Scan to Ship
+                  </button>
+                )}
+
+                {selectedOrder.status === 'shipped' && (
                   <button
                     onClick={updateStatus}
                     disabled={updating}
@@ -407,7 +418,7 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
                     ) : (
                       <>
                         <FontAwesomeIcon icon={faEdit} />
-                        Mark as {statusConfig[statusFlow[selectedOrder.status]]?.label}
+                        Mark as Delivered
                       </>
                     )}
                   </button>
@@ -416,6 +427,18 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
             </div>
           </div>
         </div>
+      )}
+      {showScanner && (
+        <QRScannerModal
+          order={selectedOrder}
+          onClose={() => setShowScanner(false)}
+          onComplete={() => {
+            setShowScanner(false);
+            closeModal();
+            toast.success("Sale completed!");
+            window.location.reload();
+          }}
+        />
       )}
     </>
   );

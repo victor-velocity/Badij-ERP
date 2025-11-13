@@ -22,7 +22,7 @@ const BarcodeSuccessModal = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 {/* Header with Green Check */}
                 <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 relative">

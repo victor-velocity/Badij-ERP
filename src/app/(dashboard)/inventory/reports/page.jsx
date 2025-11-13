@@ -42,7 +42,7 @@ const ReportsPage = () => {
                     data.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
 
                     const uniqueEmployeeIds = new Set(data.map(t => t.created_by));
-                    const employeePromises = [...uniqueEmployeeIds].map(id => 
+                    const employeePromises = [...uniqueEmployeeIds].map(id =>
                         apiService.getEmployeeById(id, router).then(emp => ({ id, emp }))
                     );
                     const employees = await Promise.all(employeePromises);
@@ -53,8 +53,10 @@ const ReportsPage = () => {
                     setEmployeeMap(empMap);
 
                     const uniqueBatchIds = new Set(data.filter(t => t.batch_id).map(t => t.batch_id));
-                    const batchPromises = [...uniqueBatchIds].map(id => 
-                        apiService.getImportBatchById(id, router).then(b => ({ id, batch: b.data[0] }))
+                    const batchPromises = [...uniqueBatchIds].map(id =>
+                        apiService.getImportBatchById(id, router)
+                            .then(b => ({ id, batch: b?.data?.[0] || null }))
+                            .catch(() => ({ id, batch: null }))
                     );
                     const batches = await Promise.all(batchPromises);
                     const batMap = batches.reduce((map, { id, batch }) => {
@@ -63,9 +65,16 @@ const ReportsPage = () => {
                     }, {});
                     setBatchMap(batMap);
 
-                    const uniqueSupplierIds = new Set(Object.values(batMap).filter(b => b && b.supplier_id).map(b => b.supplier_id));
-                    const supplierPromises = [...uniqueSupplierIds].map(id => 
-                        apiService.getSupplierById(id, router).then(s => ({ id, supplier: s.data[0] }))
+                    const uniqueSupplierIds = new Set(
+                        Object.values(batMap)
+                            .filter(b => b && b.supplier_id)
+                            .map(b => b.supplier_id)
+                    );
+
+                    const supplierPromises = [...uniqueSupplierIds].map(id =>
+                        apiService.getSupplierById(id, router)
+                            .then(s => ({ id, supplier: s?.data?.[0] || null }))
+                            .catch(() => ({ id, supplier: null }))
                     );
                     const suppliers = await Promise.all(supplierPromises);
                     const supMap = suppliers.reduce((map, { id, supplier }) => {
@@ -385,7 +394,7 @@ const ReportsPage = () => {
                                     <dd className="text-gray-900">{selectedDetails.employee.position}</dd>
                                     <dt className="font-medium text-gray-700">Department:</dt>
                                     <dd className="text-gray-900">{selectedDetails.employee.departments?.name || 'N/A'}</dd>
-                                    
+
                                     <dt className="font-medium text-gray-700">Role:</dt>
                                     <dd className="text-gray-900">{selectedDetails.employee.role}</dd>
                                     {selectedDetails.employee.phone_number && (

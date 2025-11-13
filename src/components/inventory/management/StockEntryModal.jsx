@@ -398,9 +398,9 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                             className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                         >
                             <option value="in_stock">In Stock</option>
-                            <option value="sold">Sold</option>
+                            {/* <option value="sold">Sold</option>
                             <option value="damaged">Damaged</option>
-                            <option value="quarantined">Quarantined</option>
+                            <option value="quarantined">Quarantined</option> */}
                         </select>
                     </div>
 

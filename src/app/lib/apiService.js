@@ -425,6 +425,15 @@ const apiService = {
         return callApi(`/stocks/locations/${locationId}`, "GET", null, router);
     },
 
+    sellStockByBarcode: async (barcode, orderId, router) => {
+        const payload = [{
+            barcode,
+            requested_quantity: 1,
+            order_id: orderId
+        }];
+        return callApi("/stocks/sell", "POST", payload, router);
+    },
+
     getCustomers: async (router) => {
         return callApi("/customers", "GET", null, router);
     },
