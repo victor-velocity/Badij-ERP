@@ -425,13 +425,17 @@ const apiService = {
         return callApi(`/stocks/locations/${locationId}`, "GET", null, router);
     },
 
-    sellStockByBarcode: async (barcode, orderId, router) => {
-        const payload = [{
-            barcode,
-            requested_quantity: 1,
-            order_id: orderId
-        }];
+    sellStockBatch: async (items, router) => {
+        const payload = items.map(item => ({
+            box_id: item.box_id,
+            requested_quantity: item.requested_quantity || 1,
+            order_id: item.order_id
+        }));
         return callApi("/stocks/sell", "POST", payload, router);
+    },
+
+    getBoxByBarcode: async (barcode, router) => {
+        return callApi(`/stocks/barcode/${barcode}`, "GET", null, router);
     },
 
     getCustomers: async (router) => {
