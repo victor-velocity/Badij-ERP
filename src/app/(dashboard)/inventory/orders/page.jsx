@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import OrderListTable from "@/components/inventory/orders/OrderListTable";
+import { useRouter, searchParams } from "next/navigation";
+import OrdersClientWrapper from "@/components/inventory/orders/OrdersClientWrapper";
 import apiService from "@/app/lib/apiService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -208,7 +208,7 @@ export default function InventoryOrders() {
             Error: {error}
           </div>
         ) : (
-          <OrderListTable orders={orders} router={router} />
+          <OrdersClientWrapper orders={orders} router={router} />
         )}
       </div>
 

@@ -70,7 +70,7 @@ const SkeletonTable = () => (
   </tbody>
 );
 
-export default function OrderListTable({ orders: initialOrders, router, loading: isLoadingProp = false }) {
+export default function OrderListTable({ orders: initialOrders, router, loading: isLoadingProp = false, autoOpenOrderId = null }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -123,6 +123,19 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
     setSelectedOrder(null);
     setCustomer(null);
   };
+
+  useEffect(() => {
+    if (autoOpenOrderId && initialOrders?.length > 0) {
+      const order = initialOrders.find(o => o.order_id === autoOpenOrderId);
+      if (order) {
+        openModal(order);
+        window.history.replaceState({}, "", "/orders");
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.delete("process");
+        window.history.replaceState({}, "", newUrl);
+      }
+    }
+  }, [autoOpenOrderId, initialOrders]);
 
   const updateStatus = async () => {
     if (!selectedOrder || updating) return;

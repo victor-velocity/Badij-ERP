@@ -2,126 +2,144 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
 import apiService from "@/app/lib/apiService";
 import toast from "react-hot-toast";
+import { faBoxOpen, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export function NewOrdersTable() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
     const router = useRouter();
+    const goldColor = "#b88b1b";
 
     useEffect(() => {
-        const fetchOrders = async () => {
+        const fetchProcessingOrders = async () => {
             try {
                 setLoading(true);
                 const response = await apiService.getOrders(router);
+
                 if (response.status === "success") {
                     const processingOrders = (response.data || [])
                         .filter(order => order.status?.toLowerCase() === 'processing')
                         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
                         .slice(0, 5)
                         .map(order => ({
+                            id: order.order_id,
                             invoice: order.order_number,
-                            date: order.created_at ? new Date(order.created_at).toLocaleDateString('en-US', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric'
-                            }) : 'Not set',
-                            id: order.id
+                            date: order.created_at
+                                ? new Date(order.created_at).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                })
+                                : 'N/A',
+                            rawDate: order.created_at
                         }));
+
                     setOrders(processingOrders);
-                    toast.success("Processing orders fetched successfully!");
+
+                    if (processingOrders.length === 0) {
+                        toast("No new orders to process", { icon: "info" });
+                    } else {
+                        toast.success(`Found ${processingOrders.length} order(s) to process`);
+                    }
                 } else {
-                    setError(response.message || "Failed to fetch orders");
-                    toast.error(response.message || "Failed to fetch orders");
+                    toast.error("Failed to load orders");
                 }
-            } catch (error) {
-                console.error("Error fetching orders:", error);
-                setError(error.message);
-                toast.error(error.message);
+            } catch (err) {
+                console.error("Error fetching processing orders:", err);
+                toast.error("Network error");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchOrders();
+        fetchProcessingOrders();
     }, [router]);
 
-    const handleNavigateToOrders = () => {
-        router.push('/orders');
+    const handleProcessOrder = (orderId) => {
+        router.push(`/inventory/orders?process=${orderId}`);
     };
 
-    const handleProcessOrder = (orderId) => {
-        router.push(`/orders?process=${orderId}`);
+    const handleSeeAllOrders = () => {
+        router.push('/inventory/orders');
     };
 
     return (
-        <div className="bg-white rounded-[20px] h-[400px] overflow-y-auto p-6 shadow-md border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">New Orders</h2>
-                <span 
-                    className="text-sm text-gray-500 cursor-pointer hover:underline transition-all hover:text-gray-700"
-                    onClick={handleNavigateToOrders}
-                >
-                    See all
-                </span>
-            </div>
-            {error && (
-                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {error}
+        <div className="bg-white rounded-2xl border border-gray-200 h-[400px] flex flex-col">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                    <div className="p-3 bg-amber-100 rounded-xl">
+                        <FontAwesomeIcon icon={faBoxOpen} className="w-6 h-6 text-[#b88b1b]" />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-800">New Orders to Process</h2>
+                        <p className="text-sm text-gray-500">Latest 5 processing orders</p>
+                    </div>
                 </div>
-            )}
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-white">
-                        <tr>
-                            <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Invoice Number
-                            </th>
-                            <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date
-                            </th>
-                            <th scope="col" className="relative px-2 py-3">
-                                <span className="sr-only">Process</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {loading ? (
-                            Array.from({ length: 5 }).map((_, index) => (
-                                <tr key={index} className="animate-pulse">
-                                    <td className="px-2 py-4 whitespace-nowrap"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
-                                    <td className="px-2 py-4 whitespace-nowrap"><div className="h-4 bg-gray-200 rounded w-20"></div></td>
-                                    <td className="px-2 py-4 whitespace-nowrap"><div className="h-8 bg-gray-200 rounded w-20"></div></td>
-                                </tr>
-                            ))
-                        ) : orders.length > 0 ? (
-                            orders.map((order, index) => (
-                                <tr key={index}>
-                                    <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {order.invoice}
-                                    </td>
-                                    <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {order.date}
-                                    </td>
-                                    <td className="px-2 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button
-                                            className="px-4 py-2 rounded-md text-white font-medium transition-colors hover:bg-[#685c3e] bg-[#b88b1b]"
-                                            onClick={() => handleProcessOrder(order.id)}
-                                        >
-                                            Process
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="3" className="px-2 py-4 text-center text-sm text-gray-500">
-                                    No processing orders found
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                <button
+                    onClick={handleSeeAllOrders}
+                    className="text-sm font-medium text-[#b88b1b] hover:text-[#8a6d15] transition-colors underline-offset-2 hover:underline"
+                >
+                    See all →
+                </button>
+            </div>
+
+            {/* Table Body */}
+            <div className="flex-1 overflow-y-auto">
+                {loading ? (
+                    <div className="p-6 space-y-4">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="flex items-center justify-between animate-pulse">
+                                <div className="flex items-center gap-4 flex-1">
+                                    <div className="h-10 w-10 bg-gray-200 rounded-lg"></div>
+                                    <div>
+                                        <div className="h-4 bg-gray-200 rounded w-32"></div>
+                                        <div className="h-3 bg-gray-200 rounded w-24 mt-2"></div>
+                                    </div>
+                                </div>
+                                <div className="h-9 w-24 bg-gray-200 rounded-lg"></div>
+                            </div>
+                        ))}
+                    </div>
+                ) : orders.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-gray-500 p-8">
+                        <FontAwesomeIcon icon={faBoxOpen} className="w-16 h-16 text-gray-300 mb-4" />
+                        <p className="text-lg font-medium">All caught up!</p>
+                        <p className="text-sm">No new orders to process right now</p>
+                    </div>
+                ) : (
+                    <div className="p-4 space-y-3">
+                        {orders.map((order) => (
+                            <div
+                                key={order.id}
+                                className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-all group border border-gray-100"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-[#b88b1b] to-[#9a7516] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                        {order.invoice.slice(-3)}
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-gray-900 text-base">
+                                            {order.invoice}
+                                        </p>
+                                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                                            <FontAwesomeIcon icon={faCalendarAlt} className="w-3 h-3" />
+                                            {order.date}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => handleProcessOrder(order.id)}
+                                    className="px-5 py-2.5 bg-[#b88b1b] text-white font-medium rounded-lg hover:bg-[#9a7516] transition-all transform hover:scale-105 shadow-md group-hover:shadow-lg"
+                                >
+                                    Process
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
