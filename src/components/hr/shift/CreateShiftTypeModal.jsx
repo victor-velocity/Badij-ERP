@@ -2,45 +2,53 @@
 
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import apiService from '@/app/lib/apiService';
 
-export default function CreateShiftTypeModal({ isOpen, onClose, onCreateShiftType }) {
+export default function CreateShiftTypeModal({ isOpen, onClose, onSuccess }) {
     const [name, setName] = useState('');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const router = useRouter();
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!name) {
-            toast.error("Shift name is required.");
-            return;
-        }
+        if (!name.trim()) return toast.error("Shift name is required.");
+        if (!startTime || !endTime) return toast.error("Both times are required.");
 
-        if (!startTime || !endTime) {
-            toast.error("Start and end times are required.");
-            return;
+        if (startTime >= endTime) {
+            return toast.error("End time must be after start time.");
         }
 
         setLoading(true);
+
         try {
-            await onCreateShiftType({
-                name,
-                start_time: startTime,
-                end_time: endTime
-            });
+            const formatTime = (t => t.length === 5 ? `${t}:00` : t);
+
+            const shiftData = {
+                name: name.trim(),
+                start_time: formatTime(startTime),
+                end_time: formatTime(endTime),
+            };
+
+            await apiService.createShift(shiftData, router);
+
+            toast.success("Shift type created successfully!");
             setName('');
             setStartTime('');
             setEndTime('');
+            onSuccess?.();
             onClose();
         } catch (error) {
-            console.error("Error creating shift type:", error);
-            toast.error(error.message || "Failed to create shift type.");
+            console.error(error);
+            toast.error(error.message || "Failed to create shift type");
         } finally {
             setLoading(false);
         }
     };
-
     if (!isOpen) return null;
 
     return (
@@ -52,8 +60,9 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onCreateShiftTyp
                     onClick={onClose}
                     className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
                     disabled={loading}
+                    type="button"
                 >
-                    &times;
+                    ×
                 </button>
 
                 <form onSubmit={handleSubmit}>
@@ -69,12 +78,13 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onCreateShiftTyp
                             onChange={(e) => setName(e.target.value)}
                             required
                             disabled={loading}
+                            placeholder="e.g., Morning Shift"
                         />
                     </div>
 
                     <div className="mb-4">
                         <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">
-                            Start Time (HH:MM:SS)
+                            Start Time
                         </label>
                         <input
                             type="time"
@@ -86,11 +96,12 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onCreateShiftTyp
                             required
                             disabled={loading}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Format: HH:MM:SS (24-hour)</p>
                     </div>
 
                     <div className="mb-6">
                         <label htmlFor="endTime" className="block text-sm font-medium text-gray-700">
-                            End Time (HH:MM:SS)
+                            End Time
                         </label>
                         <input
                             type="time"
@@ -102,6 +113,7 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onCreateShiftTyp
                             required
                             disabled={loading}
                         />
+                        <p className="text-xs text-gray-500 mt-1">Format: HH:MM:SS (24-hour)</p>
                     </div>
 
                     <div className="flex justify-end space-x-3">
@@ -115,8 +127,8 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onCreateShiftTyp
                         </button>
                         <button
                             type="submit"
-                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b] disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={loading}
+                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? "Creating..." : "Create Shift Type"}
                         </button>

@@ -25,6 +25,7 @@ const ComponentModal = ({ type, component, onClose, onSave }) => {
                 sku: component.sku || '',
                 name: component.name || '',
                 description: component.description || '',
+                color: component.color || '',
                 component_image: component.component_image || ''
             });
         } else if (type === 'add') {
@@ -32,6 +33,7 @@ const ComponentModal = ({ type, component, onClose, onSave }) => {
                 sku: '',
                 name: '',
                 description: '',
+                color: '',
                 component_image: ''
             });
         }
@@ -158,6 +160,18 @@ const ComponentModal = ({ type, component, onClose, onSave }) => {
                                 onChange={handleChange} 
                                 className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] transition duration-200" 
                                 rows="3"
+                                disabled={saving || uploading}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-1">Color</label>
+                            <input
+                                type="text"
+                                name="color"
+                                value={formData.color || ''}
+                                onChange={handleChange}
+                                placeholder="e.g. Black, Blue Mesh, White"
+                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] transition duration-200"
                                 disabled={saving || uploading}
                             />
                         </div>

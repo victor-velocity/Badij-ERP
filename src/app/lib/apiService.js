@@ -214,7 +214,7 @@ const apiService = {
 
     getShiftById: async (shiftId, router) => {
         return callApi(`/shift_types/${shiftId}`, "GET", null, router);
-    },
+    }, 
 
     createShift: async (shiftData, router) => {
         return callApi("/shift_types", "POST", shiftData, router);

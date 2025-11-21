@@ -97,7 +97,7 @@ export default function ManageShiftTypesModal({ isOpen, onClose, shiftTypes, onU
                                                 type="text"
                                                 value={type.name || ''}
                                                 onChange={(e) => handleInputChange(type.id, 'name', e.target.value)}
-                                                className="mt-1 block w-full px-3 py-2 border rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                                className="mt-1 w-28 block px-3 py-2 border rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
                                             />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

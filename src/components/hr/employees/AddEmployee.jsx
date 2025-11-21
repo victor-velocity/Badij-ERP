@@ -11,7 +11,6 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const totalSteps = 4;
 
-    // Initialize all form fields with empty strings instead of undefined
     const [newEmployee, setNewEmployee] = useState({
         first_name: '',
         last_name: '',
@@ -90,7 +89,6 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
         }
     }, [isOpen]);
 
-    // Validates all required fields before submission
     const validateAllFields = useCallback(() => {
         const requiredFields = {
             1: ['first_name', 'last_name', 'email', 'date_of_birth', 'marital_status', 'gender'],
@@ -228,17 +226,14 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
         const allChars = lowerCaseChars + upperCaseChars + numberChars;
 
         let password = '';
-        // Ensure at least one of each required type
         password += lowerCaseChars.charAt(Math.floor(Math.random() * lowerCaseChars.length));
         password += upperCaseChars.charAt(Math.floor(Math.random() * upperCaseChars.length));
         password += numberChars.charAt(Math.floor(Math.random() * numberChars.length));
 
-        // Fill the rest of the password length
         for (let i = password.length; i < length; i++) {
             password += allChars.charAt(Math.floor(Math.random() * allChars.length));
         }
 
-        // Shuffle the password to ensure randomness of character positions
         return password.split('').sort(() => 0.5 - Math.random()).join('');
     };
 
@@ -309,6 +304,33 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
             };
 
             await apiService.createEmployee(employeeDataToInsert);
+            
+            const fullName = `${newEmployee.first_name.trim()} ${newEmployee.last_name.trim()}`;
+            const departmentName = departments.find(d => d.id === Number(newEmployee.department_id))?.name || newEmployee.department_id || 'Not Assigned';
+
+            try {
+                const welcomeResponse = await fetch('/api/send-employee-welcome', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: newEmployee.email,
+                        fullName,
+                        temporaryPassword,
+                        role: newEmployee.role,
+                        position: newEmployee.position || 'Employee',
+                        department: departmentName,
+                    }),
+                });
+
+                if (!welcomeResponse.ok) {
+                    const err = await welcomeResponse.json();
+                    console.warn('Welcome email failed:', err);
+                    toast.warning('Employee added successfully, but welcome email could not be sent.');
+                }
+            } catch (emailErr) {
+                console.error('Email send error:', emailErr);
+                toast.warning('Account created! Login details email failed (will be sent manually).');
+            }
 
             toast.success('Employee registered successfully!');
 

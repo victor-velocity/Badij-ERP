@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
+    "@emailjs/nodejs": "^5.0.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
@@ -21,6 +23,7 @@
     "csv-parser": "^3.2.0",
     "csv-stringify": "^6.6.0",
     "date-fns": "^4.1.0",
+    "emailjs": "^4.0.3",
     "formidable": "^3.5.4",
     "html2canvas": "^1.4.1",
     "html5-qrcode": "^2.3.8",
@@ -36,6 +39,7 @@
     "react-modal": "^3.16.3",
     "react-toast": "^1.0.3",
     "recharts": "^3.2.1",
+    "resend": "^6.4.2",
     "stream-chat": "^9.11.0",
     "stream-chat-react": "^13.2.3",
     "xlsx": "^0.18.5"

@@ -21,6 +21,9 @@ const SkeletonRow = () => (
       <div className="h-4 bg-gray-200 rounded w-32"></div>
     </td>
     <td className="px-4 py-4">
+      <div className="h-4 bg-gray-200 rounded w-32"></div>
+    </td>
+    <td className="px-4 py-4">
       <div className="h-4 bg-gray-200 rounded w-24"></div>
     </td>
     <td className="px-4 py-4">
@@ -196,7 +199,7 @@ export default function ComponentsTable({ onDataChange }) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-white">
               <tr>
-                {['Image', 'Name', 'SKU', 'Stock', 'Description', 'Actions'].map((header) => (
+                {['Image', 'Name', 'SKU', 'Color', 'Stock', 'Description', 'Actions'].map((header) => (
                   <th key={header} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="h-4 bg-gray-200 rounded w-16 mx-auto animate-pulse"></div>
                   </th>
@@ -283,6 +286,7 @@ export default function ComponentsTable({ onDataChange }) {
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Store Keeping Unit(SKU)</th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Quantity</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -315,6 +319,9 @@ export default function ComponentsTable({ onDataChange }) {
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                     {component.sku}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {component.color || '—'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                     <span className={`px-2 py-1 rounded-full text-xs ml-8 font-medium ${

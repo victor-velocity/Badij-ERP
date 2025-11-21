@@ -1,7 +1,6 @@
-// app/api/send-invoice/route.js
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import pRetry from 'p-retry'; 
+import pRetry from 'p-retry';
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',

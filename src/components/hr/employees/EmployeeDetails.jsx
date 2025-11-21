@@ -3,6 +3,9 @@
 
 import React, { useState, useEffect } from "react";
 import apiService from "@/app/lib/apiService";
+import Image from "next/image";
+import { faLocation, faPhone } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const DEFAULT_AVATAR = "/default-profile.png";
 
@@ -42,6 +45,7 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
   const [paymentHistory, setPaymentHistory] = useState([]);    // full payroll history
   const [loadingCurrent, setLoadingCurrent] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [showIdCard, setShowIdCard] = useState(false);
 
   // Load current month salary + details
   useEffect(() => {
@@ -85,6 +89,18 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
   const details = currentData?.["month-yearemployee_details"] ?? rawEmployee;
   const salary = currentData?.salary ?? {};
   const fullName = `${details.first_name ?? ""} ${details.last_name ?? ""}`.trim();
+
+  // ==================== ID CARD DATA (Fix for ReferenceError) ====================
+  const positionUpper = (rawEmployee.position || "Employee").toUpperCase();
+  const departmentUpper = capitalize(details.department || "Department").toUpperCase();
+  const employeeId = `MJ-${String(rawEmployee.id || "00000").padStart(5, "0")}`;
+
+  const hireDateObj = rawEmployee.hire_date ? new Date(rawEmployee.hire_date) : null;
+  const issueDate = hireDateObj ? formatDate(rawEmployee.hire_date) : "—";
+  const expiryDate = hireDateObj
+    ? formatDate(new Date(hireDateObj.getFullYear() + 5, hireDateObj.getMonth(), hireDateObj.getDate()))
+    : "—";
+  // =================================================================================
 
   const isLoading = loadingCurrent || loadingHistory;
 
@@ -181,13 +197,12 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
                   <span className="font-medium text-gray-600">Status:</span>
                   <p className="font-semibold text-gray-800">
                     <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                        rawEmployee.employment_status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : rawEmployee.employment_status === "on leave"
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${rawEmployee.employment_status === "active"
+                        ? "bg-green-100 text-green-800"
+                        : rawEmployee.employment_status === "on leave"
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-red-100 text-red-800"
-                      }`}
+                        }`}
                     >
                       {capitalize(rawEmployee.employment_status)}
                     </span>
@@ -258,8 +273,8 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
                   <p className="text-xl font-bold text-green-800">
                     {formatCurrency(
                       Number(salary.base_salary ?? 0) +
-                        Number(salary.bonus ?? 0) +
-                        Number(salary.incentives ?? 0)
+                      Number(salary.bonus ?? 0) +
+                      Number(salary.incentives ?? 0)
                     )}
                   </p>
                 </div>
@@ -295,12 +310,23 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
             </section>
           ) : paymentHistory.length > 0 ? (
             <section>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <svg className="w-5 h-5 mr-2 text-[#b88b1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Payment History
-              </h3>
+              <div className="flex justify-between items-center mb-6 gap-5 flex-wrap">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-[#b88b1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Payment History
+                </h3>
+                <button
+                  onClick={() => setShowIdCard(true)}
+                  className="flex items-center gap-2 bg-[#b88b1b] hover:bg-[#d4a53b] text-white font-medium py-2 px-4 rounded-lg shadow-lg transition transform hover:scale-105 mr-3 "
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h10m-9 4h8a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Print ID Card
+                </button>
+              </div>
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {paymentHistory.map((p, i) => (
                   <div
@@ -358,6 +384,75 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
                 ))}
               </div>
             </section>
+          )}
+          {showIdCard && (
+            <div
+              className="fixed inset-0 bg-white z-50 flex items-center justify-center overflow-auto print:bg-white"
+              onClick={() => setShowIdCard(false)}
+            >
+              <div className="relative min-w-4xl w-full p-8 flex" onClick={(e) => e.stopPropagation()}>
+                <div className="flex gap-16 mt-20 print:mt-0 print:gap-12 w-full mx-auto">
+                  {/* FRONT */}
+                  <div className="h-[85mm] w-[50mm] bg-cover bg-center relative" style={{ backgroundImage: 'url("/id-card-01.svg")' }}>
+                    <Image src={details.avatar_url || DEFAULT_AVATAR}
+                      alt={fullName} width={100} height={100} className="w-18 h-18 rounded-full absolute top-[50.4px] left-[22.45px] translate-x-1/2 object-cover" />
+                    <Image src='/logo-icon.jpg' width={100} height={100} alt="id card front page" className="w-7 absolute top-[50.4px] right-6 translate-x-1/2" />
+                    <div className="absolute translate-x-1/2 -left-1/2 top-32 w-full">
+                      <h2 className="text-center font-bold text-xl text-[#b88b1b]">{fullName || "Employee Name"}</h2>
+                      <h4 className="text-center text-[14px] font-semibold">{rawEmployee.position || "Position"}</h4>
+                      <hr className="w-[80%] text-[#b88b1b] mx-auto h-[2px] mt-2" />
+                    </div>
+                    <div className="absolute bottom-[48px] left-1/2 -translate-x-1/2">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(
+                          JSON.stringify({
+                            name: fullName,
+                            dob: formatDate(rawEmployee.date_of_birth),
+                            department: capitalize(details.department || "N/A"),
+                            position: rawEmployee.position || "N/A",
+                            status: capitalize(rawEmployee.employment_status || "active"),
+                            id: employeeId,
+                            issued: issueDate,
+                            expires: expiryDate,
+                          })
+                        )}`}
+                        alt="Employee Details QR"
+                        className="w-20 h-20 mx-auto shadow-md"
+                      />
+                    </div>
+                  </div>
+
+                  {/* BACK */}
+                  <div className="h-[85mm] w-[50mm] bg-cover bg-center relative" style={{ backgroundImage: 'url("/id-card-02.svg")' }}>
+                    <Image src='/madisonjayng_logo.png' width={100} height={100} alt="id card front page" className="w-32 absolute top-[54px] -left-[37px] translate-x-1/2" />
+                    <div className="absolute mx-2 top-24 w-[96%]">
+                      <p className="text-[11.7px] text-gray-700">This is a property of <strong>Madison Jay</strong> and if found, kindly return to the address below or contact:</p>
+                      <p className="text-[12px] text-gray-700 mt-2"><strong> <FontAwesomeIcon icon={faPhone} /> </strong> 09046746391, 08167392756</p>
+                      <p className="text-[12px] text-gray-700 mt-2"><strong> <FontAwesomeIcon icon={faLocation} /> </strong> Alhaji Kanke CLose, Ikoyi, Lagos.</p>
+                    </div>
+
+                    <div className="absolute w-full bottom-10">
+                      <hr className="w-[80%] mx-auto" />
+                      <p className="text-center font-bold text-[14px] text-gray-500">Supervisor</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 flex gap-8 print:hidden z-50">
+                  <button
+                    onClick={() => window.print()}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-2xl transition transform hover:scale-105"
+                  >
+                    Print
+                  </button>
+                  <button
+                    onClick={() => setShowIdCard(false)}
+                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-2xl transition transform hover:scale-105"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

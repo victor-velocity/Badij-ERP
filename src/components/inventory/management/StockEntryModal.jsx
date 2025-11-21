@@ -153,20 +153,21 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
 
         setLoading(true);
 
+        const selectedItemName = getSelectedItemName();
+
         try {
             const response = await apiService.createStockEntry(formData);
 
             if (response.status === 'success') {
-                // FIX: Define firstBox from response.data[0]
                 const firstBox = response.data?.[0] ?? {};
 
                 setSuccessData({
                     barcodes: response.barcodes,
                     pdf: response.pdf,
-                    itemName: firstBox.name ?? 'Unknown Item',
+                    itemName: selectedItemName,
                     batchId: formData.batch_id,
                     boxesCount: formData.boxes_count,
-                    quantityInBox: firstBox.quantity_in_box ?? formData.quantity_in_box, // fallback
+                    quantityInBox: firstBox.quantity_in_box ?? formData.quantity_in_box,
                 });
 
                 setShowSuccessModal(true);
@@ -175,7 +176,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                 toast.error(response.message || 'Failed to create stock entry');
             }
         } catch (error) {
-            console.error('Stock entry error:', error); // Debug
+            console.error('Stock entry error:', error);
             toast.error(
                 error.response?.data?.message ||
                 error.message ||

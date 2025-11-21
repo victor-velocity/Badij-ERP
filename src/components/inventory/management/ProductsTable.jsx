@@ -23,6 +23,9 @@ const SkeletonRow = () => (
       <div className="h-4 bg-gray-200 rounded w-24"></div>
     </td>
     <td className="px-4 py-4">
+      <div className="h-4 bg-gray-200 rounded w-24"></div>
+    </td>
+    <td className="px-4 py-4">
       <div className="h-4 bg-gray-200 rounded w-20"></div>
     </td>
     <td className="px-4 py-4">
@@ -201,7 +204,7 @@ export default function ProductsTable({ onDataChange }) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-white">
               <tr>
-                {['Image', 'Name', 'SKU', 'Price', 'Description', 'Actions'].map((header) => (
+                {['Image', 'Name', 'SKU', 'Color', 'Price', 'Description', 'Actions'].map((header) => (
                   <th key={header} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="h-4 bg-gray-200 rounded w-16 mx-auto animate-pulse"></div>
                   </th>
@@ -234,7 +237,7 @@ export default function ProductsTable({ onDataChange }) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
         <p className="text-red-700">Error: {error}</p>
-        <button 
+        <button
           onClick={loadProducts}
           className="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
         >
@@ -278,6 +281,7 @@ export default function ProductsTable({ onDataChange }) {
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Store Keeping Unit(SKU)</th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color(SKU)</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -295,10 +299,10 @@ export default function ProductsTable({ onDataChange }) {
                 <tr key={product.product_id}>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.product_image ? (
-                      <img 
-                        src={product.product_image} 
-                        alt={product.name} 
-                        className="w-16 h-16 object-cover rounded-md cursor-pointer" 
+                      <img
+                        src={product.product_image}
+                        alt={product.name}
+                        className="w-16 h-16 object-cover rounded-md cursor-pointer"
                         onClick={() => setExpandedImage(product.product_image)}
                       />
                     ) : (
@@ -312,6 +316,9 @@ export default function ProductsTable({ onDataChange }) {
                     {product.sku}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {product.color || '—'}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                     ₦{product.price?.toLocaleString()}
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-500 whitespace-nowrap">
@@ -319,8 +326,8 @@ export default function ProductsTable({ onDataChange }) {
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-4">
-                      <button 
-                        className="hover:text-blue-700 text-blue-500 transition-colors duration-200" 
+                      <button
+                        className="hover:text-blue-700 text-blue-500 transition-colors duration-200"
                         aria-label="Edit"
                         onClick={() => {
                           setSelectedProduct(product);

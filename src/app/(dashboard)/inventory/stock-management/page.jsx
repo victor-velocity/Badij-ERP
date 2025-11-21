@@ -9,7 +9,7 @@ import StockEntryModal from "@/components/inventory/management/StockEntryModal";
 const StockManagement = () => {
     const [currentDateTime, setCurrentDateTime] = useState('');
     const [greeting, setGreeting] = useState('');
-    const [filter, setFilter] = useState('all'); // 'all', 'products', 'components'
+    const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
@@ -49,7 +49,6 @@ const StockManagement = () => {
         return () => clearInterval(intervalId);
     }, []);
 
-    // Reset to first page when filter or search changes
     useEffect(() => {
         setCurrentPage(1);
     }, [filter, searchTerm]);
