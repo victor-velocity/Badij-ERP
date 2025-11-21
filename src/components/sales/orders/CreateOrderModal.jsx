@@ -791,6 +791,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                         onChange={(e) => setAccountName(e.target.value)}
                                         className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                                         required
+                                        disabled
                                     />
                                 </div>
                                 <div className="mb-4">
@@ -801,6 +802,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                         onChange={(e) => setAccountNumber(e.target.value)}
                                         className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                                         required
+                                        disabled
                                     />
                                 </div>
                                 <div className="mb-4">
@@ -811,6 +813,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                         onChange={(e) => setBankName(e.target.value)}
                                         className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
                                         required
+                                        disabled
                                     />
                                 </div>
                             </>

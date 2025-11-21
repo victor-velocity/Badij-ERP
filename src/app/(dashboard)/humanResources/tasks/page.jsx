@@ -102,7 +102,7 @@ export default function TaskPage() {
                 const bCreated = b.created_at ? new Date(b.created_at) : null;
 
                 if (aCreated && bCreated) {
-                    return bCreated - aCreated; // Descending: newest first
+                    return bCreated - aCreated;
                 }
                 if (aCreated) return -1;
                 if (bCreated) return 1;
