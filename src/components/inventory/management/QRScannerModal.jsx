@@ -57,6 +57,12 @@ export default function QRScannerModal({ order, onClose, onComplete }) {
       setIsScanning(true);
       toast.loading("Validating QR code...");
 
+      const playBeep = () => {
+        const audio = new Audio("/sounds/qr-beep.mp3");
+        audio.volume = 0.9;
+        audio.play().catch((e) => console.log("Audio play failed (user interaction required):", e));
+      };
+
       try {
         const boxRes = await apiService.getBoxByBarcode(decodedText);
         if (!boxRes?.data) throw new Error("Box not found");
@@ -70,13 +76,11 @@ export default function QRScannerModal({ order, onClose, onComplete }) {
           throw new Error("Invalid product in box");
         }
 
-        // Check if this product is in the order
         const expectedQty = orderQtyMap.current[productName];
         if (expectedQty === undefined) {
           throw new Error("This product is not part of this order");
         }
 
-        // Count how many units of this product already scanned
         const alreadyScannedUnits = itemsToScan
           .filter((i) => i.product_name === productName)
           .reduce((sum, i) => sum + i.requested_quantity, 0);
@@ -87,6 +91,8 @@ export default function QRScannerModal({ order, onClose, onComplete }) {
         }
 
         const qtyToTake = Math.min(quantityInBox, remainingNeeded);
+
+        playBeep();
 
         setPendingItem({
           barcode: decodedText,
@@ -99,8 +105,13 @@ export default function QRScannerModal({ order, onClose, onComplete }) {
         setShowConfirmModal(true);
 
         toast.dismiss();
-        toast.success("QR Code Validated!");
+        toast.success("QR Code Scanned & Validated!", {
+          icon: "Success",
+          duration: 2000,
+        });
       } catch (err) {
+        new Audio("/sounds/error-beep.mp3").play().catch(() => { });
+
         toast.dismiss();
         toast.error(err.message || "Invalid QR Code");
       } finally {
@@ -125,7 +136,7 @@ export default function QRScannerModal({ order, onClose, onComplete }) {
     setScanner(html5Scanner);
 
     return () => {
-      scannerRef.current?.clear().catch(() => {});
+      scannerRef.current?.clear().catch(() => { });
       scannerRef.current = null;
     };
   }, [order?.order_id, isScanning, itemsToScan]);
