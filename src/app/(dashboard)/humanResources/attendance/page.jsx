@@ -8,6 +8,63 @@ import { Toaster } from 'react-hot-toast';
 
 const DEFAULT_AVATAR = 'https://placehold.co/40x40/cccccc/000000?text=U';
 
+// ── Helper: Safely extract primary status ─────
+const getPrimaryStatus = (status) => {
+  if (Array.isArray(status) && status.length > 0) return status[0];
+  return typeof status === 'string' ? status : null;
+};
+
+// ── Format status for display ─────
+const formatStatusDisplay = (status) => {
+  if (Array.isArray(status) && status.length > 0) {
+    return status.map(s => s.replace(/-/g, ' ')).join(' | ');
+  }
+  return typeof status === 'string' ? status.replace(/-/g, ' ') : 'Unknown';
+};
+
+// ── Status Color Mapping ─────
+const getStatusColor = (status) => {
+  const primary = getPrimaryStatus(status)?.toLowerCase();
+
+  switch (primary) {
+    case 'in-time':
+    case 'present':
+      return 'bg-green-100 text-green-800';
+    case 'absent':
+      return 'bg-red-100 text-red-800';
+    case 'late':
+      return 'bg-orange-100 text-orange-800';
+    case 'early-departure':
+      return 'bg-purple-100 text-purple-800';
+    case 'on-leave':
+      return 'bg-blue-100 text-blue-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
+// ── Safe Avatar Component with Fallback ─────
+const SafeAvatar = ({ src, alt = "", className = "h-10 w-10 rounded-full object-cover" }) => {
+  const [imgSrc, setImgSrc] = useState(src || DEFAULT_AVATAR);
+
+  useEffect(() => {
+    if (src && src !== DEFAULT_AVATAR) {
+      setImgSrc(src);
+    } else {
+      setImgSrc(DEFAULT_AVATAR);
+    }
+  }, [src]);
+
+  return (
+    <img
+      src={imgSrc}
+      alt={alt}
+      className={className}
+      onError={() => setImgSrc(DEFAULT_AVATAR)}
+    />
+  );
+};
+
 const TableRowSkeleton = () => (
   <tbody className="divide-y divide-gray-200 animate-pulse">
     {[...Array(5)].map((_, i) => (
@@ -21,7 +78,7 @@ const TableRowSkeleton = () => (
             </div>
           </div>
         </td>
-        {[...Array(7)].map((_, j) => (
+        {[...Array(6)].map((_, j) => (
           <td key={j} className="px-6 py-4 whitespace-nowrap">
             <div className="h-4 bg-gray-300 rounded w-16"></div>
           </td>
@@ -66,13 +123,12 @@ const AttendanceRecordTable = () => {
   const [syncStart, setSyncStart] = useState('');
   const [syncEnd, setSyncEnd] = useState('');
   const [syncLoading, setSyncLoading] = useState(false);
-  const [syncMessage, setSyncMessage] = useState('');
 
-  // ── Biometric Management Modal ───────────────
+  // ── Biometric Modal ──────────────────────────
   const [showManageBiometricModal, setShowManageBiometricModal] = useState(false);
   const [biometricSearch, setBiometricSearch] = useState('');
 
-  // ── Fetch Employees (with biotime_id) ────────
+  // ── Fetch Employees ──────────────────────────
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -101,20 +157,10 @@ const AttendanceRecordTable = () => {
         const last30 = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
 
         switch (filterByDate) {
-          case 'today':
-            filters.start_date = filters.end_date = today;
-            break;
-          case 'yesterday':
-            filters.start_date = filters.end_date = yesterday;
-            break;
-          case 'last7days':
-            filters.start_date = last7;
-            filters.end_date = today;
-            break;
-          case 'last30days':
-            filters.start_date = last30;
-            filters.end_date = today;
-            break;
+          case 'today': filters.start_date = filters.end_date = today; break;
+          case 'yesterday': filters.start_date = filters.end_date = yesterday; break;
+          case 'last7days': filters.start_date = last7; filters.end_date = today; break;
+          case 'last30days': filters.start_date = last30; filters.end_date = today; break;
         }
       }
 
@@ -132,7 +178,7 @@ const AttendanceRecordTable = () => {
     fetchAttendance();
   }, [filterByDate, customStartDate, customEndDate]);
 
-  // ── Real-time clock ──────────────────────────
+  // ── Real-time Clock ──────────────────────────
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -153,7 +199,7 @@ const AttendanceRecordTable = () => {
     return () => clearInterval(id);
   }, []);
 
-  // ── Helpers ──────────────────────────────────
+  // ── Employee Map ─────────────────────────────
   const employeeMap = useMemo(() => {
     return employees.reduce((map, emp) => {
       map[emp.id] = emp;
@@ -161,6 +207,7 @@ const AttendanceRecordTable = () => {
     }, {});
   }, [employees]);
 
+  // ── Filtered Records ─────────────────────────
   const filteredAttendanceRecords = useMemo(() => {
     let filtered = attendanceRecords;
 
@@ -173,7 +220,7 @@ const AttendanceRecordTable = () => {
           emp.first_name?.toLowerCase().includes(term) ||
           emp.last_name?.toLowerCase().includes(term) ||
           emp.email?.toLowerCase().includes(term) ||
-          (emp.biotime_id && emp.biotime_id.toLowerCase().includes(term))
+          (emp.biotime_id && emp.biotime_id.toString().includes(term))
         );
       });
     }
@@ -194,12 +241,12 @@ const AttendanceRecordTable = () => {
   useEffect(() => {
     const summary = { present: 0, absent: 0, late: 0, onLeave: 0, earlyDeparture: 0, others: 0 };
     filteredAttendanceRecords.forEach(r => {
-      const s = r.status?.toLowerCase();
-      if (s === 'in-time' || s === 'present') summary.present++;
-      else if (s === 'absent') summary.absent++;
-      else if (s === 'late') summary.late++;
-      else if (s === 'on-leave') summary.onLeave++;
-      else if (s === 'early-departure') summary.earlyDeparture++;
+      const primary = getPrimaryStatus(r.status)?.toLowerCase();
+      if (['in-time', 'present'].includes(primary)) summary.present++;
+      else if (primary === 'absent') summary.absent++;
+      else if (primary === 'late') summary.late++;
+      else if (primary === 'on-leave') summary.onLeave++;
+      else if (primary === 'early-departure') summary.earlyDeparture++;
       else summary.others++;
     });
     setAttendanceSummary(summary);
@@ -210,35 +257,27 @@ const AttendanceRecordTable = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredAttendanceRecords.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredAttendanceRecords.length / itemsPerPage);
-
   const paginate = page => setCurrentPage(page);
 
-  // ── Open Sync Modal with defaults ────────────
+  // ── Sync Modal Handlers ──────────────────────
   const handleOpenSyncModal = () => {
     const today = new Date().toISOString().split('T')[0];
     const last30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     setSyncStart(last30);
     setSyncEnd(today);
-    setSyncMessage('');
     setShowSyncModal(true);
   };
 
-  // ── Perform Sync ─────────────────────────────
   const performSync = async () => {
     if (!syncStart || !syncEnd) {
       toast.error('Please select both dates');
       return;
     }
     setSyncLoading(true);
-    setSyncMessage('');
     try {
-      await apiService.syncAttendanceTransactions(
-        { start_date: syncStart, end_date: syncEnd },
-        router
-      );
+      await apiService.syncAttendanceTransactions({ start_date: syncStart, end_date: syncEnd }, router);
       toast.success('Sync completed successfully!');
-      fetchAttendance(); // refresh table
-      // auto-close after 2s
+      fetchAttendance();
       setTimeout(() => setShowSyncModal(false), 2000);
     } catch (err) {
       toast.error(`Error: ${err.message}`);
@@ -247,7 +286,7 @@ const AttendanceRecordTable = () => {
     }
   };
 
-  // ── Enroll / Delete Biometric ────────────────
+  // ── Biometric Management ─────────────────────
   const refreshEmployees = async () => {
     const data = await apiService.getEmployees(router);
     setEmployees(data || []);
@@ -275,7 +314,7 @@ const AttendanceRecordTable = () => {
     }
   };
 
-  // ── Calendar (unchanged) ─────────────────────
+  // ── Calendar View ────────────────────────────
   const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
   const getFirstDayOfMonth = (y, m) => new Date(y, m, 1).getDay();
 
@@ -306,16 +345,21 @@ const AttendanceRecordTable = () => {
       const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const dayRecords = filteredAttendanceRecords.filter(r => r.date === dateStr);
       const total = dayRecords.length;
-      const attended = dayRecords.filter(r =>
-        ['in-time', 'present', 'late', 'early-departure'].includes(r.status?.toLowerCase())
-      ).length;
+      const attended = dayRecords.filter(r => {
+        const primary = getPrimaryStatus(r.status)?.toLowerCase();
+        return ['in-time', 'present', 'late', 'early-departure'].includes(primary);
+      }).length;
       const pct = total > 0 ? Math.round((attended / total) * 100) : 0;
 
       cells.push(
         <div
           key={`d-${d}`}
           className={`p-2 text-center border rounded-md border-gray-200 flex flex-col items-center justify-center text-white ${getStatusColorForCalendar(pct)}`}
-          title={dayRecords.map(r => `${employeeMap[r.employee?.id]?.first_name || ''} ${employeeMap[r.employee?.id]?.last_name || ''}: ${r.status}`).join('\n')}
+          title={dayRecords.map(r => {
+            const emp = employeeMap[r.employee?.id];
+            const name = emp ? `${emp.first_name} ${emp.last_name}` : 'Unknown';
+            return `${name}: ${formatStatusDisplay(r.status)}`;
+          }).join('\n')}
         >
           <span className="font-semibold text-sm">{d}</span>
           {total > 0 ? (
@@ -333,13 +377,13 @@ const AttendanceRecordTable = () => {
       <div className="mt-8">
         <div className="flex justify-between items-center mb-4">
           <button onClick={() => handleMonthChange(-1)} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-[#b88b1b] hover:text-white transition-all">
-            &lt; Prev
+            Prev
           </button>
           <h3 className="text-lg font-semibold">
             {currentMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })}
           </h3>
           <button onClick={() => handleMonthChange(1)} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-[#b88b1b] hover:text-white transition-all">
-            Next &gt;
+            Next
           </button>
         </div>
         <div className="grid grid-cols-7 gap-2 text-sm font-medium text-gray-700 mb-2 text-center">
@@ -356,6 +400,7 @@ const AttendanceRecordTable = () => {
     );
   };
 
+  // ── Formatters ───────────────────────────────
   const formatTime = iso => (iso ? new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '—');
   const formatDate = iso => {
     if (!iso) return '—';
@@ -364,30 +409,13 @@ const AttendanceRecordTable = () => {
       .replace(/(\w+) (\d+), (\d+)/, '$2 of $1 $3');
   };
 
-  const getStatusColor = status => {
-    switch (status?.toLowerCase()) {
-      case 'in-time':
-      case 'present':
-        return 'bg-green-100 text-green-800';
-      case 'absent':
-        return 'bg-red-100 text-red-800';
-      case 'late':
-        return 'bg-orange-100 text-orange-800';
-      case 'early-departure':
-        return 'bg-purple-100 text-purple-800';
-      case 'on-leave':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   // ── RENDER ───────────────────────────────────
   if (error) return <div className="text-center py-8 text-red-600">Error: {error}</div>;
 
   return (
     <div className="relative">
       <Toaster position="top-right" />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-5 mb-14">
         <div>
@@ -415,22 +443,16 @@ const AttendanceRecordTable = () => {
         </button>
       </div>
 
-      {/* Action Buttons (Sync + Manage Biometric) */}
+      {/* Action Buttons */}
       <div className="mb-8 flex flex-col sm:flex-row justify-end gap-4">
-        <button
-          onClick={handleOpenSyncModal}
-          className="px-6 py-3 bg-[#b88b1b] text-white font-semibold rounded-lg hover:bg-[#a07917] transition-all shadow-md"
-        >
-          🔄 Sync Attendance
+        <button onClick={handleOpenSyncModal} className="px-6 py-3 bg-[#b88b1b] text-white font-semibold rounded-lg hover:bg-[#a07917] transition-all shadow-md">
+          Sync Attendance
         </button>
         <button
-          onClick={() => {
-            setBiometricSearch('');
-            setShowManageBiometricModal(true);
-          }}
+          onClick={() => { setBiometricSearch(''); setShowManageBiometricModal(true); }}
           className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md"
         >
-          👥 Manage Biometric Enrollment
+          Manage Biometric Enrollment
         </button>
       </div>
 
@@ -444,10 +466,7 @@ const AttendanceRecordTable = () => {
               placeholder="Search employee..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
               value={searchTerm}
-              onChange={e => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             />
             <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -510,7 +529,7 @@ const AttendanceRecordTable = () => {
             <p className="text-sm font-medium text-orange-700">Late</p>
             <p className="text-2xl font-bold text-orange-800">{attendanceSummary.late}</p>
           </div>
-          <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
+          <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
@@ -558,15 +577,18 @@ const AttendanceRecordTable = () => {
                 <tbody className="divide-y divide-gray-200">
                   {currentItems.map(record => {
                     const emp = employeeMap[record.employee?.id] || {};
+                    const avatarUrl = emp.avatar_url || DEFAULT_AVATAR;
+                    const fullName = `${emp.first_name || ''} ${emp.last_name || ''}`.trim() || 'Unknown Employee';
+
                     return (
                       <tr key={`${record.employee?.id}-${record.date}`} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden">
-                              <img className="h-full w-full object-cover rounded-full" src={emp.avatar || DEFAULT_AVATAR} alt="" onError={e => (e.target.src = DEFAULT_AVATAR)} />
+                            <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden border-2 border-gray-200">
+                              <SafeAvatar src={avatarUrl} alt={fullName} />
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{`${emp.first_name || ''} ${emp.last_name || ''}`}</div>
+                              <div className="text-sm font-medium text-gray-900">{fullName}</div>
                               <div className="text-sm text-gray-500">{emp.email || ''}</div>
                               <div className={`text-sm font-medium ${emp.biotime_id ? 'text-green-600' : 'text-red-600'}`}>
                                 Biometric: {emp.biotime_id || 'Not enrolled'}
@@ -581,7 +603,7 @@ const AttendanceRecordTable = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatTime(record.check_out)}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(record.status)}`}>
-                            {record.status?.replace(/-/g, ' ') || 'Unknown'}
+                            {formatStatusDisplay(record.status)}
                           </span>
                         </td>
                       </tr>
@@ -600,17 +622,19 @@ const AttendanceRecordTable = () => {
           <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
             Previous
           </button>
-          {/* pagination numbers */}
+          <span className="px-3 py-2 text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
           <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
             Next
           </button>
         </div>
       )}
 
-      {/* ── SYNC MODAL ── */}
+      {/* Sync Modal */}
       {showSyncModal && (
         <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh]">
+          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full">
             <h3 className="text-2xl font-bold mb-6 text-gray-800">Sync Attendance from Device</h3>
             <div className="space-y-5">
               <div>
@@ -621,11 +645,6 @@ const AttendanceRecordTable = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                 <input type="date" value={syncEnd} onChange={e => setSyncEnd(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b]" />
               </div>
-              {syncMessage && (
-                <p className={`text-center font-medium ${syncMessage.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
-                  {syncMessage}
-                </p>
-              )}
             </div>
             <div className="flex justify-end space-x-3 mt-8">
               <button onClick={() => setShowSyncModal(false)} className="px-5 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
@@ -643,7 +662,7 @@ const AttendanceRecordTable = () => {
         </div>
       )}
 
-      {/* ── BIOMETRIC MANAGEMENT MODAL ── */}
+      {/* Biometric Modal */}
       {showManageBiometricModal && (
         <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -664,26 +683,25 @@ const AttendanceRecordTable = () => {
                 })
                 .map(emp => (
                   <div key={emp.id} className="flex justify-between items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    <div>
-                      <p className="font-semibold text-gray-900">{emp.first_name} {emp.last_name}</p>
-                      <p className="text-sm text-gray-600">{emp.email}</p>
-                      <p className={`text-sm font-medium ${emp.biotime_id ? 'text-green-600' : 'text-red-600'}`}>
-                        Biometric ID: {emp.biotime_id || 'Not enrolled'}
-                      </p>
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-gray-200">
+                        <SafeAvatar src={emp.avatar_url} alt={`${emp.first_name} ${emp.last_name}`} className="h-full w-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{emp.first_name} {emp.last_name}</p>
+                        <p className="text-sm text-gray-600">{emp.email}</p>
+                        <p className={`text-sm font-medium ${emp.biotime_id ? 'text-green-600' : 'text-red-600'}`}>
+                          Biometric ID: {emp.biotime_id || 'Not enrolled'}
+                        </p>
+                      </div>
                     </div>
                     <div>
                       {emp.biotime_id ? (
-                        <button
-                          onClick={() => handleDelete(emp.id, `${emp.first_name} ${emp.last_name}`)}
-                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                        >
+                        <button onClick={() => handleDelete(emp.id, `${emp.first_name} ${emp.last_name}`)} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                           Delete
                         </button>
                       ) : (
-                        <button
-                          onClick={() => handleEnroll(emp.id, `${emp.first_name} ${emp.last_name}`)}
-                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                        >
+                        <button onClick={() => handleEnroll(emp.id, `${emp.first_name} ${emp.last_name}`)} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                           Enroll
                         </button>
                       )}
