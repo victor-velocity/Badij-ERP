@@ -260,11 +260,16 @@ const AttendanceRecordTable = () => {
   const paginate = page => setCurrentPage(page);
 
   // ── Sync Modal Handlers ──────────────────────
+  // ── Sync Modal Handlers ──────────────────────
   const handleOpenSyncModal = () => {
-    const today = new Date().toISOString().split('T')[0];
-    const last30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    setSyncStart(last30);
-    setSyncEnd(today);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    const format = (date) => date.toISOString().split('T')[0];
+
+    setSyncStart(format(yesterday));
+    setSyncEnd(format(today));
     setShowSyncModal(true);
   };
 
@@ -635,19 +640,45 @@ const AttendanceRecordTable = () => {
       {showSyncModal && (
         <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full">
-            <h3 className="text-2xl font-bold mb-6 text-gray-800">Sync Attendance from Device</h3>
+            <h3 className="text-2xl font-bold mb-6 text-gray-800">
+              Sync Attendance from Device
+            </h3>
+
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                <input type="date" value={syncStart} onChange={e => setSyncStart(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b]" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Start Date (Yesterday)
+                </label>
+                <input
+                  type="date"
+                  value={syncStart}
+                  disabled
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                <input type="date" value={syncEnd} onChange={e => setSyncEnd(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b]" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  End Date (Today)
+                </label>
+                <input
+                  type="date"
+                  value={syncEnd}
+                  disabled
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="text-sm text-gray-600 mt-2">
+                The system will sync attendance records for <strong>{syncStart}</strong> to <strong>{syncEnd}</strong>.
               </div>
             </div>
+
             <div className="flex justify-end space-x-3 mt-8">
-              <button onClick={() => setShowSyncModal(false)} className="px-5 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">
+              <button
+                onClick={() => setShowSyncModal(false)}
+                className="px-5 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+              >
                 Cancel
               </button>
               <button
