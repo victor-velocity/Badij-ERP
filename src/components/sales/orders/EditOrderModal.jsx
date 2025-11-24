@@ -1,73 +1,78 @@
+// components/sales/EditOrderModal.jsx
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faLock } from '@fortawesome/free-solid-svg-icons';
 import toast from "react-hot-toast";
 import apiService from "@/app/lib/apiService";
 import { useRouter } from "next/navigation";
 
 const EditOrderModal = ({ isOpen, onClose, onSubmit, order }) => {
-    const [formData, setFormData] = useState({
-        status: "unpaid",
-        notes: "",
-        payment_type: "cash"
-    });
     const [customer, setCustomer] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
-    // Fetch customer data on modal open
+    const [formData, setFormData] = useState({
+        delivery_status: "pending",
+        payment_status: "unpaid",
+        notes: ""
+    });
+
+    // Fetch customer
     useEffect(() => {
         const fetchCustomer = async () => {
             if (!order?.customer_id || !isOpen) return;
-            
             try {
-                const response = await apiService.getCustomerById(order.customer_id, router);
-                if (response.status === "success") {
-                    setCustomer(response.data);
-                }
-            } catch (error) {
-                console.error("Error fetching customer:", error);
+                const res = await apiService.getCustomerById(order.customer_id, router);
+                if (res?.status === "success") setCustomer(res.data);
+            } catch (err) {
+                console.error("Failed to load customer:", err);
             }
         };
-
         fetchCustomer();
     }, [order?.customer_id, isOpen, router]);
 
-    // Prefill form when order changes
+    // Prefill form
     useEffect(() => {
         if (order && isOpen) {
             setFormData({
-                status: order.status || "unpaid",
-                notes: order.notes || "",
-                payment_type: order.payment_type || "cash" // ✅ NEW: Prefill payment type
+                delivery_status: order.delivery_status || "pending",
+                payment_status: order.payment_status || "unpaid",
+                notes: order.notes || ""
             });
         }
     }, [order, isOpen]);
 
+    // === BUSINESS LOGIC: Can edit? ===
+    const isPendingDelivery = order?.delivery_status === "pending";
+    const isUnpaid = order?.payment_status === "unpaid";
+    const isPaid = order?.payment_status === "paid";
+
+    const canEditOrder = isPendingDelivery && (isUnpaid || isPaid);
+    const canEditPaymentStatus = isPendingDelivery && isUnpaid; // Only unpaid → paid allowed
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
+        if (isLoading || !canEditOrder) return;
 
+        setIsLoading(true);
         try {
-            // ✅ NOW SEND status, notes, AND payment_type
-            const updateData = {
-                status: formData.status,
-                notes: formData.notes || "",
-                payment_type: formData.payment_type
+            const payload = {
+                delivery_status: formData.delivery_status,
+                ...(canEditPaymentStatus && { payment_status: formData.payment_status }),
+                notes: formData.notes.trim() || null
             };
 
-            const response = await apiService.updateOrder(order.order_id, updateData, router);
-            
-            if (response.status === "success") {
-                onSubmit(response.data);
+            const res = await apiService.updateOrder(order.order_id, payload, router);
+
+            if (res?.status === "success") {
                 toast.success("Order updated successfully!");
-                setTimeout(() => onClose(), 1000);
+                onSubmit?.(res.data?.[0] || order);
+                setTimeout(onClose, 600);
             } else {
-                toast.error(response.message || "Failed to update order");
+                throw new Error(res?.message || "Update failed");
             }
-        } catch (error) {
-            console.error('Order update error:', error);
-            toast.error("Failed to update order");
+        } catch (err) {
+            toast.error(err.message || "Failed to update order");
         } finally {
             setIsLoading(false);
         }
@@ -75,156 +80,138 @@ const EditOrderModal = ({ isOpen, onClose, onSubmit, order }) => {
 
     if (!isOpen || !order) return null;
 
-    if (order.status?.toLowerCase() !== "unpaid") {
-        return (
-            <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg font-bold text-[#b88b1b]">Edit Order</h2>
-                        <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-                            <FontAwesomeIcon icon={faTimes} />
-                        </button>
-                    </div>
-                    <p className="text-center text-red-500 py-4">
-                        Only <strong>UNPAID</strong> orders can be edited
-                        <br />
-                        <small className="text-gray-600">Current: {order.status}</small>
-                    </p>
-                    <div className="flex justify-end">
-                        <button
-                            onClick={onClose}
-                            className="px-4 py-2 bg-[#b88b1b] text-white rounded-md hover:bg-[#8b6a15]"
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold text-[#b88b1b]">Edit Order {order.order_number}</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto">
+                {/* Header */}
+                <div className="flex justify-between items-center p-6 border-b border-gray-200">
+                    <h2 className="text-2xl font-bold text-amber-700">
+                        Edit Order #{order.order_number}
+                    </h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">
                         <FontAwesomeIcon icon={faTimes} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                    {/* ✅ PREFILL SECTION - READ ONLY */}
-                    <div className="bg-gray-50 p-4 rounded-md mb-6">
-                        <h3 className="font-medium text-gray-700 mb-4">Customer Information</h3>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                                <input
-                                    type="text"
-                                    value={customer?.name || order.customer_name || 'Loading...'}
-                                    readOnly
-                                    className="p-2 w-full border border-gray-300 rounded-md bg-gray-100"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input
-                                    type="email"
-                                    value={customer?.email || ''}
-                                    readOnly
-                                    className="p-2 w-full border border-gray-300 rounded-md bg-gray-100"
-                                />
+                {/* Not Editable */}
+                {!canEditOrder ? (
+                    <div className="p-12 text-center">
+                        <div className="bg-red-50 border-2 border-red-300 rounded-2xl p-10 max-w-lg mx-auto">
+                            <div className="text-6xl mb-4">Locked</div>
+                            <p className="text-2xl font-bold text-red-700 mb-4">
+                                This order cannot be edited
+                            </p>
+                            <p className="text-gray-700 text-lg">
+                                Only orders with <strong>Pending</strong> delivery status can be modified.
+                            </p>
+                            <div className="mt-6 bg-white rounded-xl p-5 shadow">
+                                <p><strong>Delivery Status:</strong> <span className="capitalize font-bold text-red-600">{order.delivery_status}</span></p>
+                                <p><strong>Payment Status:</strong> <span className="capitalize font-bold">{order.payment_status}</span></p>
                             </div>
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                                <input
-                                    type="text"
-                                    value={customer?.phone || order.phone_number || ''}
-                                    readOnly
-                                    className="p-2 w-full border border-gray-300 rounded-md bg-gray-100"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                                <input
-                                    type="text"
-                                    value={order.dispatch_address || ''}
-                                    readOnly
-                                    className="p-2 w-full border border-gray-300 rounded-md bg-gray-100"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ✅ EDITABLE SECTION */}
-                    <div className="space-y-4 mb-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>
-                                <select
-                                    value={formData.status}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
-                                    className="p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                    required
-                                >
-                                    <option value="unpaid">Unpaid</option>
-                                    <option value="processing">Processing</option>
-                                </select>
-                                <p className="text-xs text-gray-500 mt-1">Can only update to Processing</p>
-                            </div>
-
-                            {/* ✅ NEW: PAYMENT TYPE FIELD */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Type *</label>
-                                <select
-                                    value={formData.payment_type}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, payment_type: e.target.value }))}
-                                    className="p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                    required
-                                >
-                                    <option value="cash">Cash</option>
-                                    <option value="transfer">Bank Transfer</option>
-                                    <option value="card">Card</option>
-                                    <option value="pos">POS</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
-                            <textarea
-                                value={formData.notes}
-                                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                                className="p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                                rows="3"
-                                placeholder="Additional notes about this order..."
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end space-x-2">
-                        <button
-                            type="submit"
-                            className="px-6 py-2 bg-[#b88b1b] hover:bg-[#8b6a15] text-white rounded-md disabled:opacity-50"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? "Saving..." : "Save Changes"}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-6 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100"
-                            disabled={isLoading}
-                        >
-                            Cancel
+                        <button onClick={onClose} className="mt-8 px-10 py-4 bg-amber-600 text-white text-lg rounded-xl hover:bg-amber-700">
+                            Close
                         </button>
                     </div>
-                </form>
+                ) : (
+                    <form onSubmit={handleSubmit} className="p-8 space-y-8">
+                        {/* Customer Info */}
+                        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-2xl p-6 border border-amber-200">
+                            <h3 className="font-bold text-lg mb-4">Customer Details</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
+                                <div><span className="text-gray-600">Name:</span> <strong>{customer?.name || "Loading..."}</strong></div>
+                                <div><span className="text-gray-600">Phone:</span> <strong>{customer?.phone || order.phone_number}</strong></div>
+                                <div><span className="text-gray-600">Email:</span> <strong>{customer?.email || "-"}</strong></div>
+                                <div><span className="text-gray-600">Address:</span> <strong>{order.dispatch_address}</strong></div>
+                            </div>
+                        </div>
+
+                        {/* Editable Fields */}
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Delivery Status */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Delivery Status
+                                    </label>
+                                    <select
+                                        value={formData.delivery_status}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, delivery_status: e.target.value }))}
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                                    >
+                                        <option value="pending">Pending</option>
+                                        <option value="processing">Processing</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+
+                                {/* Payment Status */}
+                                <div>
+                                    <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                        Payment Status
+                                        {!canEditPaymentStatus && (
+                                            <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full flex items-center gap-1">
+                                                <FontAwesomeIcon icon={faLock} className="text-xs" /> Locked
+                                            </span>
+                                        )}
+                                    </label>
+                                    <select
+                                        value={formData.payment_status}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, payment_status: e.target.value }))}
+                                        disabled={!canEditPaymentStatus}
+                                        className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-amber-100 transition ${
+                                            canEditPaymentStatus 
+                                                ? "border-gray-300 focus:border-amber-500 cursor-pointer" 
+                                                : "border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+                                        }`}
+                                    >
+                                        <option value="unpaid">Unpaid</option>
+                                        <option value="paid">Paid</option>
+                                        <option value="refunded">Refunded</option>
+                                    </select>
+                                    {!canEditPaymentStatus && (
+                                        <p className="text-xs text-gray-500 mt-2">
+                                            Payment status cannot be changed after marking as Paid
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Notes */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Internal Notes
+                                </label>
+                                <textarea
+                                    value={formData.notes}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                                    rows={4}
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-amber-500 focus:ring-4 focus:ring-amber-100 resize-none"
+                                    placeholder="e.g. Customer requested express delivery..."
+                                />
+                            </div>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                disabled={isLoading}
+                                className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isLoading || !canEditOrder}
+                                className="px-10 py-4 bg-amber-600 text-white rounded-xl hover:bg-amber-700 font-medium disabled:opacity-50 flex items-center gap-3"
+                            >
+                                {isLoading ? "Saving..." : "Save Changes"}
+                            </button>
+                        </div>
+                    </form>
+                )}
             </div>
         </div>
     );

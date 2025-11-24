@@ -1,36 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faSpinner, faCalendar, faUser, faPhone, faMapMarkerAlt, faStickyNote, faBox, faReceipt, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faSpinner, faCalendar, faUser, faPhone, faMapMarkerAlt, faStickyNote, faBox, faReceipt, faPrint, faMoneyBillWave, faTruck } from '@fortawesome/free-solid-svg-icons';
 import apiService from "@/app/lib/apiService";
 import { useRouter } from "next/navigation";
 
-const ViewOrderModal = ({ isOpen, onClose, order, customer, createdById }) => {
+const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [formattedOrder, setFormattedOrder] = useState(null);
-    const [createdByName, setCreatedByName] = useState('Loading...');
     const router = useRouter();
 
     useEffect(() => {
-        const fetchEmployee = async () => {
-            if (createdById) {
-                try {
-                    const response = await apiService.getEmployeeById(createdById, router);
-                    const data = response.data || response;
-                    setCreatedByName(`${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Unknown Employee');
-                } catch (error) {
-                    console.error(`Error fetching employee ${createdById}:`, error);
-                    setCreatedByName('Unknown Employee');
-                }
-            } else {
-                setCreatedByName('Unknown Employee');
-            }
-        };
-
-        fetchEmployee();
-    }, [createdById, router]);
-
-    useEffect(() => {
-        if (order) {
+        if (order && customer) {
             const items = order.order_details?.map(detail => ({
                 name: detail.product_id?.name || 'Unknown Product',
                 price: detail.product_id?.price || 0,
@@ -39,71 +19,59 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdById }) => {
             })) || [];
 
             const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+            const discountAmount = subtotal * (order.discount_percentage || 0) / 100;
+            const subtotalAfterDiscount = subtotal - discountAmount;
+            const vatAmount = subtotalAfterDiscount * (order.vat_percentage || 0) / 100;
 
             const formatted = {
                 order_number: order.order_number,
                 customer: customer?.name || 'Unknown Customer',
                 address: order.dispatch_address || 'Not specified',
                 deliveryDate: order.delivery_date ? new Date(order.delivery_date).toLocaleDateString() : 'Not set',
-                status: order.status,
+                payment_status: order.payment_status || 'unpaid',
+                delivery_status: order.delivery_status || 'pending',
                 phone: customer?.phone || order.phone_number || 'Not provided',
                 email: customer?.email || 'Not provided',
-                items: items,
-                subtotal: subtotal,
+                items,
+                subtotal,
+                discount_percentage: order.discount_percentage || 0,
+                discount_amount: discountAmount,
+                vat_percentage: order.vat_percentage || 0,
+                vat_amount: vatAmount,
                 additional_costs: order.additional_costs || 0,
                 total_amount: order.total_amount,
-                notes: order.notes,
+                notes: order.notes || 'No notes provided',
                 created_at: order.created_at ? new Date(order.created_at).toLocaleString() : 'Unknown',
                 updated_at: order.updated_at ? new Date(order.updated_at).toLocaleString() : 'Unknown',
-                created_by: createdByName
+                created_by: createdBy || 'Unknown Employee'  // ← Use the passed name directly
             };
+
             setFormattedOrder(formatted);
             setIsLoading(false);
         }
-    }, [order, customer, createdByName]);
+    }, [order, customer, createdBy]);
 
-    const getStatusColor = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'pending':
-                return 'bg-orange-100 text-orange-800 border-orange-200';
-            case 'processing':
-                return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'shipped':
-                return 'bg-purple-100 text-purple-800 border-purple-200';
-            case 'delivered':
-                return 'bg-green-100 text-green-800 border-green-200';
-            case 'canceled':
-                return 'bg-red-100 text-red-800 border-red-200';
-            case 'unpaid':
-                return 'bg-red-100 text-red-800 border-red-200';
-            default:
-                return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
+    // Status badge helpers
+    const getPaymentStatusColor = (status) => {
+        return status?.toLowerCase() === 'paid'
+            ? 'bg-green-100 text-green-800 border-green-200'
+            : 'bg-red-100 text-red-800 border-red-200';
     };
 
-    const getStatusIcon = (status) => {
+    const getDeliveryStatusColor = (status) => {
         switch (status?.toLowerCase()) {
-            case 'pending':
-                return '⏳';
-            case 'processing':
-                return '📦';
-            case 'shipped':
-                return '🚚';
-            case 'delivered':
-                return '✅';
-            case 'canceled':
-                return '❌';
-            case 'unpaid':
-                return '💰';
-            default:
-                return '📋';
+            case 'pending': return 'bg-orange-100 text-orange-800 border-orange-200';
+            case 'processing': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'shipped': return 'bg-purple-100 text-purple-800 border-purple-200';
+            case 'delivered': return 'bg-green-100 text-green-800 border-green-200';
+            case 'canceled': return 'bg-red-100 text-red-800 border-red-200';
+            default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };
 
     const handlePrint = () => {
         const printContent = document.getElementById('printable-order-content');
         const originalContents = document.body.innerHTML;
-        
         document.body.innerHTML = printContent.innerHTML;
         window.print();
         document.body.innerHTML = originalContents;
@@ -128,7 +96,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdById }) => {
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
                 <div className="text-center">
                     <p className="text-red-500 mb-4">Order details not found</p>
-                    <button 
+                    <button
                         onClick={onClose}
                         className="px-4 py-2 bg-[#b88b1b] text-white rounded-md hover:bg-[#8b6a15] transition-colors"
                     >
@@ -216,28 +184,36 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdById }) => {
                             </tbody>
                             <tfoot>
                                 <tr className="bg-gray-50">
-                                    <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">
-                                        Subtotal:
-                                    </td>
-                                    <td className="border border-gray-300 p-3 text-right font-bold">
-                                        ₦{formattedOrder.subtotal.toLocaleString()}
-                                    </td>
+                                    <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">Subtotal:</td>
+                                    <td className="border border-gray-300 p-3 text-right font-bold">₦{formattedOrder.subtotal.toLocaleString()}</td>
                                 </tr>
+                                {formattedOrder.discount_amount > 0 && (
+                                    <tr className="bg-gray-50">
+                                        <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">
+                                            Discount ({formattedOrder.discount_percentage}%):
+                                        </td>
+                                        <td className="border border-gray-300 p-3 text-right font-bold text-red-600">
+                                            -₦{formattedOrder.discount_amount.toLocaleString()}
+                                        </td>
+                                    </tr>
+                                )}
+                                {formattedOrder.vat_amount > 0 && (
+                                    <tr className="bg-gray-50">
+                                        <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">
+                                            VAT ({formattedOrder.vat_percentage}%):
+                                        </td>
+                                        <td className="border border-gray-300 p-3 text-right font-bold">
+                                            ₦{formattedOrder.vat_amount.toLocaleString()}
+                                        </td>
+                                    </tr>
+                                )}
                                 <tr className="bg-gray-50">
-                                    <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">
-                                        Additional Costs:
-                                    </td>
-                                    <td className="border border-gray-300 p-3 text-right font-bold">
-                                        ₦{formattedOrder.additional_costs.toLocaleString()}
-                                    </td>
+                                    <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">Additional Costs:</td>
+                                    <td className="border border-gray-300 p-3 text-right font-bold">₦{formattedOrder.additional_costs.toLocaleString()}</td>
                                 </tr>
                                 <tr className="bg-gray-800 text-white">
-                                    <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">
-                                        GRAND TOTAL:
-                                    </td>
-                                    <td className="border border-gray-300 p-3 text-right font-bold text-lg">
-                                        ₦{formattedOrder.total_amount?.toLocaleString()}
-                                    </td>
+                                    <td colSpan="3" className="border border-gray-300 p-3 text-right font-bold">GRAND TOTAL:</td>
+                                    <td className="border border-gray-300 p-3 text-right font-bold text-lg">₦{formattedOrder.total_amount.toLocaleString()}</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -269,49 +245,49 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdById }) => {
             {/* Main Modal */}
             <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex justify-center items-center z-50 p-4">
                 <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                    {/* Header */}
+                    {/* Header - unchanged */}
                     <div className="bg-gradient-to-r from-[#b88b1b] to-[#d4af37] p-6 rounded-t-lg">
                         <div className="flex justify-between items-start">
                             <div>
                                 <h2 className="text-2xl font-bold text-white">Order Details</h2>
                                 <p className="text-white/90 mt-1">Order #{formattedOrder.order_number}</p>
                             </div>
-                            <button 
-                                onClick={onClose}
-                                className="text-white hover:text-gray-200 transition-colors p-2 rounded-full hover:bg-white/10"
-                            >
+                            <button onClick={onClose} className="text-white hover:text-gray-200 transition-colors p-2 rounded-full hover:bg-white/10">
                                 <FontAwesomeIcon icon={faTimes} size="lg" />
                             </button>
                         </div>
                     </div>
 
                     <div className="p-6">
-                        {/* Order Status & Summary */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                            <div className="bg-gray-50 p-4 rounded-lg border">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-gray-600">Status</p>
-                                        <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border mt-1 ${getStatusColor(formattedOrder.status)}`}>
-                                            <span className="mr-2">{getStatusIcon(formattedOrder.status)}</span>
-                                            {formattedOrder.status?.charAt(0).toUpperCase() + formattedOrder.status?.slice(1)}
-                                        </div>
-                                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-300 shadow-md">
+                                <p className="text-sm text-gray-600 flex items-center">
+                                    <FontAwesomeIcon icon={faMoneyBillWave} className="mr-2 text-green-600" /> Payment Status
+                                </p>
+                                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border mt-2 ${getPaymentStatusColor(formattedOrder.payment_status)}`}>
+                                    {formattedOrder.payment_status?.charAt(0).toUpperCase() + formattedOrder.payment_status?.slice(1)}
                                 </div>
                             </div>
 
-                            <div className="bg-gray-50 p-4 rounded-lg border">
+                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-300 shadow-md">
+                                <p className="text-sm text-gray-600 flex items-center">
+                                    <FontAwesomeIcon icon={faTruck} className="mr-2 text-blue-600" /> Delivery Status
+                                </p>
+                                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border mt-2 ${getDeliveryStatusColor(formattedOrder.delivery_status)}`}>
+                                    {formattedOrder.delivery_status?.charAt(0).toUpperCase() + formattedOrder.delivery_status?.slice(1)}
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-300 shadow-md">
                                 <p className="text-sm text-gray-600">Total Amount</p>
                                 <p className="text-2xl font-bold text-[#b88b1b] mt-1">
-                                    ₦{formattedOrder.total_amount?.toLocaleString() || '0.00'}
+                                    ₦{formattedOrder.total_amount?.toLocaleString()}
                                 </p>
                             </div>
 
-                            <div className="bg-gray-50 p-4 rounded-lg border">
+                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-300 shadow-md">
                                 <p className="text-sm text-gray-600">Order Date</p>
-                                <p className="text-lg font-semibold text-gray-800 mt-1">
-                                    {formattedOrder.created_at}
-                                </p>
+                                <p className="text-md font-semibold text-gray-800 mt-1">{formattedOrder.created_at}</p>
                             </div>
                         </div>
 
@@ -378,28 +354,38 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdById }) => {
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">
-                                                Subtotal:
-                                            </td>
-                                            <td className="py-3 px-4 text-right font-bold">
-                                                ₦{formattedOrder.subtotal.toLocaleString()}
-                                            </td>
+                                            <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">Subtotal:</td>
+                                            <td className="py-3 px-4 text-right font-bold">₦{formattedOrder.subtotal.toLocaleString()}</td>
                                         </tr>
+                                        {formattedOrder.discount_amount > 0 && (
+                                            <tr>
+                                                <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">
+                                                    Discount ({formattedOrder.discount_percentage}%):
+                                                </td>
+                                                <td className="py-3 px-4 text-right font-bold text-red-600">
+                                                    -₦{formattedOrder.discount_amount.toLocaleString()}
+                                                </td>
+                                            </tr>
+                                        )}
+                                        {formattedOrder.vat_amount > 0 && (
+                                            <tr>
+                                                <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">
+                                                    VAT ({formattedOrder.vat_percentage}%):
+                                                </td>
+                                                <td className="py-3 px-4 text-right font-bold">
+                                                    ₦{formattedOrder.vat_amount.toLocaleString()}
+                                                </td>
+                                            </tr>
+                                        )}
                                         <tr>
-                                            <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">
-                                                Additional Costs:
-                                            </td>
-                                            <td className="py-3 px-4 text-right font-bold">
-                                                ₦{formattedOrder.additional_costs.toLocaleString()}
-                                            </td>
+                                            <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">Additional Costs:</td>
+                                            <td className="py-3 px-4 text-right font-bold">₦{formattedOrder.additional_costs.toLocaleString()}</td>
                                         </tr>
                                         <tr className="bg-gray-50">
-                                            <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">
-                                                Grand Total:
-                                            </td>
+                                            <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">Grand Total:</td>
                                             <td className="py-3 px-4 text-right">
                                                 <p className="text-xl font-bold text-[#b88b1b]">
-                                                    ₦{formattedOrder.total_amount?.toLocaleString()}
+                                                    ₦{formattedOrder.total_amount.toLocaleString()}
                                                 </p>
                                             </td>
                                         </tr>

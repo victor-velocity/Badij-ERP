@@ -48,7 +48,7 @@ export default function UserLayout({ children }) {
 
             const { data: employeeData, error: employeeError } = await supabase
                 .from('employees')
-                .select('id, first_name, last_name, email, user_id, avatar_url, department_id')
+                .select('id, first_name, last_name, email, user_id, avatar_url, department_id, leave_balance')
                 .eq('user_id', authUser.id)
                 .single();
 
@@ -82,6 +82,7 @@ export default function UserLayout({ children }) {
             const employeeFullName = `${employeeData.first_name} ${employeeData.last_name}`;
             const employeeUsername = employeeData.email.split('@')[0];
             const employeeAvatarUrl = employeeData.avatar_url || "/default-profile.png";
+            const employeeLeaveBalance = employeeData.leave_balance
 
             localStorage.setItem('first_name', employeeData.first_name);
 
@@ -93,6 +94,7 @@ export default function UserLayout({ children }) {
                     role: departmentName,
                     employee_id: employeeData.id,
                     isSalesEmployee,
+                    leave_balance: employeeLeaveBalance,
                 });
 
                 if (userRole === 'user') {

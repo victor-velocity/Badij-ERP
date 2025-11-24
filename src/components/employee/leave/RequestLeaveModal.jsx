@@ -4,6 +4,12 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import apiService from '@/app/lib/apiService';
 
+// Helper to get today's date in YYYY-MM-DD format
+const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+};
+
 const RequestLeaveModal = ({ isOpen, onClose, onSuccess }) => {
     const [leaveType, setLeaveType] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -13,6 +19,10 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
 
+    // Today's date (used to block past dates)
+    const today = getTodayDate();
+
+    // Reset form when modal opens
     useEffect(() => {
         if (isOpen) {
             resetForm();
@@ -29,11 +39,20 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+
         if (name === 'leaveType') setLeaveType(value);
-        else if (name === 'startDate') setStartDate(value);
+        else if (name === 'startDate') {
+            setStartDate(value);
+
+            // If endDate is now before the new startDate, clear it
+            if (endDate && value > endDate) {
+                setEndDate('');
+            }
+        }
         else if (name === 'endDate') setEndDate(value);
         else if (name === 'reason') setReason(value);
 
+        // Clear error when user starts typing
         if (validationErrors[name]) {
             setValidationErrors(prev => ({ ...prev, [name]: '' }));
         }
@@ -44,23 +63,31 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess }) => {
         let isValid = true;
 
         if (!leaveType) {
-            errors.leaveType = 'Leave type is required.';
+            errors.leaveType = 'Please select a leave type.';
             isValid = false;
         }
+
         if (!startDate) {
             errors.startDate = 'Start date is required.';
             isValid = false;
+        } else if (startDate < today) {
+            errors.startDate = 'Start date cannot be in the past.';
+            isValid = false;
         }
+
         if (!endDate) {
             errors.endDate = 'End date is required.';
             isValid = false;
-        }
-        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-            errors.endDate = 'End date cannot be before start date.';
+        } else if (startDate && endDate < startDate) {
+            errors.endDate = 'End date cannot be earlier than start date.';
             isValid = false;
         }
+
         if (!reason.trim()) {
-            errors.reason = 'Reason is required.';
+            errors.reason = 'Please provide a reason for your leave.';
+            isValid = false;
+        } else if (reason.trim().length < 10) {
+            errors.reason = 'Reason must be at least 10 characters.';
             isValid = false;
         }
 
@@ -72,31 +99,32 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess }) => {
         e.preventDefault();
 
         if (!validateForm()) {
-            toast.error('Please correct the errors in the form.');
+            toast.error('Please fix the errors below.');
             return;
         }
 
         setIsSubmitting(true);
+
         try {
             const leaveRequestData = {
                 leave_type: leaveType,
                 start_date: startDate,
                 end_date: endDate,
-                reason: reason,
+                reason: reason.trim(),
             };
 
             const response = await apiService.requestLeave(leaveRequestData);
 
-            if (response) {
+            if (response && response.status === 'success') {
                 toast.success('Leave request submitted successfully!');
-                onSuccess();
+                onSuccess?.();
                 onClose();
             } else {
-                toast.error('Failed to submit leave request.');
+                toast.error(response?.message || 'Failed to submit request.');
             }
         } catch (error) {
-            console.error('Error submitting leave request:', error);
-            toast.error('An unexpected error occurred. Please try again.');
+            console.error('Leave request error:', error);
+            toast.error('Something went wrong. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -105,126 +133,132 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center z-50 font-sans">
-            <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg mx-4 relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 font-sans">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto relative max-h-[90vh] overflow-y-auto">
+                {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-red-500 hover:text-red-700 text-2xl font-bold rounded-full p-1 transition-colors"
-                    aria-label="Close modal"
+                    className="absolute top-4 right-4 text-red-500 hover:text-red-700 text-3xl font-light hover:bg-red-50 rounded-full w-10 h-10 flex items-center justify-center transition-all z-10"
+                    aria-label="Close"
                 >
-                    &times;
+                    ×
                 </button>
 
-                <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Request Leave</h2>
+                <div className="p-8 pt-12">
+                    <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
+                        Request Leave
+                    </h2>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label htmlFor="leaveType" className="block text-sm font-medium text-gray-700 mb-1">
-                            Leave Type
-                        </label>
-                        <select
-                            id="leaveType"
-                            name="leaveType"
-                            value={leaveType}
-                            onChange={handleChange}
-                            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none ${
-                                validationErrors.leaveType ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            required
-                        >
-                            <option value="">Select Leave Type</option>
-                            <option value="maternity">Maternity Leave</option>
-                            <option value="paternity">Paternity Leave</option>
-                            <option value="annual">Annual Leave</option>
-                            <option value="sick">Sick Leave</option>
-                            <option value="personal">Personal Leave</option>
-                            <option value="unpaid">Unpaid Leave</option>
-                        </select>
-                        {validationErrors.leaveType && (
-                            <p className="text-red-500 text-xs mt-1">{validationErrors.leaveType}</p>
-                        )}
-                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Leave Type */}
+                        <div>
+                            <label htmlFor="leaveType" className="block text-sm font-semibold text-gray-700 mb-2">
+                                Leave Type <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                id="leaveType"
+                                name="leaveType"
+                                value={leaveType}
+                                onChange={handleChange}
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] outline-none transition-all ${validationErrors.leaveType ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                            >
+                                <option value="">-- Select Leave Type --</option>
+                                <option value="annual">Annual Leave</option>
+                                <option value="sick">Sick Leave</option>
+                                <option value="maternity">Maternity Leave</option>
+                                <option value="paternity">Paternity Leave</option>
+                                <option value="personal">Personal Leave</option>
+                                <option value="unpaid">Unpaid Leave</option>
+                            </select>
+                            {validationErrors.leaveType && (
+                                <p className="text-red-500 text-xs mt-1">{validationErrors.leaveType}</p>
+                            )}
+                        </div>
 
-                    <div>
-                        <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
-                            Start Date
-                        </label>
-                        <input
-                            type="date"
-                            id="startDate"
-                            name="startDate"
-                            value={startDate}
-                            onChange={handleChange}
-                            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none ${
-                                validationErrors.startDate ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            required
-                        />
-                        {validationErrors.startDate && (
-                            <p className="text-red-500 text-xs mt-1">{validationErrors.startDate}</p>
-                        )}
-                    </div>
+                        {/* Start Date */}
+                        <div>
+                            <label htmlFor="startDate" className="block text-sm font-semibold text-gray-700 mb-2">
+                                Start Date <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                id="startDate"
+                                name="startDate"
+                                value={startDate}
+                                onChange={handleChange}
+                                min={today}  // Blocks past dates
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] outline-none transition-all ${validationErrors.startDate ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                required
+                            />
+                            {validationErrors.startDate && (
+                                <p className="text-red-500 text-xs mt-1">{validationErrors.startDate}</p>
+                            )}
+                        </div>
 
-                    <div>
-                        <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
-                            End Date
-                        </label>
-                        <input
-                            type="date"
-                            id="endDate"
-                            name="endDate"
-                            value={endDate}
-                            onChange={handleChange}
-                            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none ${
-                                validationErrors.endDate ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            min={startDate}
-                            required
-                        />
-                        {validationErrors.endDate && (
-                            <p className="text-red-500 text-xs mt-1">{validationErrors.endDate}</p>
-                        )}
-                    </div>
+                        {/* End Date */}
+                        <div>
+                            <label htmlFor="endDate" className="block text-sm font-semibold text-gray-700 mb-2">
+                                End Date <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                id="endDate"
+                                name="endDate"
+                                value={endDate}
+                                onChange={handleChange}
+                                min={startDate || today}
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] outline-none transition-all ${validationErrors.endDate ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                required
+                            />
+                            {validationErrors.endDate && (
+                                <p className="text-red-500 text-xs mt-1">{validationErrors.endDate}</p>
+                            )}
+                        </div>
 
-                    <div>
-                        <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">
-                            Reason
-                        </label>
-                        <textarea
-                            id="reason"
-                            name="reason"
-                            value={reason}
-                            onChange={handleChange}
-                            rows="4"
-                            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none resize-none ${
-                                validationErrors.reason ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            placeholder="Briefly describe the reason for your leave..."
-                            required
-                        ></textarea>
-                        {validationErrors.reason && (
-                            <p className="text-red-500 text-xs mt-1">{validationErrors.reason}</p>
-                        )}
-                    </div>
+                        {/* Reason */}
+                        <div>
+                            <label htmlFor="reason" className="block text-sm font-semibold text-gray-700 mb-2">
+                                Reason for Leave <span className="text-red-500">*</span>
+                            </label>
+                            <textarea
+                                id="reason"
+                                name="reason"
+                                value={reason}
+                                onChange={handleChange}
+                                rows="5"
+                                placeholder="Please explain why you need this leave..."
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] outline-none resize-none transition-all ${validationErrors.reason ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                                required
+                            />
+                            {validationErrors.reason && (
+                                <p className="text-red-500 text-xs mt-1">{validationErrors.reason}</p>
+                            )}
+                        </div>
 
-                    <div className="flex justify-end space-x-3 mt-6">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-6 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors"
-                            disabled={isSubmitting}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-6 py-2 rounded-md bg-[#b88b1b] text-white font-medium hover:bg-[#a07a16] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? 'Submitting...' : 'Submit Request'}
-                        </button>
-                    </div>
-                </form>
+                        {/* Buttons */}
+                        <div className="flex gap-4 pt-6">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                disabled={isSubmitting}
+                                className="flex-1 py-3 px-6 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-all disabled:opacity-60"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="flex-1 py-3 px-6 bg-[#b88b1b] hover:bg-[#a07815] text-white font-medium rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg"
+                            >
+                                {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

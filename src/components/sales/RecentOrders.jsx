@@ -1,149 +1,164 @@
-// RecentOrders.js
-import React, { useState } from "react";
+// components/dashboard/RecentOrders.jsx
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import apiService from "@/app/lib/apiService";
+import { useRouter } from "next/navigation";
 
 const RecentOrders = () => {
     const [searchTerm, setSearchTerm] = useState("");
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
-    const orders = [
-        {
-            id: "#1234",
-            product: ["Dining table", "Chair", "Table"],
-            date: "Jul 12, 2025 - 12:30PM",
-            price: "N100,000",
-            payment: "Transfer",
-            status: "Shipped to customer",
-        },
-        {
-            id: "#5467",
-            product: ["Sofa sets", "Cushion"],
-            date: "Aug 24, 2025 - 10:00 AM",
-            price: "N200,000",
-            payment: "Card",
-            status: "Inventory arrangement",
-        },
-        {
-            id: "#6598",
-            product: ["Coffee table", "Stool"],
-            date: "Aug 28, 2025 - 3:23 PM",
-            price: "N80,000",
-            payment: "Card",
-            status: "Ready for dispatch",
-        },
-        {
-            id: "#9465",
-            product: ["Office table", "Desk"],
-            date: "Sep 02, 2025 - 5:25 PM",
-            price: "N100,000",
-            payment: "Cash",
-            status: "In transit",
-        },
-        {
-            id: "#0475",
-            product: ["Outdoor furniture", "Chair", "Table"],
-            date: "Sep 10, 2025 - 8:00 AM",
-            price: "N500,000",
-            payment: "Transfer",
-            status: "Pending",
-        },
-        {
-            id: "#9607",
-            product: ["Office chair", "Stool"],
-            date: "Sep 25, 2025 - 9:10 AM",
-            price: "N400,000",
-            payment: "Card",
-            status: "Inventory arrangement",
-        },
-    ];
+    useEffect(() => {
+        const fetchRecentOrders = async () => {
+            try {
+                setLoading(true);
+                const response = await apiService.getOrders(router);
 
+                if (response.status === "success") {
+                    const allOrders = response.data || [];
+
+                    // Sort by newest first and take latest 7
+                    const recentOrders = allOrders
+                        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                        .slice(0, 7);
+
+                    setOrders(recentOrders);
+                }
+            } catch (error) {
+                console.error("Error fetching recent orders:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRecentOrders();
+    }, [router]);
+
+    // Format products: show first + count of others
+    const formatProducts = (orderDetails) => {
+        if (!orderDetails || orderDetails.length === 0) return "No items";
+        const items = orderDetails.map(d => d.product_id?.name || "Unknown Product");
+        if (items.length === 1) return items[0];
+        return `${items[0]} +${items.length - 1} more`;
+    };
+
+    // Format date nicely
+    const formatDate = (dateString) => {
+        if (!dateString) return "N/A";
+        return new Date(dateString).toLocaleDateString('en-GB', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        }).replace(',', ' -');
+    };
+
+    // Status color mapping
     const getStatusColor = (status) => {
-        switch (status) {
-            case 'Pending':
-                return 'text-yellow-500';
-            case 'Inventory arrangement':
-                return 'text-orange-500';
-            case 'Ready for dispatch':
-                return 'text-blue-500';
-            case 'In transit':
-                return 'text-purple-500';
-            case 'Shipped to customer':
-                return 'text-green-500';
-            default:
-                return 'text-gray-500';
-        }
+        const s = status?.toLowerCase();
+        const colors = {
+            pending: "text-yellow-600",
+            processing: "text-orange-600",
+            shipped: "text-blue-600",
+            "in transit": "text-purple-600",
+            delivered: "text-green-600",
+            canceled: "text-red-600",
+        };
+        return colors[s] || "text-gray-600";
     };
 
-    const formatProductDisplay = (products) => {
-        if (products.length > 1) {
-            return `${products[0]} +${products.length - 1}`;
-        }
-        return products[0];
-    };
-
+    // Filter orders based on search
     const filteredOrders = orders.filter(order =>
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.product.some(p => p.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        order.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.price.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.payment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.status.toLowerCase().includes(searchTerm.toLowerCase())
+        order.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        formatProducts(order.order_details)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        formatDate(order.created_at)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (order.total_amount + "")?.includes(searchTerm)
     );
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-4">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-bold">Recent Order</h2>
-                <div className="flex items-center gap-2">
-                    <div className="relative">
-                        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search orders"
-                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-800">Recent Orders</h2>
+                <div className="relative">
+                    <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                    <input
+                        type="text"
+                        placeholder="Search orders..."
+                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 w-64"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
             </div>
-            <table className="w-full text-left table-auto">
-                <thead>
-                    <tr className="text-gray-600 text-sm border-b border-gray-300">
-                        <th className="pb-5 pt-3">Order ID</th>
-                        <th className="pb-5 pt-3">Product</th>
-                        <th className="pb-5 pt-3">Order date</th>
-                        <th className="pb-5 pt-3">Price</th>
-                        <th className="pb-5 pt-3 text-center">Payment</th>
-                        <th className="pb-5 pt-3 text-center">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredOrders.length > 0 ? (
-                        filteredOrders.map((order, index) => (
-                            <tr key={index} className="border-b border-gray-300">
-                                <td className="py-5">{order.id}</td>
-                                <td className="py-5">{formatProductDisplay(order.product)}</td>
-                                <td className="py-5">{order.date}</td>
-                                <td className="py-5">{order.price}</td>
-                                <td className="py-5 text-center">{order.payment}</td>
-                                <td className="py-5 text-center">
-                                    <span className={getStatusColor(order.status)}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                <td className="py-5"></td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="7" className="py-4 text-center text-gray-500">
-                                No orders found
-                            </td>
+
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead>
+                        <tr className="text-xs font-medium text-gray-500 border-b border-gray-200">
+                            <th className="pb-4 pt-2">Order ID</th>
+                            <th className="pb-4 pt-2">Products</th>
+                            <th className="pb-4 pt-2">Order Date</th>
+                            <th className="pb-4 pt-2">Amount</th>
+                            <th className="pb-4 pt-2 text-center">Status</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="text-sm">
+                        {loading ? (
+                            // Skeleton loader
+                            [...Array(5)].map((_, i) => (
+                                <tr key={i} className="border-b border-gray-100">
+                                    <td className="py-4"><div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div></td>
+                                    <td className="py-4"><div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div></td>
+                                    <td className="py-4"><div className="h-4 bg-gray-200 rounded w-40 animate-pulse"></div></td>
+                                    <td className="py-4"><div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div></td>
+                                    <td className="py-4 text-center"><div className="h-6 bg-gray-200 rounded-full w-20 mx-auto animate-pulse"></div></td>
+                                </tr>
+                            ))
+                        ) : filteredOrders.length > 0 ? (
+                            filteredOrders.map((order) => (
+                                <tr key={order.order_id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                                    <td className="py-4 font-medium text-gray-900 font-mono">
+                                        {order.order_number || `#${order.order_id}`}
+                                    </td>
+                                    <td className="py-4 text-gray-700">
+                                        {formatProducts(order.order_details)}
+                                    </td>
+                                    <td className="py-4 text-gray-600">
+                                        {formatDate(order.created_at)}
+                                    </td>
+                                    <td className="py-4 font-semibold text-gray-800">
+                                        ₦{Number(order.total_amount || 0).toLocaleString()}
+                                    </td>
+                                    <td className="py-4 text-center">
+                                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.delivery_status)} bg-opacity-10 bg-current`}>
+                                            {order.delivery_status || "Pending"}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="py-12 text-center text-gray-500 text-sm">
+                                    {searchTerm ? "No matching orders" : "No recent orders"}
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+            {orders.length >= 7 && !searchTerm && (
+                <div className="mt-4 text-center">
+                    <p className="text-sm text-gray-500">
+                        Showing latest 7 of {orders.length} orders
+                    </p>
+                </div>
+            )}
         </div>
     );
 };

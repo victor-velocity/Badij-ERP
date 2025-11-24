@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+// src/components/sales/orders/OrderListTable.jsx
+import React, { useState, useEffect, useMemo } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlus, faEye, faEdit, faTrash, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faPlus, faEye, faEdit, faRefresh, faSort, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 import CreateOrderModal from "./CreateOrderModal";
 import EditOrderModal from "./EditOrderModal";
 import ViewOrderModal from "./ViewOrderModal";
@@ -8,334 +9,342 @@ import toast from "react-hot-toast";
 import apiService from "@/app/lib/apiService";
 import { useRouter } from "next/navigation";
 
-const OrderListTable = () => {
+// Reusable Sorting Hook
+const useSortableData = (items, config = { key: 'created_at', direction: 'desc' }) => {
+    const [sortConfig, setSortConfig] = useState(config);
+
+    const sortedItems = useMemo(() => {
+        let sortableItems = [...items];
+
+        if (sortConfig.key) {
+            sortableItems.sort((a, b) => {
+                let aValue = a[sortConfig.key];
+                let bValue = b[sortConfig.key];
+
+                // Handle dates from originalData
+                if (sortConfig.key === 'created_at') {
+                    aValue = new Date(a.originalData?.created_at || 0);
+                    bValue = new Date(b.originalData?.created_at || 0);
+                }
+                if (sortConfig.key === 'deliveryDate') {
+                    aValue = new Date(a.originalData?.delivery_date || 0);
+                    bValue = new Date(b.originalData?.delivery_date || 0);
+                }
+
+                if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        return sortableItems;
+    }, [items, sortConfig]);
+
+    const requestSort = (key) => {
+        let direction = 'desc';
+        if (sortConfig.key === key && sortConfig.direction === 'desc') {
+            direction = 'asc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const getSortIcon = (key) => {
+        if (sortConfig.key !== key) return <FontAwesomeIcon icon={faSort} className="ml-1 opacity-30" />;
+        return sortConfig.direction === 'asc'
+            ? <FontAwesomeIcon icon={faSortUp} className="ml-1 text-blue-600" />
+            : <FontAwesomeIcon icon={faSortDown} className="ml-1 text-blue-600" />;
+    };
+
+    return { items: sortedItems, requestSort, getSortIcon };
+};
+
+const OrderListTable = ({ initialOrders = [], onRefresh }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedOrderId, setSelectedOrderId] = useState(null);
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [orders, setOrders] = useState(initialOrders);
+    const [loading, setLoading] = useState(initialOrders.length === 0);
     const [error, setError] = useState("");
     const [customers, setCustomers] = useState({});
     const [employees, setEmployees] = useState({});
     const itemsPerPage = 12;
     const router = useRouter();
 
-    // Skeleton rows for loading state
     const skeletonRows = Array.from({ length: 8 }, (_, i) => i);
 
-    // Fetch customer details
-    const fetchCustomerDetails = async (customerId) => {
-        try {
-            const response = await apiService.getCustomerById(customerId, router);
-            const data = response.data || response;
+    // Format orders
+    const formattedOrders = useMemo(() => {
+        return orders.map(order => {
+            const customer = customers[order.customer_id] || { name: 'Unknown Customer', phone: order.phone_number };
+            const employee = employees[order.created_by] || { name: 'Unknown Employee' };
+
             return {
-                name: data.name || 'Unknown Customer',
-                email: data.email || '',
-                phone: data.phone_number || ''
+                id: order.order_id,
+                order_number: order.order_number,
+                customer: customer.name,
+                address: order.dispatch_address || 'Not specified',
+                deliveryDate: order.delivery_date ? new Date(order.delivery_date).toLocaleDateString('en-GB') : 'Not set',
+                delivery_status: order.delivery_status || 'pending',
+                payment_status: order.payment_status || 'unpaid',
+                phone: customer.phone || order.phone_number,
+                amount: order.total_amount || 0,
+                created_by: employee.name,
+                created_at: order.created_at ? new Date(order.created_at).toLocaleString('en-GB') : 'Not set',
+                originalData: order
             };
-        } catch (error) {
-            console.error(`Error fetching customer ${customerId}:`, error);
-            return { name: 'Unknown Customer', email: '', phone: '' };
+        });
+    }, [orders, customers, employees]);
+
+    // Apply sorting
+    const { items: sortedOrders, requestSort, getSortIcon } = useSortableData(
+        formattedOrders,
+        { key: 'created_at', direction: 'desc' }
+    );
+
+    // Apply search
+    const processedOrders = useMemo(() => {
+        return sortedOrders.filter(order =>
+            [order.order_number, order.customer, order.address, order.deliveryDate, order.created_by, order.delivery_status, order.payment_status]
+                .some(field => field?.toString().toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+    }, [sortedOrders, searchTerm]);
+
+    // Pagination
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentOrders = processedOrders.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(processedOrders.length / itemsPerPage);
+
+    const paginate = (page) => setCurrentPage(page);
+
+    // Fetch helpers
+    const fetchCustomerDetails = async (customerId) => {
+        if (!customerId) return { name: 'Unknown Customer', phone: '' };
+        try {
+            const res = await apiService.getCustomerById(customerId, router);
+            const data = res.data || res;
+            return { name: data.name || 'Unknown Customer', phone: data.phone_number || '' };
+        } catch (err) {
+            return { name: 'Unknown Customer', phone: '' };
         }
     };
 
-    // Fetch employee details
     const fetchEmployeeDetails = async (employeeId) => {
+        if (!employeeId) return { name: 'Unknown Employee' };
         try {
-            const response = await apiService.getEmployeeById(employeeId, router);
-            const data = response.data || response;
-            return {
-                name: `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Unknown Employee'
-            };
-        } catch (error) {
-            console.error(`Error fetching employee ${employeeId}:`, error);
+            const res = await apiService.getEmployeeById(employeeId, router);
+            const data = res.data || res;
+            return { name: `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Unknown Employee' };
+        } catch (err) {
             return { name: 'Unknown Employee' };
         }
     };
 
-    // Fetch orders from backend
     const fetchOrders = async () => {
         try {
             setLoading(true);
+            setError("");
             const response = await apiService.getOrders(router);
+
             if (response.status === "success") {
                 const ordersData = response.data || [];
                 setOrders(ordersData);
 
-                // Get unique customer and employee ids
-                const customerIds = [...new Set(ordersData.map(order => order.customer_id).filter(id => id))];
-                const employeeIds = [...new Set(ordersData.map(order => order.created_by).filter(id => id))];
+                const customerIds = [...new Set(ordersData.map(o => o.customer_id).filter(Boolean))];
+                const employeeIds = [...new Set(ordersData.map(o => o.created_by).filter(Boolean))];
 
-                // Fetch customers
-                const customersData = await Promise.all(
-                    customerIds.map(async (id) => {
-                        const data = await fetchCustomerDetails(id);
-                        return [id, data];
-                    })
-                );
-                const customersMap = Object.fromEntries(customersData);
+                const customerResults = await Promise.all(customerIds.map(id => fetchCustomerDetails(id)));
+                const customersMap = Object.fromEntries(customerIds.map((id, i) => [id, customerResults[i]]));
+                setCustomers(customersMap);
 
-                // Fetch employees
-                const employeesData = await Promise.all(
-                    employeeIds.map(async (id) => {
-                        const data = await fetchEmployeeDetails(id);
-                        return [id, data];
-                    })
-                );
-                const employeesMap = Object.fromEntries(employeesData);
-
-                // Update state
-                setCustomers((prev) => ({ ...prev, ...customersMap }));
-                setEmployees((prev) => ({ ...prev, ...employeesMap }));
-            } else {
-                setError(response.message || "Failed to fetch orders");
-                toast.error(response.message || "Failed to fetch orders");
+                const employeeResults = await Promise.all(employeeIds.map(id => fetchEmployeeDetails(id)));
+                const employeesMap = Object.fromEntries(employeeIds.map((id, i) => [id, employeeResults[i]]));
+                setEmployees(employeesMap);
             }
         } catch (error) {
             console.error("Error fetching orders:", error);
-            setError(error.message);
-            toast.error(error.message);
+            setError("Failed to load orders");
+            toast.error("Failed to load orders");
         } finally {
             setLoading(false);
+            onRefresh?.();
         }
     };
 
     useEffect(() => {
-        fetchOrders();
-    }, []);
-
-    const getStatusColor = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'pending':
-                return 'text-orange-500';
-            case 'processing':
-                return 'text-yellow-500';
-            case 'shipped':
-                return 'text-purple-500';
-            case 'delivered':
-                return 'text-green-500';
-            case 'canceled':
-                return 'text-red-500';
-            case 'unpaid':
-                return 'text-red-500';
-            default:
-                return 'text-gray-500';
+        if (initialOrders.length > 0) {
+            setOrders(initialOrders);
+            setLoading(false);
+        } else {
+            fetchOrders();
         }
-    };
+    }, [initialOrders]);
 
-    const formatOrderData = (order) => {
-        const customer = customers[order.customer_id] || { name: 'Unknown Customer', email: '', phone: '' };
-        const employee = employees[order.created_by] || { name: 'Unknown Employee' };
-
-        return {
-            id: order.order_id,
-            order_number: order.order_number,
-            customer: customer.name,
-            customer_id: order.customer_id,
-            address: order.dispatch_address,
-            deliveryDate: order.delivery_date ? new Date(order.delivery_date).toLocaleDateString() : 'Not set',
-            status: order.status,
-            phone: customer.phone || order.phone_number,
-            email: customer.email,
-            items: order.order_details?.map(detail => ({
-                id: detail.product_id?.id || detail.product_id,
-                name: detail.product_id?.name || 'Product',
-                price: detail.product_id?.price || 0,
-                quantity: detail.quantity
-            })) || [],
-            amount: order.total_amount,
-            additional_costs: order.additional_costs || 0,
-            notes: order.notes,
-            created_by: employee.name,
-            created_at: order.created_at ? new Date(order.created_at).toLocaleString() : 'Not set',
-            created_by_id: order.created_by,
-            originalData: order
+    // Status badges
+    const getDeliveryStatusBadge = (status) => {
+        const s = (status || '').toLowerCase();
+        const map = {
+            pending: "bg-orange-100 text-orange-700 border border-orange-300",
+            processing: "bg-yellow-100 text-yellow-700 border border-yellow-300",
+            shipped: "bg-blue-100 text-blue-700 border border-blue-300",
+            delivered: "bg-green-100 text-green-700 border border-green-300",
+            canceled: "bg-red-100 text-red-700 border border-red-300",
         };
+        return map[s] || "bg-gray-100 text-gray-700 border border-gray-300";
     };
 
-    const filteredOrders = orders
-        .map(formatOrderData)
-        .filter(order =>
-            order.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.deliveryDate?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.created_by?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+    const getPaymentStatusBadge = (status) => {
+        return status === "paid"
+            ? "bg-green-100 text-green-700 border border-green-300"
+            : "bg-red-100 text-red-700 border border-red-300";
+    };
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+    const canEditOrder = (order) => {
+        const o = order.originalData || order;
+        return (o.delivery_status || 'pending') === 'pending' && (o.payment_status || 'unpaid') === 'unpaid';
+    };
 
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const openEditModal = (id) => { setSelectedOrderId(id); setIsEditModalOpen(true); };
+    const openViewModal = (id) => { setSelectedOrderId(id); setIsViewModalOpen(true); };
 
-    const handleOrderSubmit = async (newOrderData) => {
+    const handleOrderSubmit = async (data) => {
         try {
-            const response = await apiService.createOrder(newOrderData, router);
-            if (response.status === "success") {
+            const res = await apiService.createOrder(data, router);
+            if (res.status === "success") {
                 await fetchOrders();
                 setIsCreateModalOpen(false);
                 toast.success("Order created successfully!");
             } else {
-                toast.error(response.message || "Failed to create order");
+                toast.error(res.message || "Failed to create order");
             }
-        } catch (error) {
-            console.error("Error creating order:", error);
-            toast.error(error.message);
+        } catch (err) {
+            toast.error("Error creating order");
         }
     };
 
-    const handleEditOrder = async (updatedOrderData) => {
+    const handleEditOrder = async (data) => {
         try {
-            const response = await apiService.updateOrder(selectedOrderId, updatedOrderData, router);
-            if (response.status === "success") {
+            const res = await apiService.updateOrder(selectedOrderId, data, router);
+            if (res.status === "success") {
                 await fetchOrders();
                 setIsEditModalOpen(false);
                 setSelectedOrderId(null);
                 toast.success("Order updated successfully!");
             } else {
-                toast.error(response.message || "Failed to update order");
+                toast.error(res.message || "Failed to update order");
             }
-        } catch (error) {
-            console.error("Error updating order:", error);
-            toast.error(error.message);
+        } catch (err) {
+            toast.error("Error updating order");
         }
     };
 
-    const openEditModal = (orderId) => {
-        setSelectedOrderId(orderId);
-        setIsEditModalOpen(true);
-    };
-
-    const openViewModal = (orderId) => {
-        setSelectedOrderId(orderId);
-        setIsViewModalOpen(true);
-    };
-
-    const canEditOrder = (status) => {
-        return status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'unpaid';
-    };
-
     return (
-        <div>
-            <div className="flex justify-between items-center my-10">
-                <h2 className="text-lg font-bold">Order Table</h2>
-                <div className="flex items-center gap-2">
+        <div className="py-4">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                <h2 className="text-2xl font-bold text-gray-800">Orders</h2>
+                <div className="flex flex-wrap items-center gap-3">
                     <div className="relative">
-                        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="Search orders"
-                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            placeholder="Search orders..."
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-600 outline-none w-64"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                             disabled={loading}
                         />
                     </div>
-                    <button
-                        className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={() => setIsCreateModalOpen(true)}
-                        disabled={loading}
-                    >
-                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                        Create sales order
+                    <button onClick={() => setIsCreateModalOpen(true)} className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2">
+                        <FontAwesomeIcon icon={faPlus} /> Create Order
                     </button>
-                    <button
-                        className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={fetchOrders}
-                        disabled={loading}
-                    >
-                        <FontAwesomeIcon icon={faRefresh} className="mr-2" />
-                        Refresh
+                    <button onClick={fetchOrders} className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-2">
+                        <FontAwesomeIcon icon={faRefresh} className={loading ? "animate-spin" : ""} /> Refresh
                     </button>
                 </div>
             </div>
 
-            {error && (
-                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {error}
-                </div>
-            )}
+            {error && <div className="mb-6 p-4 bg-red-50 border border-red-300 text-red-700 rounded-lg">{error}</div>}
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full text-left table-auto">
-                    <thead>
-                        <tr className="text-gray-600 text-sm border-b border-gray-300">
-                            <th className="pb-4 px-4 whitespace-nowrap">Order Number</th>
-                            <th className="pb-4 px-4 whitespace-nowrap">Customer Name</th>
-                            <th className="pb-4 px-4">Dispatch Address</th>
-                            <th className="pb-4 px-4 whitespace-nowrap">Date of Delivery</th>
-                            <th className="pb-4 px-4 whitespace-nowrap">Created By</th>
-                            <th className="pb-4 px-4 whitespace-nowrap">Created At</th>
-                            <th className="pb-4 px-4 whitespace-nowrap">Status</th>
-                            <th className="pb-4 px-4 whitespace-nowrap">Actions</th>
+            {/* Table */}
+            <div className="overflow-x-auto bg-white rounded-lg shadow">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th onClick={() => requestSort('order_number')} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100">
+                                Order No. {getSortIcon('order_number')}
+                            </th>
+                            <th onClick={() => requestSort('customer')} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100">
+                                Customer {getSortIcon('customer')}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Address</th>
+                            <th onClick={() => requestSort('deliveryDate')} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100">
+                                Delivery Date {getSortIcon('deliveryDate')}
+                            </th>
+                            <th onClick={() => requestSort('created_by')} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100">
+                                Created By {getSortIcon('created_by')}
+                            </th>
+                            <th onClick={() => requestSort('created_at')} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100">
+                                Created At {getSortIcon('created_at')}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Delivery Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="bg-white divide-y divide-gray-200">
                         {loading ? (
-                            skeletonRows.map((index) => (
-                                <tr key={index} className="border-b border-gray-300 animate-pulse">
-                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
-                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-32"></div></td>
-                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-40"></div></td>
-                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-28"></div></td>
-                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-28"></div></td>
-                                    <td className="py-5 px-4"><div className="h-4 bg-gray-200 rounded w-28"></div></td>
-                                    <td className="py-5 px-4"><div className="h-6 bg-gray-200 rounded w-24"></div></td>
-                                    <td className="py-4 px-4 flex space-x-4 mt-2">
-                                        <div className="h-5 w-5 bg-gray-200 rounded"></div>
-                                        <div className="h-5 w-5 bg-gray-200 rounded"></div>
-                                    </td>
+                            skeletonRows.map(i => (
+                                <tr key={i}>
+                                    {[...Array(9)].map((_, j) => (
+                                        <td key={j} className="px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse"></div></td>
+                                    ))}
                                 </tr>
                             ))
                         ) : currentOrders.length > 0 ? (
-                            currentOrders.map((order, index) => (
-                                <tr key={order.id} className="border-b border-gray-300">
-                                    <td className="py-5 px-4 font-mono whitespace-nowrap">{order.order_number}</td>
-                                    <td className="py-5 px-4 whitespace-nowrap">{order.customer}</td>
-                                    <td className="py-5 px-4 whitespace-nowrap">{order.address || 'Not specified'}</td>
-                                    <td className="py-5 px-4 whitespace-nowrap">{order.deliveryDate}</td>
-                                    <td className="py-5 px-4 whitespace-nowrap">{order.created_by}</td>
-                                    <td className="py-5 px-4 whitespace-nowrap">{order.created_at}</td>
-                                    <td className="py-5 px-4 whitespace-nowrap">
-                                        <span className={getStatusColor(order.status)}>
-                                            {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
+                            currentOrders.map(order => (
+                                <tr key={order.id} className="hover:bg-gray-50 transition">
+                                    <td className="px-6 py-4 font-medium text-gray-900 font-mono text-sm">{order.order_number}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{order.customer}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={order.address}>{order.address}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{order.deliveryDate}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-700">{order.created_by}</td>
+                                    <td className="px-6 py-4 text-sm text-gray-500">{order.created_at}</td>
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getDeliveryStatusBadge(order.delivery_status)}`}>
+                                            {order.delivery_status}
                                         </span>
                                     </td>
-                                    <td className="py-4 px-4 flex space-x-4 mt-2">
-                                        <FontAwesomeIcon
-                                            icon={faEye}
-                                            className="text-blue-500 cursor-pointer hover:text-blue-700"
-                                            onClick={() => openViewModal(order.id)}
-                                            title="View Order"
-                                        />
-                                        {canEditOrder(order.status) ? (
-                                            <FontAwesomeIcon
-                                                icon={faEdit}
-                                                className="text-green-500 cursor-pointer hover:text-green-700"
-                                                onClick={() => openEditModal(order.id)}
-                                                title="Edit Order"
-                                            />
-                                        ) : (
-                                            <FontAwesomeIcon
-                                                icon={faEdit}
-                                                className="text-gray-400 cursor-not-allowed"
-                                                title="Cannot edit - Order not pending or processing"
-                                            />
-                                        )}
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getPaymentStatusBadge(order.payment_status)}`}>
+                                            {order.payment_status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <button onClick={() => openViewModal(order.id)} className="text-blue-600 hover:text-blue-800" title="View">
+                                                <FontAwesomeIcon icon={faEye} />
+                                            </button>
+                                            {canEditOrder(order) ? (
+                                                <button onClick={() => openEditModal(order.id)} className="text-green-600 hover:text-green-800" title="Edit">
+                                                    <FontAwesomeIcon icon={faEdit} />
+                                                </button>
+                                            ) : (
+                                                <span className="text-gray-400 cursor-not-allowed">
+                                                    <FontAwesomeIcon icon={faEdit} />
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="8" className="py-4 px-4 text-center text-gray-500">
-                                    {orders.length === 0 ? "No orders found" : "No orders match your search"}
+                                <td colSpan="9" className="px-6 py-16 text-center text-gray-500">
+                                    {searchTerm ? "No orders match your search" : "No orders found"}
                                 </td>
                             </tr>
                         )}
@@ -343,57 +352,45 @@ const OrderListTable = () => {
                 </table>
             </div>
 
+            {/* Pagination */}
             {!loading && totalPages > 1 && (
-                <div className="mt-4 flex justify-center items-center">
-                    <button
-                        onClick={() => paginate(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="px-3 py-1 bg-[#b88b1b] text-white hover:bg-[#8b6a15] transition-all rounded-md mr-2 disabled:opacity-50"
-                    >
-                        Previous
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                            key={page}
-                            onClick={() => paginate(page)}
-                            className={`px-3 py-1 mx-1 rounded-md ${currentPage === page ? 'bg-[#b88b1b] text-white' : 'bg-gray-200 text-gray-700'}`}
-                        >
-                            {page}
-                        </button>
-                    ))}
-                    <button
-                        onClick={() => paginate(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 bg-[#b88b1b] text-white hover:bg-[#8b6a15] transition-all rounded-md ml-2 disabled:opacity-50"
-                    >
-                        Next
-                    </button>
+                <div className="mt-4 flex justify-between items-center px-4">
+                    <div className="text-sm text-gray-600">
+                        Showing {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, processedOrders.length)} of {processedOrders.length}
+                    </div>
+                    <div className="flex gap-2">
+                        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}
+                            className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50">Previous</button>
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                            const page = currentPage <= 3 ? i + 1 : currentPage > totalPages - 3 ? totalPages - 4 + i : currentPage - 2 + i;
+                            if (page < 1 || page > totalPages) return null;
+                            return (
+                                <button key={page} onClick={() => paginate(page)}
+                                    className={`px-4 py-2 rounded ${currentPage === page ? 'bg-yellow-600 text-white' : 'border hover:bg-gray-50'}`}>
+                                    {page}
+                                </button>
+                            );
+                        })}
+                        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}
+                            className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-gray-50">Next</button>
+                    </div>
                 </div>
             )}
 
-            <CreateOrderModal
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-                onSubmit={handleOrderSubmit}
-            />
+            {/* Modals */}
+            <CreateOrderModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onSubmit={handleOrderSubmit} />
             <EditOrderModal
                 isOpen={isEditModalOpen}
-                onClose={() => {
-                    setIsEditModalOpen(false);
-                    setSelectedOrderId(null);
-                }}
+                onClose={() => { setIsEditModalOpen(false); setSelectedOrderId(null); }}
                 onSubmit={handleEditOrder}
                 order={orders.find(o => o.order_id === selectedOrderId)}
             />
             <ViewOrderModal
                 isOpen={isViewModalOpen}
-                onClose={() => {
-                    setIsViewModalOpen(false);
-                    setSelectedOrderId(null);
-                }}
+                onClose={() => { setIsViewModalOpen(false); setSelectedOrderId(null); }}
                 order={orders.find(o => o.order_id === selectedOrderId)}
                 customer={customers[orders.find(o => o.order_id === selectedOrderId)?.customer_id]}
-                createdById={orders.find(o => o.order_id === selectedOrderId)?.created_by}
+                createdBy={employees[orders.find(o => o.order_id === selectedOrderId)?.created_by]?.name || 'Unknown Employee'}
             />
         </div>
     );

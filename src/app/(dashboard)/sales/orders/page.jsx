@@ -34,38 +34,42 @@ export default function OrdersPage() {
     const [allOrders, setAllOrders] = useState([]);
     const router = useRouter();
 
-    const first_name = localStorage.getItem('first_name');
+    const first_name = typeof window !== 'undefined' ? localStorage.getItem('first_name') || 'User' : 'User';
 
-    // Fetch orders and calculate statistics
-    const fetchOrderStats = async () => {
+    const calculateStats = (orders) => {
+        const stats = {
+            total: orders.length,
+            unpaid: orders.filter(o => (o.payment_status || '').toLowerCase() !== 'paid').length,
+            pending: orders.filter(o => (o.delivery_status || '').toLowerCase() === 'pending').length,
+            processing: orders.filter(o => (o.delivery_status || '').toLowerCase() === 'processing').length,
+            shipped: orders.filter(o => (o.delivery_status || '').toLowerCase() === 'shipped').length,
+            delivered: orders.filter(o => (o.delivery_status || '').toLowerCase() === 'delivered').length,
+            canceled: orders.filter(o => (o.delivery_status || '').toLowerCase() === 'canceled').length,
+        };
+        setOrderStats(stats);
+    };
+
+    const fetchOrders = async () => {
         try {
             setLoading(true);
             const response = await apiService.getOrders(router);
+
             if (response.status === "success") {
                 const orders = response.data || [];
-                setAllOrders(orders); // ✅ STORE ALL ORDERS
-                
-                const stats = {
-                    total: orders.length,
-                    unpaid: orders.filter(order => order.status?.toLowerCase() === 'unpaid').length,
-                    processing: orders.filter(order => order.status?.toLowerCase() === 'processing').length,
-                    shipped: orders.filter(order => order.status?.toLowerCase() === 'shipped').length,
-                    delivered: orders.filter(order => order.status?.toLowerCase() === 'delivered').length,
-                    canceled: orders.filter(order => order.status?.toLowerCase() === 'canceled').length
-                };
-                
-                setOrderStats(stats);
+                setAllOrders(orders);
+                calculateStats(orders);
             }
         } catch (error) {
-            console.error("Error fetching order stats:", error);
+            console.error("Error fetching orders:", error);
         } finally {
             setLoading(false);
         }
     };
 
+
     useEffect(() => {
-        fetchOrderStats();
-        
+        fetchOrders();
+
         const updateDateTimeAndGreeting = () => {
             const now = new Date();
             const hours = now.getHours();
@@ -143,7 +147,7 @@ export default function OrdersPage() {
                     {currentDateTime}
                 </span>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
                 <OrderCard
                     title="Total orders"
@@ -181,12 +185,12 @@ export default function OrdersPage() {
                     textColor="text-green-800"
                 />
             </div>
-            
+
             <div className="mt-8">
-                <OrderListTable 
+                <OrderListTable
                     orders={allOrders}
                     editableStatuses={['unpaid']}
-                    onOrderUpdate={fetchOrderStats} 
+                    onOrderUpdate={fetchOrderStats}
                 />
             </div>
         </div>

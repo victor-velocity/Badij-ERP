@@ -6,6 +6,25 @@ import { faChevronDown, faChevronUp, faPlus } from "@fortawesome/free-solid-svg-
 import apiService from "@/app/lib/apiService";
 import toast from "react-hot-toast";
 
+// Helper: Calculate how many finished products can be built
+const calculateMaxBuildable = (product) => {
+  if (!product.components_needed || product.components_needed.length === 0) {
+    return "Unlimited"; // No BOM → can build as many as stock allows (or treat as infinite)
+  }
+
+  const limits = product.components_needed
+    .filter((comp) => comp.required_quantity > 0)
+    .map((comp) => {
+      const available = comp.available_quantity || 0;
+      const required = comp.required_quantity || 1;
+      return Math.floor(available / required);
+    });
+
+  if (limits.length === 0) return "Unlimited";
+  const maxBuildable = Math.min(...limits);
+  return maxBuildable < 0 ? 0 : maxBuildable;
+};
+
 const AddComponentModal = ({
   onClose,
   onSuccess,
@@ -78,11 +97,8 @@ const AddComponentModal = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Component Search */}
           <div className="relative">
-            <label className="block text-sm font-medium text-gray-700">
-              Component
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Component</label>
             <input
               type="text"
               value={searchTerm}
@@ -121,14 +137,12 @@ const AddComponentModal = ({
             )}
           </div>
 
-          {/* Selected Component */}
           {formData.component_id && (
             <div className="bg-green-50 text-green-800 p-2 rounded text-sm">
               Selected: <strong>{searchTerm}</strong>
             </div>
           )}
 
-          {/* Quantity */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Required Quantity
@@ -148,7 +162,6 @@ const AddComponentModal = ({
             />
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-end gap-3">
             <button
               type="button"
@@ -171,7 +184,6 @@ const AddComponentModal = ({
   );
 };
 
-// Skeleton Row
 const SkeletonRow = () => (
   <tr>
     <td className="px-6 py-4">
@@ -198,7 +210,7 @@ export default function StocksTable({
   currentPage = 1,
   setCurrentPage,
   itemsPerPage = 10,
-  refreshTrigger
+  refreshTrigger,
 }) {
   const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -263,17 +275,16 @@ export default function StocksTable({
   };
 
   const filteredItems = useMemo(() => {
-  return allItems.filter((item) => {
-    const matchesFilter = filter === "all" || item.type === filter;
-    const matchesSearch =
-      searchTerm === "" ||
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.sku && item.sku.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesFilter && matchesSearch;
-  });
-}, [allItems, filter, searchTerm]);
+    return allItems.filter((item) => {
+      const matchesFilter = filter === "all" || item.type === filter;
+      const matchesSearch =
+        searchTerm === "" ||
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.sku && item.sku.toLowerCase().includes(searchTerm.toLowerCase()));
+      return matchesFilter && matchesSearch;
+    });
+  }, [allItems, filter, searchTerm]);
 
-  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
@@ -290,7 +301,7 @@ export default function StocksTable({
 
   const handleAddComponentSuccess = () => {
     setShowAddComponentModal(false);
-    loadStockSummary(); // Refresh to show new component
+    loadStockSummary();
   };
 
   const handlePageChange = (pageNumber) => {
@@ -308,21 +319,18 @@ export default function StocksTable({
 
   return (
     <div>
-      {/* Error Message */}
       {error && (
         <div className="mb-4 bg-red-100 border border-red-400 text-red-700 rounded p-3">
           {error}
         </div>
       )}
 
-      {/* Summary */}
       <div className="mb-4 text-sm text-gray-600">
         Showing {filteredItems.length} of {allItems.length} items
         {filter !== "all" && ` (${filter})`}
         {searchTerm && ` matching "${searchTerm}"`}
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -351,10 +359,7 @@ export default function StocksTable({
               ))
             ) : currentItems.length === 0 ? (
               <tr>
-                <td
-                  colSpan="5"
-                  className="px-6 py-8 text-center text-gray-500"
-                >
+                <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
                   {searchTerm || filter !== "all"
                     ? "No items match your search/filter"
                     : "No stock entries found"}
@@ -377,14 +382,14 @@ export default function StocksTable({
                       {item.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.sku}
+                      {item.sku || "-"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {item.stock_quantity}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       {item.type === "product" && (
-                        <div className="flex items-center gap-3 flex-nowrap">
+                        <div className="flex items-center gap-3">
                           <button
                             onClick={() => handleAddComponent(item.id)}
                             className="bg-[#b88b1b] text-white p-2 rounded-lg text-xs hover:bg-[#9a7716] flex items-center"
@@ -396,11 +401,7 @@ export default function StocksTable({
                             <button
                               onClick={() => toggleExpanded(item.id)}
                               className="text-[#b88b1b] hover:text-[#9a7716] p-1 rounded hover:bg-amber-100"
-                              title={
-                                expanded[item.id]
-                                  ? "Hide Components"
-                                  : "Show Components"
-                              }
+                              title={expanded[item.id] ? "Hide Components" : "Show Components"}
                             >
                               <FontAwesomeIcon
                                 icon={expanded[item.id] ? faChevronUp : faChevronDown}
@@ -412,13 +413,14 @@ export default function StocksTable({
                     </td>
                   </tr>
 
-                  {/* Expanded Components */}
+                  {/* Expanded: Components Needed + Buildable Summary */}
                   {item.type === "product" && expanded[item.id] && (
                     <tr>
                       <td colSpan="5" className="px-6 py-4 bg-gray-50">
-                        <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-3">
                           Components Needed
                         </h4>
+
                         <table className="min-w-full divide-y divide-gray-200">
                           <thead className="bg-gray-100">
                             <tr>
@@ -434,27 +436,52 @@ export default function StocksTable({
                               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Available
                               </th>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Supports
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
-                            {item.components_needed.map((comp) => (
-                              <tr key={comp.component_id}>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                                  {comp.name}
-                                </td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  {comp.sku}
-                                </td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                                  {comp.required_quantity}
-                                </td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                                  {comp.available_quantity}
-                                </td>
-                              </tr>
-                            ))}
+                            {item.components_needed.map((comp) => {
+                              const supports =
+                                comp.required_quantity > 0
+                                  ? Math.floor(comp.available_quantity / comp.required_quantity)
+                                  : 0;
+                              return (
+                                <tr key={comp.component_id}>
+                                  <td className="px-4 py-2 text-sm text-gray-900">
+                                    {comp.name}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm text-gray-500">
+                                    {comp.sku || "-"}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm text-gray-900">
+                                    {comp.required_quantity}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm text-gray-900">
+                                    {comp.available_quantity}
+                                  </td>
+                                  <td className="px-4 py-2 text-sm font-medium text-amber-700">
+                                    {supports}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
+
+                        {/* Final Summary: Max Buildable Products */}
+                        <div className="mt-5 p-5 bg-amber-50 rounded-lg border border-amber-300">
+                          <p className="text-lg font-bold text-amber-900">
+                            Maximum products you can assemble right now:
+                          </p>
+                          <p className="text-4xl font-extrabold text-amber-700 mt-2">
+                            {calculateMaxBuildable(item)}
+                          </p>
+                          <p className="text-sm text-amber-800 mt-2">
+                            Limited by the component with the lowest available ÷ required ratio
+                          </p>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -470,8 +497,7 @@ export default function StocksTable({
         <div className="flex items-center justify-between mt-6">
           <div className="text-sm text-gray-700">
             Showing {indexOfFirstItem + 1} to{" "}
-            {Math.min(indexOfLastItem, filteredItems.length)} of{" "}
-            {filteredItems.length} items
+            {Math.min(indexOfLastItem, filteredItems.length)} of {filteredItems.length} items
           </div>
           <div className="flex items-center space-x-2">
             <button
