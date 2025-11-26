@@ -104,10 +104,10 @@ const LeaveRequests = () => {
     };
 
     const filteredLeaves = useMemo(() => {
-        const nonCancelledLeaves = leavesData.filter(
-            leave => leave.status.toLowerCase() !== 'cancelled'
+        const leavesArray = Array.isArray(leavesData) ? leavesData : [];
+        const nonCancelledLeaves = leavesArray.filter(
+            leave => leave?.status?.toLowerCase() !== 'cancelled'
         );
-
         if (!searchTerm) {
             return nonCancelledLeaves;
         }
@@ -124,26 +124,21 @@ const LeaveRequests = () => {
     }, [searchTerm, leavesData]);
 
     const leaveStats = useMemo(() => {
-        const stats = {
-            total: 0,
-            pending: 0,
-            approved: 0,
-            rejected: 0,
-        };
+        const list = leavesData ?? []; // null or undefined → []
 
-        leavesData.forEach(leave => {
-            if (leave.status.toLowerCase() !== 'cancelled') {
-                stats.total++;
-                if (leave.status.toLowerCase() === 'pending') {
-                    stats.pending++;
-                } else if (leave.status.toLowerCase() === 'approved') {
-                    stats.approved++;
-                } else if (leave.status.toLowerCase() === 'rejected') {
-                    stats.rejected++;
+        return list.reduce(
+            (stats, leave) => {
+                const status = leave?.status?.toLowerCase();
+                if (status && status !== 'cancelled') {
+                    stats.total++;
+                    if (status === 'pending') stats.pending++;
+                    else if (status === 'approved') stats.approved++;
+                    else if (status === 'rejected') stats.rejected++;
                 }
-            }
-        });
-        return stats;
+                return stats;
+            },
+            { total: 0, pending: 0, approved: 0, rejected: 0 }
+        );
     }, [leavesData]);
 
     const indexOfLastLeave = currentPage * employeesPerPage;
