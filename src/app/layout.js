@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config } from '@fortawesome/fontawesome-svg-core';
+import Footer from "@/components/Footer";
 
 config.autoAddCss = false;
 
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
       >
         <Toaster position="top right" />
         {children}
+        <Footer />
       </body>
     </html>
   );
