@@ -28,7 +28,7 @@ export default function ClientLayout({ children, isLoggedIn }) {
 
       <div
         id="inactivity-modal"
-        className="fixed inset-0 bg-black/70 items-center justify-center z-[9999] hidden"
+        className="fixed inset-0 bg-[#000000aa] items-center justify-center z-[9999] hidden"
         style={{ display: "none" }}
       >
         <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center shadow-2xl">
@@ -48,7 +48,7 @@ export default function ClientLayout({ children, isLoggedIn }) {
           </p>
           <button
             id="stay-logged-in-btn"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-10 rounded-lg transition duration-200 transform hover:scale-105"
+            className="bg-[#b88b1b] hover:bg-[#92701b] text-white font-semibold py-3 px-10 rounded-lg transition duration-200 transform hover:scale-105"
           >
             Stay Logged In
           </button>
