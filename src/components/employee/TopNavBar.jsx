@@ -109,9 +109,9 @@ export default function TopNavBar({ onMobileMenuToggle, profile }) {
                     >
                         {leaveBalance !== null && (
                             <div className="p-1">
-                                <div className={`relative w-8 h-8 rounded-full ${getLeaveBalanceColor(leaveBalance)} flex items-center justify-center text-white font-bold text-xs shadow-md transition-all group-hover:scale-110`}>
+                                <div className={`relative w-10 h-10 rounded-full ${getLeaveBalanceColor(leaveBalance)} flex items-center justify-center text-white font-bold text-[11px] shadow-md transition-all group-hover:scale-110`}>
                                     <span className="relative z-10">
-                                        {leaveBalance}
+                                        {leaveBalance}/<span>21</span>
                                     </span>
                                 </div>
                                 <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">

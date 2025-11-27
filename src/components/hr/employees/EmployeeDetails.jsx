@@ -5,22 +5,29 @@ import React, { useState, useEffect } from "react";
 import apiService from "@/app/lib/apiService";
 import Image from "next/image";
 import { faLocation, faPhone } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFileAlt,
+  faDownload,
+  faSignature,
+  faFolderOpen,
+  faExternalLinkAlt
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const DEFAULT_AVATAR = "/default-profile.png";
 
 const formatDate = (iso) => {
-    if (!iso) return '—';
-    try {
-        const date = new Date(iso);
-        if (isNaN(date.getTime())) return 'Invalid Date';
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    } catch {
-        return '—';
-    }
+  if (!iso) return '—';
+  try {
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  } catch {
+    return '—';
+  }
 };
 
 const formatCurrency = (n) =>
@@ -374,28 +381,108 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
             </section>
           ) : null}
 
-          {/* Documents */}
-          {rawEmployee.document_urls?.length > 0 && !isLoading && (
-            <section>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Documents</h3>
-              <div className="flex flex-wrap gap-2">
-                {rawEmployee.document_urls.map((url, i) => (
-                  <a
-                    key={i}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm hover:bg-blue-100 transition"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Document {i + 1}
-                  </a>
-                ))}
-              </div>
-            </section>
-          )}
+          {/* Signature & Documents Section */}
+          <section>
+            <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+              <FontAwesomeIcon icon={faFileAlt} className="w-5 h-5 mr-2 text-[#b88b1b]" />
+              Signature & Uploaded Documents
+            </h3>
+
+            <div className="space-y-8">
+
+              {/* Employee Signature - Direct signature_url field */}
+              {rawEmployee.signature_url && !isLoading && (
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-6 shadow-md">
+                  <h4 className="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                    <FontAwesomeIcon icon={faSignature} className="w-6 h-6 mr-3 text-indigo-600" />
+                    Employee Digital Signature
+                  </h4>
+                  <div className="flex flex-col md:flex-row items-center gap-6 bg-white rounded-xl p-6 shadow-inner">
+                    <div className="flex-shrink-0">
+                      <img
+                        src={rawEmployee.signature_url}
+                        alt="Employee Signature"
+                        className="h-32 w-auto object-contain border border-gray-300 rounded-lg shadow-md"
+                        onError={(e) => {
+                          e.target.src = "/signature-placeholder.png"; // fallback
+                          e.target.onerror = null;
+                        }}
+                      />
+                    </div>
+                    <div className="text-center md:text-left">
+                      <p className="text-2xl font-bold text-gray-800">{fullName}</p>
+                      <p className="text-sm text-gray-600 mt-1">{rawEmployee.position || "Employee"}</p>
+                      <a
+                        href={rawEmployee.signature_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 mt-4 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow"
+                      >
+                        <FontAwesomeIcon icon={faDownload} />
+                        Download Signature
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Other Uploaded Documents */}
+              {rawEmployee.employee_documents && rawEmployee.employee_documents.length > 0 && !isLoading && (
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                    <FontAwesomeIcon icon={faFolderOpen} className="w-5 h-5 mr-2 text-[#b88b1b]" />
+                    Other Documents ({rawEmployee.employee_documents.length})
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {rawEmployee.employee_documents.map((doc) => (
+                      <a
+                        key={doc.id}
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center justify-between bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-5 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-blue-100 rounded-full group-hover:bg-blue-200 transition">
+                            <FontAwesomeIcon icon={faFileAlt} className="text-blue-700 text-xl" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-800 text-sm line-clamp-2">
+                              {doc.name || `Document ${doc.id.slice(0, 8)}`}
+                            </p>
+                            <p className="text-xs text-gray-500 capitalize mt-1">
+                              {doc.category || doc.type || "File"}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {doc.created_at ? formatDate(doc.created_at) : ""}
+                            </p>
+                          </div>
+                        </div>
+                        <svg
+                          className="w-5 h-5 text-blue-600 group-hover:text-blue-800 transition"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* No signature & no documents */}
+              {!rawEmployee.signature_url &&
+                (!rawEmployee.employee_documents || rawEmployee.employee_documents.length === 0) &&
+                !isLoading && (
+                  <div className="text-center py-10 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                    <FontAwesomeIcon icon={faFileAlt} className="text-4xl text-gray-300 mb-3" />
+                    <p className="text-lg">No signature or documents uploaded yet.</p>
+                  </div>
+                )}
+            </div>
+          </section>
           {showIdCard && (
             <div
               className="fixed inset-0 bg-white z-50 flex items-center justify-center overflow-auto print:bg-white"

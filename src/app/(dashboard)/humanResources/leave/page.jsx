@@ -254,8 +254,7 @@ const LeaveRequestTable = () => {
                 <MetricCard title="Rejected" value={loading ? '...' : rejectedRequests} icon={faTimesCircle} bgColor="bg-red-50" textColor="text-red-700" />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-0">Leave list</h2>
+            <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center mb-6">
                 <div className="relative w-full sm:w-64">
                     <input
                         type="text"

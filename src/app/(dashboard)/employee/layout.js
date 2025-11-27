@@ -85,6 +85,7 @@ export default function UserLayout({ children }) {
             const employeeLeaveBalance = employeeData.leave_balance
 
             localStorage.setItem('first_name', employeeData.first_name);
+            localStorage.setItem('leave_balance', employeeData.leave_balance);
 
             if (userRole) {
                 setProfile({
