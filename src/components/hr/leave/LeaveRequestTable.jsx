@@ -17,7 +17,7 @@ const calculateLeaveDuration = (startDate, endDate) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffTime = Math.abs(end - start);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
     return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
 };
 
@@ -26,7 +26,7 @@ export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
     const [currentLeaveStatus, setCurrentLeaveStatus] = useState(leaveRequest.status);
     const [isUpdating, setIsUpdating] = useState(false);
 
-    const isStatusLocked = currentLeaveStatus.toLowerCase() === 'approved' || currentLeaveStatus.toLowerCase() === 'rejected';
+    const isStatusLocked = ['approved', 'rejected'].includes(currentLeaveStatus.toLowerCase());
 
     useEffect(() => {
         setCurrentLeaveStatus(leaveRequest.status);
@@ -37,16 +37,19 @@ export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
     };
 
     const getStatusColor = (status) => {
-        switch (status.toLowerCase()) {
-            case 'approved':
-                return 'bg-green-100 text-green-800';
-            case 'pending':
-                return 'bg-yellow-100 text-yellow-800';
-            case 'rejected':
-                return 'bg-red-100 text-red-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
+        switch (status?.toLowerCase()) {
+            case 'approved': return 'bg-green-100 text-green-800';
+            case 'pending': return 'bg-yellow-100 text-yellow-800';
+            case 'rejected': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
         }
+    };
+
+    const getBalanceColor = (balance) => {
+        if (balance === null || balance === undefined) return 'bg-gray-100 text-gray-600';
+        if (balance <= 5) return 'bg-red-100 text-red-800';
+        if (balance <= 10) return 'bg-yellow-100 text-yellow-800';
+        return 'bg-green-100 text-green-800';
     };
 
     const handleDropdownChange = async (e) => {
@@ -55,61 +58,80 @@ export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
         setIsUpdating(true);
 
         try {
-            const updatedLeaveData = {
-                status: newStatus,
-            };
-
-            await apiService.updateLeave(leaveRequest.id, updatedLeaveData);
-
-            toast.success(`Leave request for ${leaveRequest.employee?.first_name} has been updated!`);
-            if (onUpdateStatus) {
-                onUpdateStatus(leaveRequest.id, newStatus);
-            }
+            await apiService.updateLeave(leaveRequest.id, { status: newStatus });
+            toast.success(`Leave request ${newStatus}!`);
+            onUpdateStatus?.(leaveRequest.id, newStatus);
         } catch (error) {
-            console.error('Error updating leave status:', error);
-            toast.error(`Failed to update leave status: ${error.message || 'An unexpected error occurred.'}`);
+            toast.error("Failed to update status");
             setCurrentLeaveStatus(leaveRequest.status);
         } finally {
             setIsUpdating(false);
         }
     };
 
+    const employee = leaveRequest.employee;
+    const leaveBalance = employee?.leave_balance ?? 0;
+
     return (
-        <tr className="hover:bg-gray-50 rounded-lg">
-            <td className="px-6 py-4 whitespace-nowrap rounded-l-lg">
+        <tr className="hover:bg-gray-50 transition-colors">
+            {/* Name + Avatar */}
+            <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden">
+                    <div className="flex-shrink-0 h-10 w-10">
                         <img
-                            className="h-full w-full object-cover rounded-full"
-                            src={leaveRequest.employee?.avatar_url || imgSrc}
-                            alt={`${leaveRequest.employee?.first_name || 'Employee'}'s avatar`}
+                            className="h-10 w-10 rounded-full object-cover border"
+                            src={employee?.avatar_url || imgSrc}
+                            alt=""
                             onError={handleImageError}
                         />
                     </div>
                     <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{`${leaveRequest.employee?.first_name || 'N/A'} ${leaveRequest.employee?.last_name || ''}`}</div>
-                        <div className="text-sm text-gray-500">{leaveRequest.employee?.email || 'N/A'}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                            {employee ? `${employee.first_name} ${employee.last_name}` : 'Unknown'}
+                        </div>
+                        <div className="text-sm text-gray-500">{employee?.email || '—'}</div>
                     </div>
                 </div>
             </td>
+
+            {/* Leave Type */}
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {leaveRequest.leave_type || "N/A"}
+                {leaveRequest.leave_type || "—"}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {leaveRequest.reason || "N/A"}
+
+            {/* Reason */}
+            <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={leaveRequest.reason}>
+                {leaveRequest.reason || "—"}
             </td>
+
+            {/* Start Date */}
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {formatDate(leaveRequest.start_date)}
             </td>
+
+            {/* End Date */}
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {formatDate(leaveRequest.end_date)}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+
+            {/* Leave Days */}
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 {calculateLeaveDuration(leaveRequest.start_date, leaveRequest.end_date)}
             </td>
+
+            {/* Leave Balance - NEW COLUMN */}
+            <td className="px-6 py-4 whitespace-nowrap text-center">
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${getBalanceColor(leaveBalance)}`}>
+                    {leaveBalance} {leaveBalance === 1 ? 'day' : 'days'}
+                </span>
+            </td>
+
+            {/* Approval Status */}
             <td className="px-6 py-4 whitespace-nowrap">
                 <select
-                    className={`px-2 py-1 text-xs leading-5 font-semibold rounded-full ${getStatusColor(currentLeaveStatus)} ${isStatusLocked ? 'opacity-70 cursor-not-allowed' : ''} ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-full border-0 ${getStatusColor(currentLeaveStatus)} 
+                               ${isStatusLocked || isUpdating ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'} 
+                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                     value={currentLeaveStatus}
                     onChange={handleDropdownChange}
                     disabled={isStatusLocked || isUpdating}
@@ -118,14 +140,19 @@ export const LeaveRow = ({ leaveRequest, onUpdateStatus }) => {
                     <option value="approved">Approve</option>
                     <option value="rejected">Decline</option>
                 </select>
-                {isUpdating && (
-                    <span className="ml-2 text-xs text-gray-500">Updating...</span>
-                )}
+                {isUpdating && <span className="ml-2 text-xs text-gray-500">Updating...</span>}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                {leaveRequest.approver?.first_name} {leaveRequest.approver?.last_name || "Not Approved"}
+
+            {/* Approved By */}
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                {leaveRequest.approver 
+                    ? `${leaveRequest.approver.first_name} ${leaveRequest.approver.last_name}`
+                    : "—"
+                }
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 rounded-r-lg">
+
+            {/* Request Date */}
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {formatDate(leaveRequest.created_at)}
             </td>
         </tr>
