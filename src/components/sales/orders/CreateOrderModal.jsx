@@ -42,9 +42,9 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [sendingEmail, setSendingEmail] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
-    const [accountName] = useState("Madison Jay");
-    const [accountNumber] = useState("7045580195");
-    const [bankName] = useState("Fidelity Bank");
+    const [accountName] = useState("Badij Technologies Ltd");
+    const [accountNumber] = useState("0712627429");
+    const [bankName] = useState("Access Bank");
     const router = useRouter();
 
     // Fetch data
@@ -158,17 +158,17 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
 
         return `
         <div style="font-family: Arial, sans-serif; padding: 30px; background: white; color: #333; max-width: 100%;">
-            <div style="display: flex; justify-content: center; margin-bottom: 30px; border-bottom: 3px solid #b88b1b; padding-bottom: 20px;">
-                <img src="/madisonjayng_logo.png" alt="Company Logo" style="max-height: 60px; width: auto;" />
+            <div style="display: flex; justify-content: center; margin-bottom: 30px; border-bottom: 3px solid #153087; padding-bottom: 20px;">
+                <img src="/badij_logo.png" alt="Company Logo" style="max-height: 60px; width: auto;" />
             </div>
             <div style="text-align: center; margin-bottom: 30px;">
-                <h2 style="color: #b88b1b; font-size: 28px; margin: 0; border: 2px solid #b88b1b; display: inline-block; padding: 10px 30px; border-radius: 5px;">
+                <h2 style="color: #153087; font-size: 28px; margin: 0; border: 2px solid #153087; display: inline-block; padding: 10px 30px; border-radius: 5px;">
                     INVOICE
                 </h2>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
                 <div style="flex: 1; min-width: 250px; min-height: 180px;">
-                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
+                    <div style="background: #153087; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
                         <strong>Invoice To:</strong>
                     </div>
                     <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px; height: calc(100% - 42px);">
@@ -179,7 +179,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
                 </div>
                 <div style="flex: 1; min-width: 250px; min-height: 180px;">
-                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
+                    <div style="background: #153087; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
                         <strong>Invoice Details:</strong>
                     </div>
                     <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px; height: calc(100% - 42px);">
@@ -191,18 +191,18 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
                 </div>
                 <div style="flex: 1; min-width: 200px; min-height: 180px;">
-                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0; text-align: center;">
+                    <div style="background: #153087; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0; text-align: center;">
                         <strong>TOTAL DUE</strong>
                     </div>
                     <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px; text-align: center; height: calc(100% - 42px); display: flex; align-items: center; justify-content: center;">
-                        <p style="font-size: 24px; font-weight: bold; color: #b88b1b; margin: 0;">₦${orderData.total_amount.toLocaleString()}</p>
+                        <p style="font-size: 24px; font-weight: bold; color: #153087; margin: 0;">₦${orderData.total_amount.toLocaleString()}</p>
                     </div>
                 </div>
             </div>
             <div style="margin-bottom: 30px;">
                 <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
                     <thead>
-                        <tr style="background: #b88b1b; color: white;">
+                        <tr style="background: #153087; color: white;">
                             <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: bold;">Product Description</th>
                             <th style="padding: 12px; text-align: center; border: 1px solid #ddd; font-weight: bold; width: 100px;">Price</th>
                             <th style="padding: 12px; text-align: center; border: 1px solid #ddd; font-weight: bold; width: 80px;">Qty</th>
@@ -225,7 +225,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
                 <div style="flex: 1; min-width: 300px; min-height: 200px;">
-                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
+                    <div style="background: #153087; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0;">
                         <strong>PAYMENT INFORMATION</strong>
                     </div>
                     <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px; height: calc(100% - 42px);">
@@ -236,7 +236,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
                 </div>
                 <div style="flex: 1; min-width: 250px; min-height: 200px;">
-                    <div style="background: #b88b1b; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0; text-align: center;">
+                    <div style="background: #153087; color: white; padding: 10px 15px; border-radius: 5px 5px 0 0; text-align: center;">
                         <strong>ORDER SUMMARY</strong>
                     </div>
                     <div style="border: 1px solid #ddd; border-top: none; padding: 15px; border-radius: 0 0 5px 5px; height: calc(100% - 42px);">
@@ -257,17 +257,17 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                             </div>
                         ` : ''}
                         ${additionalHtml}
-                        <hr style="border: none; border-top: 2px solid #b88b1b; margin: 15px 0;">
+                        <hr style="border: none; border-top: 2px solid #153087; margin: 15px 0;">
                         <div style="display: flex; justify-content: space-between; margin: 10px 0; font-size: 18px; font-weight: bold;">
                             <span>GRAND TOTAL:</span>
-                            <span style="color: #b88b1b;">₦${orderData.total_amount.toLocaleString()}</span>
+                            <span style="color: #153087;">₦${orderData.total_amount.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div style="border-top: 3px solid #b88b1b; padding-top: 20px; margin-top: 30px;">
+            <div style="border-top: 3px solid #153087; padding-top: 20px; margin-top: 30px;">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <p style="font-size: 18px; font-weight: bold; color: #b88b1b; margin: 0;">Thank you for your patronage!</p>
+                    <p style="font-size: 18px; font-weight: bold; color: #153087; margin: 0;">Thank you for your patronage!</p>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
                     <div style="flex: 2; min-width: 300px;">
@@ -277,9 +277,9 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f5f5f5; border-radius: 5px;">
-                    <p style="margin: 5px 0; font-weight: bold; color: #b88b1b;">MADISON JAY LIMITED</p>
+                    <p style="margin: 5px 0; font-weight: bold; color: #153087;">Badij Technologies LIMITED</p>
                     <p style="margin: 3px 0; font-size: 12px;">13, Alhaij Kanike Close, off Awolowo Road, Ikoyi - Lagos</p>
-                    <p style="margin: 3px 0; font-size: 12px;">Phone: +234-817-777-0017 | Email: sales@madisonjayng.com</p>
+                    <p style="margin: 3px 0; font-size: 12px;">Phone: +234-816-254-7995 | Email: sales@madisonjayng.com</p>
                     <p style="margin: 3px 0; font-size: 12px;">Website: www.madisonjayng.com</p>
                 </div>
             </div>
@@ -425,7 +425,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
         <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center z-50 overflow-y-auto">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto m-4">
                 <div className="flex justify-between items-center p-6 border-b">
-                    <h2 className="text-xl font-bold text-[#b88b1b]">Create Order - Step {currentStep}/2</h2>
+                    <h2 className="text-xl font-bold text-[#153087]">Create Order - Step {currentStep}/2</h2>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-xl">
                         <FontAwesomeIcon icon={faTimes} />
                     </button>
@@ -434,7 +434,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                 <form onSubmit={submitOrder} className="p-6">
                     {loadingData ? (
                         <div className="text-center py-12">
-                            <FontAwesomeIcon icon={faSpinner} spin className="text-4xl text-[#b88b1b]" />
+                            <FontAwesomeIcon icon={faSpinner} spin className="text-4xl text-[#153087]" />
                         </div>
                     ) : (
                         <>
@@ -448,7 +448,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                             value={customerQuery}
                                             onChange={(e) => setCustomerQuery(e.target.value)}
                                             placeholder="Search customer..."
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none"
                                         />
                                         {filteredCustomers.length > 0 && (
                                             <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -470,11 +470,11 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block font-semibold">Email</label>
-                                                <input value={selectedCustomer.email || ""} readOnly className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none" />
+                                                <input value={selectedCustomer.email || ""} readOnly className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none" />
                                             </div>
                                             <div>
                                                 <label className="block font-semibold">Phone</label>
-                                                <input value={selectedCustomer.phone || ""} readOnly className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none" />
+                                                <input value={selectedCustomer.phone || ""} readOnly className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none" />
                                             </div>
                                         </div>
                                     )}
@@ -486,7 +486,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                             rows={3}
                                             value={formData.dispatch_address}
                                             onChange={e => setFormData(prev => ({ ...prev, dispatch_address: e.target.value }))}
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none"
                                         />
                                     </div>
 
@@ -497,7 +497,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                                 type="date"
                                                 value={formData.delivery_date}
                                                 onChange={e => setFormData(prev => ({ ...prev, delivery_date: e.target.value }))}
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none"
                                             />
                                         </div>
                                         <div>
@@ -505,7 +505,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                             <select
                                                 value={deliveryStatus}
                                                 onChange={e => setDeliveryStatus(e.target.value)}
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none"
                                             >
                                                 <option value="pending">Pending</option>
                                                 <option value="processing">Processing</option>
@@ -568,7 +568,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                             rows={3}
                                             value={formData.notes}
                                             onChange={e => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none"
                                         />
                                     </div>
                                 </div>
@@ -586,7 +586,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                             value={searchTerm}
                                             onChange={e => setSearchTerm(e.target.value)}
                                             placeholder="Name or SKU..."
-                                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none"
+                                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none"
                                         />
                                     </div>
                                     {searchResults.length > 0 && (
@@ -652,19 +652,19 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                             value={newCostName}
                                             onChange={e => setNewCostName(e.target.value)}
                                             placeholder="e.g. Delivery Fee"
-                                            className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none"
+                                            className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none"
                                         />
                                         <input
                                             type="number"
                                             value={newCostPrice}
                                             onChange={e => setNewCostPrice(parseFloat(e.target.value) || 0)}
                                             placeholder="Amount"
-                                            className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] outline-none"
+                                            className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] outline-none"
                                         />
                                         <button
                                             type="button"
                                             onClick={addAdditionalCost}
-                                            className="bg-[#b88b1b] text-white rounded-2xl transition-all hover:bg-[#8b6a15] flex items-center justify-center gap-2"
+                                            className="bg-[#153087] text-white rounded-2xl transition-all hover:bg-[#8b6a15] flex items-center justify-center gap-2"
                                         >
                                             <FontAwesomeIcon icon={faPlusCircle} /> Add
                                         </button>
@@ -698,7 +698,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                             <span>+₦{vatAmount.toLocaleString()}</span>
                                         </div>
                                     )}
-                                    <div className="flex justify-between text-xl font-bold text-[#b88b1b] border-t pt-3">
+                                    <div className="flex justify-between text-xl font-bold text-[#153087] border-t pt-3">
                                         <span>Grand Total:</span>
                                         <span>₦{finalTotal.toLocaleString()}</span>
                                     </div>
@@ -722,7 +722,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                         type="button"
                                         onClick={() => setCurrentStep(2)}
                                         disabled={!selectedCustomer || !formData.dispatch_address}
-                                        className="px-8 py-3 bg-[#b88b1b] text-white rounded-lg hover:bg-[#8b6a15] disabled:opacity-50"
+                                        className="px-8 py-3 bg-[#153087] text-white rounded-lg hover:bg-[#8b6a15] disabled:opacity-50"
                                     >
                                         Next
                                     </button>
@@ -730,7 +730,7 @@ const CreateOrderModal = ({ isOpen, onClose, onSubmit }) => {
                                     <button
                                         type="submit"
                                         disabled={isSubmitting || selectedItems.length === 0}
-                                        className="px-8 py-3 bg-[#b88b1b] text-white rounded-lg hover:bg-[#8b6a15] disabled:opacity-50 flex items-center gap-2"
+                                        className="px-8 py-3 bg-[#153087] text-white rounded-lg hover:bg-[#8b6a15] disabled:opacity-50 flex items-center gap-2"
                                     >
                                         {isSubmitting || sendingEmail ? (
                                             <>

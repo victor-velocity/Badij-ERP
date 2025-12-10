@@ -67,11 +67,11 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
             >
                 <div className={`flex items-center p-4 h-[79.4px] ${isDesktopSidebarExpanded ? 'justify-between' : 'justify-center'} shadow-sm`}>
                     {isDesktopSidebarExpanded && (
-                        <Image src="/madisonjayng_logo.png" alt="madisonjay logo" width={150} height={20} />
+                        <Image src="/badij_logo.png" alt="madisonjay logo" width={150} height={20} />
                     )}
                     <button
                         onClick={toggleDesktopSidebar}
-                        className="p-2 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-[#b88b1b] mt-"
+                        className="p-2 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-[#153087] mt-"
                         aria-label={isDesktopSidebarExpanded ? "Collapse navigation" : "Expand navigation"}
                     >
                         <FontAwesomeIcon icon={faBars} className="text-gray-600 text-xl" />
@@ -85,8 +85,8 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
                             <div
                                 className={`flex items-center py-3 rounded-md mb-2 cursor-pointer
                                 ${pathname === item.path
-                                        ? 'bg-[#EBC75F] text-white'
-                                        : 'text-gray-600 hover:bg-[#ffecc0] hover:text-[#b88b1b]'
+                                        ? 'bg-[#153087] text-white'
+                                        : 'text-gray-600 hover:bg-[#faf714] hover:text-[black] hover:text-[#153087]'
                                     }
                                 ${isDesktopSidebarExpanded ? 'px-4' : 'justify-center'}
                                 `}
@@ -127,7 +127,7 @@ export default function SideNavBar({ isMobileMenuOpen, onCloseMobileMenu, isDesk
                     w-64 bg-gray-800 shadow-lg text-white md:hidden flex flex-col`}
             >
                 <div className="p-4 flex justify-between items-center border-b border-gray-700">
-                    <Image src="/madisonjayng_logo.png" alt="madisonjay logo" width={150} height={20} />
+                    <Image src="/badij_logo.png" alt="madisonjay logo" width={150} height={20} />
                     <button
                         onClick={onCloseMobileMenu}
                         className="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"

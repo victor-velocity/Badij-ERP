@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faAngleLeft, faAngleRight, faBox, faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
 
 const ITEMS_PER_PAGE = 8;
-const goldColor = '#b88b1b';
+const goldColor = '#153087';
 
 export const StockLocationTable = ({ products = [], components = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -68,7 +68,7 @@ export const StockLocationTable = ({ products = [], components = [] }) => {
 
     const getStatusColor = (status, quantity) => {
         if (status === 'Out of Stock') return 'text-red-600 bg-red-100';
-        if (quantity < 10) return 'text-yellow-600 bg-yellow-100';
+        if (quantity < 10) return 'text-[#153087] bg-yellow-100';
         return 'text-green-600 bg-green-100';
     };
 

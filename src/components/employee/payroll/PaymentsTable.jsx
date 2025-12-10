@@ -16,7 +16,7 @@ const PaymentsTable = ({ payments, searchTerm, onViewPayment, onUpdatePayment, l
         return (
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#b88b1b]"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#153087]"></div>
                 </div>
             </div>
         );
@@ -88,7 +88,7 @@ const PaymentsTable = ({ payments, searchTerm, onViewPayment, onUpdatePayment, l
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button
                                         onClick={() => onViewPayment(payment.id)}
-                                        className="text-[#b88b1b] hover:text-[#a07c15] mr-3"
+                                        className="text-[#153087] hover:text-[#a07c15] mr-3"
                                     >
                                         View
                                     </button>

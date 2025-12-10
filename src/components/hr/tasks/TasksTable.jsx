@@ -67,7 +67,7 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onDeleteTask
       <button
         onClick={onClick}
         className={`px-3 py-1 rounded-md text-sm font-medium ${isActive
-          ? 'bg-[#b88b1b] text-white'
+          ? 'bg-[#153087] text-white'
           : 'text-gray-700 hover:bg-gray-100'
           }`}
       >
@@ -151,7 +151,7 @@ const TaskTable = ({ tasks, searchTerm, onViewTask, loading, error, onDeleteTask
             className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="sr-only">Next</span>
-            <FontAwesomeIcon icon={faChevronRight} className="h-5 w-5 text-[#b88b1b]" aria-hidden="true" />
+            <FontAwesomeIcon icon={faChevronRight} className="h-5 w-5 text-[#153087]" aria-hidden="true" />
           </button>
         </nav>
       </div>

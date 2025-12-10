@@ -13,8 +13,8 @@ const roboto = Roboto({ variable: "--font-roboto", subsets: ["latin"] });
 const robotoSerif = Roboto_Serif({ variable: "--font-roboto-serif", subsets: ["latin"] });
 
 export const metadata = {
-  title: "Madison Jay",
-  description: "Dashboard for Madison Jay",
+  title: "Badij Technologies",
+  description: "Dashboard for Badij Technologies",
 };
 
 

@@ -134,7 +134,7 @@ export default function InventoryOrders() {
             </span>
             <button
               onClick={handlePrint}
-              className="px-4 py-2 bg-[#b88b1b] text-white rounded-lg flex items-center gap-2 hover:bg-[#9a7516] transition-colors"
+              className="px-4 py-2 bg-[#153087] text-white rounded-lg flex items-center gap-2 hover:bg-[#9a7516] transition-colors"
             >
               <FontAwesomeIcon icon={faPrint} />
               Print Report

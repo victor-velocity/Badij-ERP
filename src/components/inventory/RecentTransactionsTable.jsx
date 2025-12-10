@@ -15,7 +15,7 @@ export function RecentTransactionsTable() {
     
     const itemsPerPage = 4; // 4 orders per page
     const router = useRouter();
-    const goldColor = '#b88b1b';
+    const goldColor = '#153087';
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -111,7 +111,7 @@ export function RecentTransactionsTable() {
 
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
-            case 'processing': return 'text-yellow-600 bg-yellow-50';
+            case 'processing': return 'text-[#153087] bg-yellow-50';
             case 'ready for dispatch': return 'text-blue-600 bg-blue-50';
             case 'in transit': 
             case 'shipped': return 'text-purple-600 bg-purple-50';
@@ -133,7 +133,7 @@ export function RecentTransactionsTable() {
                             placeholder="Search invoice or product..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:border-transparent transition"
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087] focus:border-transparent transition"
                         />
                         <svg className="absolute left-3 top-3 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
@@ -194,7 +194,7 @@ export function RecentTransactionsTable() {
                                     <td className="px-6 py-5">
                                         <button
                                             onClick={() => setSelectedTransaction(t)}
-                                            className="text-[#b88b1b] hover:text-[#9a7516] transition-colors"
+                                            className="text-[#153087] hover:text-[#9a7516] transition-colors"
                                             title="View Details"
                                         >
                                             <FontAwesomeIcon icon={faEye} className="w-5 h-5" />
@@ -229,7 +229,7 @@ export function RecentTransactionsTable() {
                                     onClick={() => goToPage(i + 1)}
                                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
                                         currentPage === i + 1
-                                            ? 'bg-[#b88b1b] text-white'
+                                            ? 'bg-[#153087] text-white'
                                             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                                     }`}
                                 >
@@ -292,7 +292,7 @@ export function RecentTransactionsTable() {
                                     {selectedTransaction.items.map((item, i) => (
                                         <div key={i} className="flex justify-between items-center bg-gray-50 px-5 py-4 rounded-xl">
                                             <span className="font-medium text-gray-800">{item.name}</span>
-                                            <span className="text-lg font-bold text-[#b88b1b]">×{item.quantity}</span>
+                                            <span className="text-lg font-bold text-[#153087]">×{item.quantity}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -320,7 +320,7 @@ export function RecentTransactionsTable() {
                         <div className="p-6 border-t border-gray-200">
                             <button
                                 onClick={() => setSelectedTransaction(null)}
-                                className="w-full py-3 bg-[#b88b1b] text-white font-semibold rounded-lg hover:bg-[#9a7516] transition"
+                                className="w-full py-3 bg-[#153087] text-white font-semibold rounded-lg hover:bg-[#9a7516] transition"
                             >
                                 Close
                             </button>

@@ -265,7 +265,7 @@ export default function QRScannerModal({ order, onClose, onComplete }) {
             <button
               onClick={completeAndShip}
               disabled={totalScannedUnits < totalExpectedUnits}
-              className="flex-1 py-3 bg-[#b88b1b] text-white rounded-lg font-medium hover:bg-[#9a7516] disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="flex-1 py-3 bg-[#153087] text-white rounded-lg font-medium hover:bg-[#9a7516] disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               Complete & Ship
             </button>

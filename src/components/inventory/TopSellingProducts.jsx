@@ -54,7 +54,7 @@ export function TopSellingProducts() {
             cells.push(
                 <td
                     key={day}
-                    className={`py-2 px-4 text-center ${isToday ? 'bg-[#b88b1b] text-white rounded-full' : ''}`}
+                    className={`py-2 px-4 text-center ${isToday ? 'bg-[#153087] text-white rounded-full' : ''}`}
                 >
                     {day}
                 </td>

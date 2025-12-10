@@ -156,7 +156,7 @@ const ViewBatchModal = ({ batch, supplierDetails, onClose, loading = false }) =>
           <div className="flex justify-end pt-4">
             <button
               onClick={onClose}
-              className="px-6 py-2.5 bg-[#b88b1b] text-white rounded-xl font-medium hover:bg-[#9a7516] transition-all shadow-sm hover:shadow-md"
+              className="px-6 py-2.5 bg-[#153087] text-white rounded-xl font-medium hover:bg-[#9a7516] transition-all shadow-sm hover:shadow-md"
             >
               Close
             </button>

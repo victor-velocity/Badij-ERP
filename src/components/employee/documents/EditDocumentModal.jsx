@@ -180,7 +180,7 @@ const EditDocumentModal = ({
                     <button
                         onClick={onClose}
                         disabled={isSubmitting}
-                        className="text-gray-500 hover:text-[#b88b1b] transition-colors p-2 disabled:opacity-50"
+                        className="text-gray-500 hover:text-[#153087] transition-colors p-2 disabled:opacity-50"
                         aria-label="Close"
                     >
                         <FontAwesomeIcon icon={faTimes} className="text-xl" />
@@ -195,7 +195,7 @@ const EditDocumentModal = ({
                         <input
                             type="text"
                             name="name"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] transition disabled:bg-gray-50 disabled:opacity-70"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087] focus:border-[#153087] transition disabled:bg-gray-50 disabled:opacity-70"
                             value={formData.name}
                             onChange={handleChange}
                             required
@@ -224,7 +224,7 @@ const EditDocumentModal = ({
                             </label>
                             <select
                                 name="category"
-                                className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] transition disabled:bg-gray-50 disabled:opacity-70"
+                                className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-[#153087] focus:border-[#153087] transition disabled:bg-gray-50 disabled:opacity-70"
                                 value={formData.category}
                                 onChange={handleChange}
                                 required
@@ -260,7 +260,7 @@ const EditDocumentModal = ({
                             className="w-full file:mr-4 file:py-2 file:px-4
                                 file:rounded-lg file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-[#b88b1b] file:text-white
+                                file:bg-[#153087] file:text-white
                                 hover:file:bg-[#8d6b14] transition-colors
                                 cursor-pointer disabled:opacity-50"
                             onChange={handleFileChange}
@@ -286,7 +286,7 @@ const EditDocumentModal = ({
                         </button>
                         <button
                             type="submit"
-                            className="px-5 py-2 bg-[#b88b1b] text-white rounded-lg hover:bg-[#8d6b14] transition-colors disabled:opacity-50 font-medium flex items-center justify-center shadow-md shadow-[#b88b1b]/30"
+                            className="px-5 py-2 bg-[#153087] text-white rounded-lg hover:bg-[#faf714] hover:text-[black] transition-colors disabled:opacity-50 font-medium flex items-center justify-center shadow-md shadow-[#153087]/30"
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? (

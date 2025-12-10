@@ -62,7 +62,7 @@ const RecentOrders = () => {
     const getStatusColor = (status) => {
         const s = status?.toLowerCase();
         const colors = {
-            pending: "text-yellow-600",
+            pending: "text-[#153087]",
             processing: "text-orange-600",
             shipped: "text-blue-600",
             "in transit": "text-purple-600",

@@ -86,29 +86,29 @@ const ViewShiftModal = ({ isOpen, onClose, shift }) => {
 
                 <div className="space-y-6">
                     <div>
-                        <p className="text-sm font-semibold text-[#b88b1b] uppercase mb-2 ml-2">Shift Type</p>
+                        <p className="text-sm font-semibold text-[#153087] uppercase mb-2 ml-2">Shift Type</p>
                         {renderBadge(shift.shiftType)}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
                         <div>
-                            <p className="text-sm font-semibold text-[#b88b1b] uppercase">Department</p>
+                            <p className="text-sm font-semibold text-[#153087] uppercase">Department</p>
                             <p className="text-lg text-gray-900 font-medium mt-1">{shift.department || 'N/A'}</p>
                         </div>
                         <div>
-                            <p className="text-sm font-semibold text-[#b88b1b] uppercase">Date Range</p>
+                            <p className="text-sm font-semibold text-[#153087] uppercase">Date Range</p>
                             <p className="text-lg text-gray-900 font-medium mt-1">
                                 {shift.date && shift.endDate ? `${shift.date} - ${shift.endDate}` : 'N/A'}
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm font-semibold text-[#b88b1b] uppercase">Start Time</p>
+                            <p className="text-sm font-semibold text-[#153087] uppercase">Start Time</p>
                             <p className="text-lg text-gray-900 font-medium mt-1">
                                 {formatTimeWithAmPm(shift.startTime)}
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm font-semibold text-[#b88b1b] uppercase">End Time</p>
+                            <p className="text-sm font-semibold text-[#153087] uppercase">End Time</p>
                             <p className="text-lg text-gray-900 font-medium mt-1">
                                 {formatTimeWithAmPm(shift.endTime)}
                             </p>
@@ -120,7 +120,7 @@ const ViewShiftModal = ({ isOpen, onClose, shift }) => {
                     <button
                         type="button"
                         onClick={onClose}
-                        className="inline-flex items-center rounded-md border border-transparent bg-[#b88b1b] px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#a67c18] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:ring-offset-2"
+                        className="inline-flex items-center rounded-md border border-transparent bg-[#153087] px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#a67c18] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#153087] focus:ring-offset-2"
                     >
                         Close
                     </button>

@@ -147,7 +147,7 @@ const HolidayCalendarManager = () => {
                         name="date"
                         value={newHoliday.date}
                         onChange={handleInputChange}
-                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:text-[#153087]"
                         required
                         disabled={isAdding}
                     />
@@ -161,7 +161,7 @@ const HolidayCalendarManager = () => {
                         value={newHoliday.name}
                         onChange={handleInputChange}
                         placeholder="e.g., Christmas Day"
-                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:text-[#153087]"
                         required
                         disabled={isAdding}
                     />
@@ -173,7 +173,7 @@ const HolidayCalendarManager = () => {
                         name="type"
                         value={newHoliday.type}
                         onChange={handleInputChange}
-                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:text-[#153087]"
                         disabled={isAdding}
                     >
                         <option value="public">Public Holiday</option>
@@ -189,7 +189,7 @@ const HolidayCalendarManager = () => {
                         value={newHoliday.description}
                         onChange={handleInputChange}
                         placeholder="Optional details"
-                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:text-[#153087]"
                         disabled={isAdding}
                     />
                 </div>
@@ -223,7 +223,7 @@ const HolidayCalendarManager = () => {
                         value={searchTerm}
                         onChange={handleSearchChange}
                         placeholder="Search by name or description..."
-                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500 w-full"
+                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:text-[#153087] w-full"
                         // Removed 'loading' from disabled condition to allow typing during fetch
                         disabled={isAdding || deletingHolidayId !== null}
                     />
@@ -235,7 +235,7 @@ const HolidayCalendarManager = () => {
                         name="filterType"
                         value={filterType}
                         onChange={handleFilterChange}
-                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500 w-full"
+                        className="p-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:text-[#153087] w-full"
                         // Removed 'loading' from disabled condition to allow filtering during fetch
                         disabled={isAdding || deletingHolidayId !== null}
                     >

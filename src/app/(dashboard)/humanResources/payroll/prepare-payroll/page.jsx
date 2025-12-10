@@ -239,14 +239,24 @@ const PreparePayroll = () => {
     };
 
     const handleOpenAddDeductionModal = () => {
-        if (selectedEmployee && selectedEmployee.isReadyForPayroll && selectedEmployee.canPreparePayroll) {
-            setIsAddDeductionModalOpen(true);
-        } else if (!selectedEmployee.canPreparePayroll) {
-            toast.error('Cannot add deductions - employee not due for payroll');
-        } else {
-            toast.info('Please mark the employee as "Ready" to add deductions.');
+        if (!selectedEmployee) {
+            toast.error("No employee selected");
+            return;
         }
+
+        if (!selectedEmployee.isReadyForPayroll) {
+            toast.error("Please mark the employee as 'Ready' before adding deductions");
+            return;
+        }
+
+        if (!selectedEmployee.canPreparePayroll) {
+            toast.error("Cannot add deductions - employee not due for payroll yet");
+            return;
+        }
+
+        setIsAddDeductionModalOpen(true);
     };
+
 
     const handleCloseAddDeductionModal = () => {
         setIsAddDeductionModalOpen(false);
@@ -318,7 +328,7 @@ const PreparePayroll = () => {
             const deductionsData = await apiService.getDeductionsById(selectedEmployeeId, router);
 
             // ONLY PENDING DEDUCTIONS
-            const pendingDeductions = deductionsData.filter(d => d.status === 'pending');
+            const pendingDeductions = (deductionsData || []).filter(d => d.status === 'pending');
 
             setSelectedEmployeeDeductions(pendingDeductions);
         } catch (err) {
@@ -400,7 +410,7 @@ const PreparePayroll = () => {
                     <input
                         type="text"
                         placeholder="Search..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -423,7 +433,7 @@ const PreparePayroll = () => {
 
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                     <select
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b] w-full sm:w-auto"
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087] w-full sm:w-auto"
                         value={selectedDepartment}
                         onChange={(e) => setSelectedDepartment(e.target.value)}
                     >
@@ -433,7 +443,7 @@ const PreparePayroll = () => {
                         ))}
                     </select>
                     <select
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b] w-full sm:w-auto"
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087] w-full sm:w-auto"
                         value={selectedStatus}
                         onChange={(e) => setSelectedStatus(e.target.value)}
                     >
@@ -462,7 +472,7 @@ const PreparePayroll = () => {
                         </div>
                         <button
                             onClick={handleDeselectAll}
-                            className="text-[#b88b1b] font-medium hover:text-[#a37a1a] transition-colors"
+                            className="text-[#153087] font-medium hover:text-[#a37a1a] transition-colors"
                         >
                             Deselect all
                         </button>
@@ -488,7 +498,7 @@ const PreparePayroll = () => {
                                     >
                                         <input
                                             type="checkbox"
-                                            className={`form-checkbox h-5 w-5 text-[#b88b1b] rounded focus:ring-[#b88b1b] mr-3 ${!canPrepare ? 'cursor-not-allowed' : ''}`}
+                                            className={`form-checkbox h-5 w-5 text-[#153087] rounded focus:ring-[#153087] mr-3 ${!canPrepare ? 'cursor-not-allowed' : ''}`}
                                             checked={employee.isReadyForPayroll}
                                             onChange={() => handleEmployeeReadinessChange(employee.id)}
                                             onClick={(e) => {
@@ -522,7 +532,7 @@ const PreparePayroll = () => {
                                             </span>
                                         )}
                                         {employee.isReadyForPayroll && canPrepare && (
-                                            <span className="px-3 py-1 text-xs font-medium text-[#b88b1b] bg-yellow-100 rounded-full">
+                                            <span className="px-3 py-1 text-xs font-medium text-[#153087] bg-yellow-100 rounded-full">
                                                 Ready
                                             </span>
                                         )}
@@ -558,7 +568,7 @@ const PreparePayroll = () => {
                                 </div>
                                 <button
                                     onClick={handleOpenPayslipModal}
-                                    className={`px-6 py-2 bg-[#b88b1b] text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:ring-opacity-75 ${selectedEmployee.isReadyForPayroll && selectedEmployee.canPreparePayroll ? 'hover:bg-[#a37a1a]' : 'opacity-50 cursor-not-allowed'}`}
+                                    className={`px-6 py-2 bg-[#153087] text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-[#153087] focus:ring-opacity-75 ${selectedEmployee.isReadyForPayroll && selectedEmployee.canPreparePayroll ? 'hover:bg-[#a37a1a]' : 'opacity-50 cursor-not-allowed'}`}
                                     disabled={!selectedEmployee || !selectedEmployee.isReadyForPayroll || !selectedEmployee.canPreparePayroll}
                                 >
                                     Next
@@ -597,8 +607,20 @@ const PreparePayroll = () => {
                                     <p className="text-sm font-medium text-gray-700">Deductions</p>
                                     <button
                                         onClick={handleOpenAddDeductionModal}
-                                        className={`text-sm font-medium text-gray-700 ${selectedEmployee.isReadyForPayroll && selectedEmployee.canPreparePayroll ? 'hover:text-[#b88b1b]' : 'opacity-50 cursor-not-allowed'}`}
-                                        disabled={!selectedEmployee.isReadyForPayroll || !selectedEmployee.canPreparePayroll}
+                                        className={`text-sm font-medium flex items-center gap-1 ${selectedEmployee?.isReadyForPayroll && selectedEmployee?.canPreparePayroll
+                                                ? 'text-[#153087] hover:text-[#a37a1a]'
+                                                : 'text-gray-400 cursor-not-allowed'
+                                            } transition-colors`}
+                                        disabled={!selectedEmployee || !selectedEmployee.isReadyForPayroll || !selectedEmployee.canPreparePayroll}
+                                        title={
+                                            !selectedEmployee
+                                                ? "Select an employee"
+                                                : !selectedEmployee.isReadyForPayroll
+                                                    ? "Mark employee as Ready to add deductions"
+                                                    : !selectedEmployee.canPreparePayroll
+                                                        ? "Employee not due for payroll"
+                                                        : "Add deduction"
+                                        }
                                     >
                                         <FontAwesomeIcon icon={faPlus} />
                                     </button>
@@ -636,7 +658,7 @@ const PreparePayroll = () => {
                                                     {selectedEmployee.canPreparePayroll && (
                                                         <button
                                                             onClick={() => handleEditDeduction(deduction)}
-                                                            className="text-gray-400 hover:text-[#b88b1b] opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            className="text-gray-400 hover:text-[#153087] opacity-0 group-hover:opacity-100 transition-opacity"
                                                         >
                                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />

@@ -119,13 +119,13 @@ export default function UpdatePasswordFormContent() {
     const isButtonDisabled = loading || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar || !isMinLength || newPassword !== confirmNewPassword;
 
     return (
-        <section className="flex justify-center items-center h-[100vh]">
+        <section className="flex justify-center items-center h-screen">
             <div className="flex justify-center items-center flex-nowrap gap-7 w-full max-w-[1200px] banner-width p-5">
                 <LoginBanner />
                 <div className="w-1/2 login-div h-full">
                     <div className='flex flex-col justify-between h-full'>
                         <div>
-                            <h4 className="text-xl font-medium text-[#cd9e27]">Madison Jay</h4>
+                            <h4 className="text-xl font-medium text-[#153087]">Badij Technologies</h4>
                             <div className="my-4">
                                 <h2 className="text-2xl font-bold">Set New Password</h2>
                                 <p className="text-[16px] text-[#878484]">
@@ -147,7 +147,7 @@ export default function UpdatePasswordFormContent() {
                                                 setNewPassword(e.target.value);
                                                 setPasswordError('');
                                             }}
-                                            className="border border-solid border-[#DDD9D9] p-2 text-sm rounded-lg w-full mt-2 mb-4 pr-10 focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b]"
+                                            className="border border-solid border-[#DDD9D9] p-2 text-sm rounded-lg w-full mt-2 mb-4 pr-10 focus:outline-none focus:ring-2 focus:ring-[#153087] focus:border-[#153087]"
                                         />
                                         <span
                                             onClick={toggleNewPasswordVisibility}
@@ -178,7 +178,7 @@ export default function UpdatePasswordFormContent() {
                                                 setConfirmNewPassword(e.target.value);
                                                 setPasswordError('');
                                             }}
-                                            className="border border-solid border-[#DDD9D9] p-2 text-sm rounded-lg w-full mt-2 mb-4 pr-10 focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b]"
+                                            className="border border-solid border-[#DDD9D9] p-2 text-sm rounded-lg w-full mt-2 mb-4 pr-10 focus:outline-none focus:ring-2 focus:ring-[#153087] focus:border-[#153087]"
                                         />
                                         <span
                                             onClick={toggleConfirmNewPasswordVisibility}
@@ -194,14 +194,14 @@ export default function UpdatePasswordFormContent() {
 
                                     <button
                                         type="submit"
-                                        className={`${isButtonDisabled ? "bg-[#b88b1b99] cursor-not-allowed" : "bg-[#b88b1b] cursor-pointer hover:bg-[#ad841a]"} rounded-xl px-4 py-3 w-full mt-8 text-white`}
+                                        className={`${isButtonDisabled ? "bg-[#15308799] cursor-not-allowed" : "bg-[#153087] cursor-pointer hover:bg-[#faf714] hover:text-[black] hover:text-black"} transition-all font-semibold rounded-xl px-4 py-3 w-full mt-8 text-white`}
                                         disabled={isButtonDisabled}
                                     >
                                         {loading ? 'Updating Password...' : 'Set New Password'}
                                     </button>
                                 </form>
 
-                                <p className="mt-4 text-center flex justify-center gap-2 items-center text-sm text-[#b88b1b] hover:opacity-80">
+                                <p className="mt-4 text-center flex justify-center gap-2 items-center text-sm text-[#153087] hover:opacity-80">
                                     <FontAwesomeIcon icon={faArrowLeft} />
                                     <Link href="/login" className="font-medium">
                                         Back to log in
@@ -210,10 +210,10 @@ export default function UpdatePasswordFormContent() {
                             </div>
                         </div>
                         <div className='pagination flex gap-3 justify-center items-center mt-8'>
-                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
-                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
-                            <div className='w-[12px] h-[12px] bg-[#b88b1b] rounded-full'></div>
-                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
+                            <div className='w-3 h-3 bg-[#ddd9d9] rounded-full'></div>
+                            <div className='w-3 h-3 bg-[#ddd9d9] rounded-full'></div>
+                            <div className='w-3 h-3 bg-[#153087] rounded-full'></div>
+                            <div className='w-3 h-3 bg-[#ddd9d9] rounded-full'></div>
                         </div>
                     </div>
                 </div>

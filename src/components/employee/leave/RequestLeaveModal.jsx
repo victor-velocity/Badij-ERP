@@ -167,7 +167,7 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess, leaveBalance }) => {
                                 name="leaveType"
                                 value={leaveType}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] outline-none transition-all ${validationErrors.leaveType ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#153087] focus:border-[#153087] outline-none transition-all ${validationErrors.leaveType ? 'border-red-500' : 'border-gray-300'}`}
                             >
                                 <option value="">-- Select Leave Type --</option>
                                 <option value="annual">Annual Leave</option>
@@ -194,7 +194,7 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess, leaveBalance }) => {
                                 value={startDate}
                                 onChange={handleChange}
                                 min={today}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] outline-none transition-all ${validationErrors.startDate ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#153087] focus:border-[#153087] outline-none transition-all ${validationErrors.startDate ? 'border-red-500' : 'border-gray-300'}`}
                                 required
                             />
                             {validationErrors.startDate && (
@@ -214,7 +214,7 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess, leaveBalance }) => {
                                 value={endDate}
                                 onChange={handleChange}
                                 min={startDate || today}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] outline-none transition-all ${validationErrors.endDate ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#153087] focus:border-[#153087] outline-none transition-all ${validationErrors.endDate ? 'border-red-500' : 'border-gray-300'}`}
                                 required
                             />
                             {validationErrors.endDate && (
@@ -234,7 +234,7 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess, leaveBalance }) => {
                                 onChange={handleChange}
                                 rows="5"
                                 placeholder="Please explain why you need this leave..."
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] outline-none resize-none transition-all ${validationErrors.reason ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#153087] focus:border-[#153087] outline-none resize-none transition-all ${validationErrors.reason ? 'border-red-500' : 'border-gray-300'}`}
                                 required
                             />
                             {validationErrors.reason && (
@@ -255,7 +255,7 @@ const RequestLeaveModal = ({ isOpen, onClose, onSuccess, leaveBalance }) => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="flex-1 py-3 px-6 bg-[#b88b1b] hover:bg-[#a07815] text-white font-medium rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg"
+                                className="flex-1 py-3 px-6 bg-[#153087] hover:bg-[#a07815] text-white font-medium rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg"
                             >
                                 {isSubmitting ? 'Submitting...' : 'Submit Request'}
                             </button>

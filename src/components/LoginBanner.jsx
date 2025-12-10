@@ -6,8 +6,9 @@ import { faBarChart, faNoteSticky } from "@fortawesome/free-regular-svg-icons";
 
 const LoginBanner = () => {
   return (
-    <div className="bg-[#b88b1b] w-1/2 h-[604px] rounded-3xl relative login-banner p-8"> 
-      <Image
+    <div className="bg-[#153087] w-1/2 h-[604px] rounded-3xl relative login-banner p-8 overflow-hidden flex justify-center items-center"> 
+    <img src="/Login_GIF.gif" alt="login gif" className="mb-10" />
+      {/* <Image
         src="/Ellipse 11.png"
         alt="Ellipse 11"
         width={50}
@@ -27,15 +28,16 @@ const LoginBanner = () => {
         height={300}
         alt="triangle-2"
         className="absolute bottom-[13%] right-[15%] triangle-2"
-      />
-      <Image
-        src="/madisonjayng_logo.png"
+      /> */}
+      {/* <Image
+        src="/badij_logo.png"
         width={200}
         height={50}
-        alt="madisonjayng_logo"
+        alt="badij_logo.png"
         className="absolute madison-logo right-[50%] bottom-[57%] left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-9999 white-effect"
-      />
-      <Image
+      /> */}
+      {/* <h3 className="absolute madison-logo right-[27%] bottom-[%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-9999 text-3xl font-bold text-white">MANAJA</h3> */}
+      {/* <Image
         src="/login-img-01.png"
         alt="login-img-01 "
         width={80}
@@ -100,7 +102,7 @@ const LoginBanner = () => {
       <div className="absolute bottom-[28%] right-[2%] bg-white p-2 rounded-[7px] max-w-60 flex items-center gap-2 login-div-06">
         <FontAwesomeIcon icon={faGlobe} className="text-[#A09D9D] bg-[#F9F7F7] p-[7px] rounded-full text-2xl login-icon" />
         <p className="text-[#A09D9D] text-[11px] text-justify login-content">Travel leave request approved</p>
-      </div>
+      </div> */}
       <h2 className="absolute bottom-[4%] whitespace-nowrap translate-x-1/2 right-1/2 text-white font-semibold text-xl">Building Great Workplaces Together</h2>
     </div>
   );

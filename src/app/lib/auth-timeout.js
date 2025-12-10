@@ -2,7 +2,7 @@ let timeoutId = null;
 let warningTimeoutId = null;
 let countdownInterval = null;
 
-const INACTIVITY_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 2 minutes
 const WARNING_BEFORE_LOGOUT = 60 * 1000; // Show modal 60s before logout
 
 const logoutAndRedirect = async () => {

@@ -170,7 +170,7 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
           key={i}
           onClick={() => setCurrentPage(i)}
           className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${currentPage === i
-            ? "bg-[#b88b1b] text-white"
+            ? "bg-[#153087] text-white"
             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
         >
@@ -192,7 +192,7 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
             placeholder="Search order ID, status, date..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#153087] focus:border-transparent"
             disabled={isLoading}
           />
           <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -248,7 +248,7 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
                       <div className="flex items-center justify-center gap-3">
                         <button
                           onClick={() => openModal(order)}
-                          className="text-[#b88b1b] hover:text-[#9a7516] transition-colors"
+                          className="text-[#153087] hover:text-[#9a7516] transition-colors"
                           aria-label="View order"
                         >
                           <FontAwesomeIcon icon={faEye} className="w-5 h-5" />
@@ -424,7 +424,7 @@ export default function OrderListTable({ orders: initialOrders, router, loading:
                   <button
                     onClick={updateStatus}
                     disabled={updating}
-                    className="px-6 py-2.5 bg-[#b88b1b] text-white rounded-lg text-sm font-medium hover:bg-[#9a7516] disabled:opacity-70 transition-colors flex items-center gap-2 shadow-sm"
+                    className="px-6 py-2.5 bg-[#153087] text-white rounded-lg text-sm font-medium hover:bg-[#9a7516] disabled:opacity-70 transition-colors flex items-center gap-2 shadow-sm"
                   >
                     {updating ? (
                       <>Updating...</>

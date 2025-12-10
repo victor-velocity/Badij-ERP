@@ -5,7 +5,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import toast from 'react-hot-toast';
 import apiService from '@/app/lib/apiService';
 
-const goldColor = '#b88b1b';
+const goldColor = '#153087';
 
 const AssignComponentsModal = ({ product, onClose, onSave }) => {
     const router = useRouter();
@@ -198,7 +198,7 @@ const AssignComponentsModal = ({ product, onClose, onSave }) => {
                                             type="checkbox"
                                             checked={selectedComponents[component.component_id]?.selected || false}
                                             onChange={() => handleComponentToggle(component.component_id)}
-                                            className="h-5 w-5 text-[#b88b1b] focus:ring-[#b88b1b] border-gray-300 rounded"
+                                            className="h-5 w-5 text-[#153087] focus:ring-[#153087] border-gray-300 rounded"
                                             disabled={saving}
                                         />
                                         <div className="flex-1">
@@ -210,7 +210,7 @@ const AssignComponentsModal = ({ product, onClose, onSave }) => {
                                                 type="number"
                                                 value={selectedComponents[component.component_id].quantity}
                                                 onChange={(e) => handleQuantityChange(component.component_id, e.target.value)}
-                                                className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b]"
+                                                className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#153087] focus:border-[#153087]"
                                                 min="0"
                                                 disabled={saving}
                                             />

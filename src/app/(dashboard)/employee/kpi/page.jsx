@@ -186,7 +186,7 @@ const EmployeeKPIPortal = () => {
                   className="rounded-full"
                 />
               ) : (
-                <div className="w-12 h-12 bg-[#b88b1b] rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-[#153087] rounded-full flex items-center justify-center text-white font-bold">
                   {employee?.first_name?.[0]}{employee?.last_name?.[0]}
                 </div>
               )}
@@ -279,7 +279,7 @@ const EmployeeKPIPortal = () => {
                           <span className="font-medium text-gray-700">Evidence:</span>
                           <p className="mt-1">
                             {ass.evidence_url ? (
-                              <a href={ass.evidence_url} target="_blank" rel="noopener noreferrer" className="text-[#b88b1b] hover:underline">
+                              <a href={ass.evidence_url} target="_blank" rel="noopener noreferrer" className="text-[#153087] hover:underline">
                                 View File
                               </a>
                             ) : (
@@ -304,7 +304,7 @@ const EmployeeKPIPortal = () => {
                             <select
                               value={formData[ass.id]?.submitted_value ?? ''}
                               onChange={(e) => handleInputChange(ass.id, 'submitted_value', e.target.value === 'true')}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#b88b1b] focus:border-[#b88b1b]"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#153087] focus:border-[#153087]"
                             >
                               <option value="">Select</option>
                               <option value="true">Yes</option>
@@ -316,7 +316,7 @@ const EmployeeKPIPortal = () => {
                               placeholder="Enter your result"
                               value={formData[ass.id]?.submitted_value ?? ''}
                               onChange={(e) => handleInputChange(ass.id, 'submitted_value', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#b88b1b] focus:border-[#b88b1b]"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#153087] focus:border-[#153087]"
                             />
                           )}
                         </div>
@@ -330,7 +330,7 @@ const EmployeeKPIPortal = () => {
                               type="file"
                               accept="image/*,application/pdf"
                               onChange={(e) => handleFileUpload(e.target.files[0], ass.id)}
-                              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#b88b1b] file:text-white hover:file:bg-[#a07a17]"
+                              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#153087] file:text-white hover:file:bg-[#a07a17]"
                             />
                             <p className="text-xs text-gray-500">JPG, PNG, WebP, PDF (max 10MB)</p>
                             {formData[ass.id]?.evidence_url && (
@@ -347,7 +347,7 @@ const EmployeeKPIPortal = () => {
                         <button
                           onClick={() => handleSubmit(ass.id)}
                           disabled={submittingId === ass.id || !formData[ass.id]?.submitted_value || !formData[ass.id]?.evidence_url}
-                          className="w-full py-2 px-4 bg-[#b88b1b] text-white font-medium rounded-md hover:bg-[#a07a17] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="w-full py-2 px-4 bg-[#153087] text-white font-medium rounded-md hover:bg-[#a07a17] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                           {submittingId === ass.id ? 'Submitting...' : 'Submit for Review'}
                         </button>

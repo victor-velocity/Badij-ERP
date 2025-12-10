@@ -9,7 +9,7 @@ import ComponentModal from './ComponentModal';
 import ComponentDeleteModal from './ComponentDeleteModal';
 
 const ITEMS_PER_PAGE = 8;
-const goldColor = '#b88b1b';
+const goldColor = '#153087';
 
 // Skeleton Row Component
 const SkeletonRow = () => (
@@ -232,7 +232,7 @@ export default function ComponentsTable({ onDataChange }) {
     if (error.includes('403') || error.includes('permission')) {
       return (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-          <div className="text-yellow-600 text-4xl mb-2">Prohibited</div>
+          <div className="text-[#153087] text-4xl mb-2">Prohibited</div>
           <h3 className="text-yellow-800 font-semibold">Access Restricted</h3>
           <p className="text-yellow-700">You don't have permission to view components.</p>
         </div>

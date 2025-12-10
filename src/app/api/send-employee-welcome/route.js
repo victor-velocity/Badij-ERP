@@ -28,7 +28,7 @@ export async function POST(request) {
       department: department || 'To be assigned',
       temporary_password: temporaryPassword,
       login_url: 'https://console.madisonjayng.com/login',
-      company_name: 'Madison Jay',
+      company_name: 'Badij Technologies',
       year: new Date().getFullYear(),
     };
 

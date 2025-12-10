@@ -97,7 +97,7 @@ export default function ManageShiftTypesModal({ isOpen, onClose, shiftTypes, onU
                                                 type="text"
                                                 value={type.name || ''}
                                                 onChange={(e) => handleInputChange(type.id, 'name', e.target.value)}
-                                                className="mt-1 w-28 block px-3 py-2 border rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                                className="mt-1 w-28 block px-3 py-2 border rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                                             />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -106,7 +106,7 @@ export default function ManageShiftTypesModal({ isOpen, onClose, shiftTypes, onU
                                                 step="1"
                                                 value={type.start_time || '00:00:00'}
                                                 onChange={(e) => handleInputChange(type.id, 'start_time', e.target.value)}
-                                                className="mt-1 block w-full px-3 py-2 border rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                                className="mt-1 block w-full px-3 py-2 border rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                                             />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -115,14 +115,14 @@ export default function ManageShiftTypesModal({ isOpen, onClose, shiftTypes, onU
                                                 step="1"
                                                 value={type.end_time || '00:00:00'}
                                                 onChange={(e) => handleInputChange(type.id, 'end_time', e.target.value)}
-                                                className="mt-1 block w-full px-3 py-2 border rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                                className="mt-1 block w-full px-3 py-2 border rounded-md border-gray-300 shadow-sm focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                                             />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex space-x-2 justify-end">
                                                 <button
                                                     onClick={() => handleSave(type)}
-                                                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
+                                                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#153087] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087]"
                                                 >
                                                     Save
                                                 </button>

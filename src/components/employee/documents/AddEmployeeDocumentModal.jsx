@@ -261,7 +261,7 @@ const AddEmployeeDocumentModal = ({
               <button
                 type="button"
                 onClick={addDocumentField}
-                className="text-sm text-[#b88b1b] hover:text-[#8d6b14] font-medium disabled:opacity-50"
+                className="text-sm text-[#153087] hover:text-[#8d6b14] font-medium disabled:opacity-50"
                 disabled={isSubmitting}
               >
                 + Add Another Document
@@ -287,7 +287,7 @@ const AddEmployeeDocumentModal = ({
                   </label>
                   <input
                     type="text"
-                    className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:outline-none disabled:opacity-50"
+                    className="w-full p-2 border rounded border-gray-400 focus:ring-[#153087] focus:border-[#153087] focus:outline-none disabled:opacity-50"
                     value={doc.name}
                     onChange={(e) => handleDocumentChange(index, 'name', e.target.value)}
                     required
@@ -314,7 +314,7 @@ const AddEmployeeDocumentModal = ({
                       Category
                     </label>
                     <select
-                      className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:outline-none disabled:opacity-50"
+                      className="w-full p-2 border rounded border-gray-400 focus:ring-[#153087] focus:border-[#153087] focus:outline-none disabled:opacity-50"
                       value={doc.category}
                       onChange={(e) => handleDocumentChange(index, 'category', e.target.value)}
                       required
@@ -339,7 +339,7 @@ const AddEmployeeDocumentModal = ({
                     className="w-full p-2 file:mr-4 file:py-2 file:px-4
   file:rounded file:border-0
   file:text-sm file:font-semibold
-  file:bg-[#b88b1b] file:text-white
+  file:bg-[#153087] file:text-white
   hover:file:bg-[#8d6b14] disabled:opacity-50"
                     onChange={(e) => handleFileChange(index, e.target.files[0])}
                     required
@@ -372,7 +372,7 @@ const AddEmployeeDocumentModal = ({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-[#b88b1b] text-white rounded hover:bg-[#8d6b14] transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-[#153087] text-white rounded hover:bg-[#faf714] hover:text-[black] transition-colors disabled:opacity-50"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

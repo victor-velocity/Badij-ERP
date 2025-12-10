@@ -182,7 +182,7 @@ const DataManagement = () => {
                 <p className="text-gray-600 mb-4">
                     Upload a CSV or Excel file to import employee data.
                     <br />
-                    <a href="/employee_template.csv" download className="text-yellow-600 hover:underline">Download employee template</a> (You need to create this file manually).
+                    <a href="/employee_template.csv" download className="text-[#153087] hover:underline">Download employee template</a> (You need to create this file manually).
                 </p>
                 <form onSubmit={handleImportSubmit} className="flex flex-col gap-4">
                     <input

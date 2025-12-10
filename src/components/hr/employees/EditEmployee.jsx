@@ -284,8 +284,8 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-md file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-[#b88b1b] file:text-white
-                                hover:file:bg-[#997417] cursor-pointer"
+                                file:bg-[#153087] file:text-white
+                                hover:file:bg-[#153087] cursor-pointer"
                         />
                     </div>
 
@@ -331,14 +331,14 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                         </div>
                         <div>
                             <label htmlFor="employment_status" className="block text-sm font-medium text-black mb-1">
-                                Employment Status <span className="text-[#b88b1b]">*</span>
+                                Employment Status <span className="text-[#153087]">*</span>
                             </label>
                             <select
                                 id="employment_status"
                                 name="employment_status"
                                 value={editedEmployee.employment_status}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             >
                                 <option value="Active">Active</option>
                                 <option value="On Leave">On Leave</option>
@@ -346,7 +346,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                         </div>
                         <div>
                             <label htmlFor="position" className="block text-sm font-medium text-black mb-1">
-                                Position <span className="text-[#b88b1b]">*</span>
+                                Position <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 id="position"
@@ -354,19 +354,19 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                                 type="text"
                                 value={editedEmployee.position}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="department_id" className="block text-sm font-medium text-black mb-1">
-                                Department <span className="text-[#b88b1b]">*</span>
+                                Department <span className="text-[#153087]">*</span>
                             </label>
                             <select
                                 id="department_id"
                                 name="department_id"
                                 value={editedEmployee.department_id}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Department</option>
                                 {departments.map(department => (
@@ -397,8 +397,8 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-md file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-[#b88b1b] file:text-white
-                                hover:file:bg-[#997417] cursor-pointer"
+                                file:bg-[#153087] file:text-white
+                                hover:file:bg-[#153087] cursor-pointer"
                             />
                         </div>
 
@@ -419,8 +419,8 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-md file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-[#b88b1b] file:text-white
-                                hover:file:bg-[#997417] cursor-pointer"
+                                file:bg-[#153087] file:text-white
+                                hover:file:bg-[#153087] cursor-pointer"
                             />
                             <div className="mt-3 space-y-2">
                                 {documentPreviews.map((doc, index) => (
@@ -446,7 +446,7 @@ const EditEmployeeModal = ({ isOpen, onClose, onEmployeeUpdated, employee }) => 
                     <div className="flex justify-end mt-6">
                         <button
                             type="submit"
-                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#b88b1b] hover:bg-[#997417] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b] transition-colors duration-200"
+                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#153087] hover:bg-[#faf714] hover:text-[black] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087] transition-colors duration-200"
                             disabled={loading}
                         >
                             {loading ? 'Updating...' : 'Update Employee'}

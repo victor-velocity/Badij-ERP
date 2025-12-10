@@ -390,13 +390,13 @@ const AttendanceRecordTable = () => {
     return (
       <div className="mt-8">
         <div className="flex justify-between items-center mb-4">
-          <button onClick={() => handleMonthChange(-1)} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-[#b88b1b] hover:text-white transition-all">
+          <button onClick={() => handleMonthChange(-1)} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-[#faf714] hover:text-[black] hover:text-white transition-all">
             Prev
           </button>
           <h3 className="text-lg font-semibold">
             {currentMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })}
           </h3>
-          <button onClick={() => handleMonthChange(1)} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-[#b88b1b] hover:text-white transition-all">
+          <button onClick={() => handleMonthChange(1)} className="px-4 py-2 bg-gray-200 rounded-md hover:bg-[#faf714] hover:text-[black] hover:text-white transition-all">
             Next
           </button>
         </div>
@@ -445,13 +445,13 @@ const AttendanceRecordTable = () => {
       <div className="flex justify-end mb-6 space-x-2">
         <button
           onClick={() => setDisplayMode('table')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${displayMode === 'table' ? 'bg-[#b88b1b] text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${displayMode === 'table' ? 'bg-[#153087] text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
         >
           Table View
         </button>
         <button
           onClick={() => setDisplayMode('calendar')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${displayMode === 'calendar' ? 'bg-[#b88b1b] text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${displayMode === 'calendar' ? 'bg-[#153087] text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
         >
           Calendar View
         </button>
@@ -459,7 +459,7 @@ const AttendanceRecordTable = () => {
 
       {/* Action Buttons */}
       <div className="mb-8 flex flex-col sm:flex-row justify-end gap-4">
-        <button onClick={handleOpenSyncModal} className="px-6 py-3 bg-[#b88b1b] text-white font-semibold rounded-lg hover:bg-[#a07917] transition-all shadow-md">
+        <button onClick={handleOpenSyncModal} className="px-6 py-3 bg-[#153087] text-white font-semibold rounded-lg hover:bg-[#a07917] transition-all shadow-md">
           Sync Attendance
         </button>
         <button
@@ -478,7 +478,7 @@ const AttendanceRecordTable = () => {
             <input
               type="text"
               placeholder="Search employee..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
               value={searchTerm}
               onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             />
@@ -498,7 +498,7 @@ const AttendanceRecordTable = () => {
                   setCustomEndDate('');
                 }
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
             >
               <option value="all">All Dates</option>
               <option value="today">Today</option>
@@ -693,7 +693,7 @@ const AttendanceRecordTable = () => {
               <button
                 onClick={performSync}
                 disabled={syncLoading}
-                className="px-6 py-2 bg-[#b88b1b] text-white rounded-lg hover:bg-[#a07917] disabled:opacity-70"
+                className="px-6 py-2 bg-[#153087] text-white rounded-lg hover:bg-[#a07917] disabled:opacity-70"
               >
                 {syncLoading ? 'Syncing...' : 'Sync Now'}
               </button>
@@ -712,7 +712,7 @@ const AttendanceRecordTable = () => {
               placeholder="Search employee..."
               value={biometricSearch}
               onChange={e => setBiometricSearch(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b88b1b]"
+              className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#153087]"
             />
             <div className="space-y-3">
               {employees

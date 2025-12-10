@@ -47,7 +47,7 @@ export default function LessonForm({ moduleId, initialData, onSuccess }) {
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
+          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#153087] outline-none"
         />
       </div>
 
@@ -57,7 +57,7 @@ export default function LessonForm({ moduleId, initialData, onSuccess }) {
           rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
+          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#153087] outline-none"
         />
       </div>
 
@@ -68,7 +68,7 @@ export default function LessonForm({ moduleId, initialData, onSuccess }) {
           value={youtubeLink}
           onChange={(e) => setYoutubeLink(e.target.value)}
           placeholder="https://youtube.com/…"
-          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
+          className="w-full px-3 py-2 border border-solid border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#153087] outline-none"
         />
       </div>
 

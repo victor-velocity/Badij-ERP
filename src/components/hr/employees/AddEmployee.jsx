@@ -370,7 +370,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         <h3 className="md:col-span-2 text-lg font-semibold text-black mb-4">1. Personal Information</h3>
                         <div className="md:col-span-2 flex flex-col items-center mb-4">
                             <label htmlFor="avatar" className="block text-sm font-medium text-black mb-2">
-                                Employee Photo <span className="text-[#b88b1b]">*</span>
+                                Employee Photo <span className="text-[#153087]">*</span>
                             </label>
                             <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-gray-300 flex items-center justify-center mb-3">
                                 {avatarPreviewUrl ? (
@@ -392,14 +392,14 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                     file:mr-4 file:py-2 file:px-4
                                     file:rounded-md file:border-0
                                     file:text-sm file:font-semibold
-                                    file:bg-[#b88b1b] file:text-white
-                                    hover:file:bg-[#997417] cursor-pointer"
+                                    file:bg-[#153087] file:text-white
+                                    hover:file:bg-[#153087] cursor-pointer"
                             />
                         </div>
 
                         <div>
                             <label htmlFor="first_name" className="block text-sm font-medium text-black mb-1">
-                                First Name <span className="text-[#b88b1b]">*</span>
+                                First Name <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -407,12 +407,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="first_name"
                                 value={newEmployee.first_name || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="last_name" className="block text-sm font-medium text-black mb-1">
-                                Last Name <span className="text-[#b88b1b]">*</span>
+                                Last Name <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -420,12 +420,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="last_name"
                                 value={newEmployee.last_name || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-black mb-1">
-                                Email <span className="text-[#b88b1b]">*</span>
+                                Email <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="email"
@@ -433,12 +433,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="email"
                                 value={newEmployee.email || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="date_of_birth" className="block text-sm font-medium text-black mb-1">
-                                Date of Birth <span className="text-[#b88b1b]">*</span>
+                                Date of Birth <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="date"
@@ -446,19 +446,19 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="date_of_birth"
                                 value={newEmployee.date_of_birth || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="marital_status" className="block text-sm font-medium text-black mb-1">
-                                Marital Status <span className="text-[#b88b1b]">*</span>
+                                Marital Status <span className="text-[#153087]">*</span>
                             </label>
                             <select
                                 id="marital_status"
                                 name="marital_status"
                                 value={newEmployee.marital_status || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Marital Status</option>
                                 <option value="Single">Single</option>
@@ -469,14 +469,14 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         </div>
                         <div>
                             <label htmlFor="gender" className="block text-sm font-medium text-black mb-1">
-                                Gender <span className="text-[#b88b1b]">*</span>
+                                Gender <span className="text-[#153087]">*</span>
                             </label>
                             <select
                                 id="gender"
                                 name="gender"
                                 value={newEmployee.gender || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Gender</option>
                                 <option value="Male">Male</option>
@@ -492,7 +492,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         <h3 className="md:col-span-2 text-lg font-semibold text-black mb-4">2. Address Information</h3>
                         <div>
                             <label htmlFor="phone_number" className="block text-sm font-medium text-black mb-1">
-                                Phone Number <span className="text-[#b88b1b]">*</span>
+                                Phone Number <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="tel"
@@ -500,12 +500,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="phone_number"
                                 value={newEmployee.phone_number || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="address" className="block text-sm font-medium text-black mb-1">
-                                Address <span className="text-[#b88b1b]">*</span>
+                                Address <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -513,12 +513,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="address"
                                 value={newEmployee.address || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="city" className="block text-sm font-medium text-black mb-1">
-                                City <span className="text-[#b88b1b]">*</span>
+                                City <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -526,19 +526,19 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="city"
                                 value={newEmployee.city || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="state" className="block text-sm font-medium text-black mb-1">
-                                State <span className="text-[#b88b1b]">*</span>
+                                State <span className="text-[#153087]">*</span>
                             </label>
                             <select
                                 id="state"
                                 name="state"
                                 value={newEmployee.state || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select a State</option>
                                 <option value="Abia">Abia</option>
@@ -590,12 +590,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="zip_code"
                                 value={newEmployee.zip_code || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="country" className="block text-sm font-medium text-black mb-1">
-                                Country <span className="text-[#b88b1b]">*</span>
+                                Country <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -603,7 +603,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="country"
                                 value={newEmployee.country || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                     </div>
@@ -614,7 +614,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         <h3 className="md:col-span-2 text-lg font-semibold text-black mb-4">3. Employment & Guarantor Information</h3>
                         <div>
                             <label htmlFor="hire_date" className="block text-sm font-medium text-black mb-1">
-                                Hire Date <span className="text-[#b88b1b]">*</span>
+                                Hire Date <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="date"
@@ -622,12 +622,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="hire_date"
                                 value={newEmployee.hire_date || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="position" className="block text-sm font-medium text-black mb-1">
-                                Position <span className="text-[#b88b1b]">*</span>
+                                Position <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 id="position"
@@ -635,19 +635,19 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="position"
                                 value={newEmployee.position || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="department_id" className="block text-sm font-medium text-black mb-1">
-                                Department <span className="text-[#b88b1b]">*</span>
+                                Department <span className="text-[#153087]">*</span>
                             </label>
                             <select
                                 id="department_id"
                                 name="department_id"
                                 value={newEmployee.department_id || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Department</option>
                                 {departments.map(department => (
@@ -657,14 +657,14 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         </div>
                         <div>
                             <label htmlFor="location_id" className="block text-sm font-medium text-black mb-1">
-                                Location <span className="text-[#b88b1b]">*</span>
+                                Location <span className="text-[#153087]">*</span>
                             </label>
                             <select
                                 id="location_id"
                                 name="location_id"
                                 value={newEmployee.location_id || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Location</option>
                                 {locations.map(location => (
@@ -674,7 +674,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         </div>
                         <div>
                             <label htmlFor="guarantor_name" className="block text-sm font-medium text-black mb-1">
-                                Guarantor Name <span className="text-[#b88b1b]">*</span>
+                                Guarantor Name <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -682,12 +682,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="guarantor_name"
                                 value={newEmployee.guarantor_name || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="guarantor_phone_number" className="block text-sm font-medium text-black mb-1">
-                                Guarantor Phone Number <span className="text-[#b88b1b]">*</span>
+                                Guarantor Phone Number <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="tel"
@@ -695,12 +695,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="guarantor_phone_number"
                                 value={newEmployee.guarantor_phone_number || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="guarantor_name_2" className="block text-sm font-medium text-black mb-1">
-                                Second Guarantor Name <span className="text-[#b88b1b]">*</span>
+                                Second Guarantor Name <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -708,12 +708,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="guarantor_name_2"
                                 value={newEmployee.guarantor_name_2 || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="guarantor_phone_number_2" className="block text-sm font-medium text-black mb-1">
-                                Second Guarantor Phone <span className="text-[#b88b1b]">*</span>
+                                Second Guarantor Phone <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="tel"
@@ -721,7 +721,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="guarantor_phone_number_2"
                                 value={newEmployee.guarantor_phone_number_2 || ''}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                     </div>
@@ -732,14 +732,14 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         <h3 className="md:col-span-2 text-lg font-semibold text-black mb-4">4. Salary & Documents</h3>
                         <div>
                             <label htmlFor="role" className="block text-sm font-medium text-black mb-1">
-                                Role <span className="text-[#b88b1b]">*</span>
+                                Role <span className="text-[#153087]">*</span>
                             </label>
                             <select
                                 id="role"
                                 name="role"
                                 value={newEmployee.role}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             >
                                 <option value="">Select Role</option>
                                 <option value="user">User</option>
@@ -748,7 +748,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         </div>
                         <div>
                             <label htmlFor="salary" className="block text-sm font-medium text-black mb-1">
-                                Salary (NGN) <span className="text-[#b88b1b]">*</span>
+                                Salary (NGN) <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="number"
@@ -756,13 +756,13 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="salary"
                                 value={newEmployee.salary}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                                 min="0"
                             />
                         </div>
                         <div>
                             <label htmlFor="incentives" className="block text-sm font-medium text-black mb-1">
-                                Incentives (NGN) <span className="text-[#b88b1b]">*</span>
+                                Incentives (NGN) <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="number"
@@ -770,13 +770,13 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="incentives"
                                 value={newEmployee.incentives}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                                 min="0"
                             />
                         </div>
                         <div>
                             <label htmlFor="bank_account_number" className="block text-sm font-medium text-black mb-1">
-                                Bank Account Number <span className="text-[#b88b1b]">*</span>
+                                Bank Account Number <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -784,12 +784,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="bank_account_number"
                                 value={newEmployee.bank_account_number}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="bank_name" className="block text-sm font-medium text-black mb-1">
-                                Bank Name <span className="text-[#b88b1b]">*</span>
+                                Bank Name <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -797,12 +797,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="bank_name"
                                 value={newEmployee.bank_name}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div>
                             <label htmlFor="account_name" className="block text-sm font-medium text-black mb-1">
-                                Account Name <span className="text-[#b88b1b]">*</span>
+                                Account Name <span className="text-[#153087]">*</span>
                             </label>
                             <input
                                 type="text"
@@ -810,12 +810,12 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                 name="account_name"
                                 value={newEmployee.account_name}
                                 onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                                className="mt-1 block w-full px-3 py-2 border border-gray-500 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             />
                         </div>
                         <div className="md:col-span-2">
                             <label htmlFor="signature" className="block text-sm font-medium text-black mb-2">
-                                Scanned Copy of Signature <span className="text-[#b88b1b]">*</span>
+                                Scanned Copy of Signature <span className="text-[#153087]">*</span>
                             </label>
                             <div className="w-full h-32 border-2 border-gray-300 border-dashed rounded-md flex items-center justify-center mb-3 overflow-hidden">
                                 {signaturePreviewUrl ? (
@@ -835,8 +835,8 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                     file:mr-4 file:py-2 file:px-4
                                     file:rounded-md file:border-0
                                     file:text-sm file:font-semibold
-                                    file:bg-[#b88b1b] file:text-white
-                                    hover:file:bg-[#997417] cursor-pointer"
+                                    file:bg-[#153087] file:text-white
+                                    hover:file:bg-[#153087] cursor-pointer"
                             />
                         </div>
                         <div className="md:col-span-2">
@@ -855,8 +855,8 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                                     file:mr-4 file:py-2 file:px-4
                                     file:rounded-md file:border-0
                                     file:text-sm file:font-semibold
-                                    file:bg-[#b88b1b] file:text-white
-                                    hover:file:bg-[#997417] cursor-pointer"
+                                    file:bg-[#153087] file:text-white
+                                    hover:file:bg-[#153087] cursor-pointer"
                             />
                             <div className="mt-3 space-y-2">
                                 {documentPreviews.map((doc, index) => (
@@ -895,7 +895,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             {[1, 2, 3, 4].map((step) => (
                                 <div
                                     key={step}
-                                    className={`w-6 h-2 rounded-full cursor-pointer transition-all duration-300 ${currentStep === step ? 'bg-[#b88b1b] w-8' : 'bg-gray-300'
+                                    className={`w-6 h-2 rounded-full cursor-pointer transition-all duration-300 ${currentStep === step ? 'bg-[#153087] w-8' : 'bg-gray-300'
                                         }`}
                                     onClick={() => handleStepClick(step)}
                                 />
@@ -904,7 +904,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                            className="bg-[#b88b1b] h-2 rounded-full transition-all duration-300"
+                            className="bg-[#153087] h-2 rounded-full transition-all duration-300"
                             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                         ></div>
                     </div>
@@ -918,7 +918,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             <button
                                 type="button"
                                 onClick={() => setCurrentStep(prev => prev - 1)}
-                                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
+                                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087]"
                             >
                                 Previous
                             </button>
@@ -927,7 +927,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                             <button
                                 type="button"
                                 onClick={() => setCurrentStep(prev => prev + 1)}
-                                className="ml-auto px-6 py-2 border border-transparent rounded-md text-white bg-[#b88b1b] hover:bg-[#997417] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
+                                className="ml-auto px-6 py-2 border border-transparent rounded-md text-white bg-[#153087] hover:bg-[#faf714] hover:text-[black] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087]"
                             >
                                 Next
                             </button>
@@ -935,7 +935,7 @@ const AddEmployeeModal = ({ isOpen, onClose, onEmployeeAdded }) => {
                         {currentStep === totalSteps && (
                             <button
                                 type="submit"
-                                className="ml-auto px-6 py-2 border border-transparent rounded-md text-white bg-[#b88b1b] hover:bg-[#997417] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
+                                className="ml-auto px-6 py-2 border border-transparent rounded-md text-white bg-[#153087] hover:bg-[#faf714] hover:text-[black] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087]"
                                 disabled={loading}
                             >
                                 {loading ? 'Adding Employee...' : 'Add Employee'}

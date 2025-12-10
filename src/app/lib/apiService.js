@@ -2,7 +2,7 @@
 import { createClient } from "./supabase/client";
 
 const supabase = createClient();
-const BASE_URL = "https://madisonjay-backend-8e7912547948.herokuapp.com/api/v1";
+const BASE_URL = "https://badij-erp-backend-e3eaf0e85d28.herokuapp.com/api/v1";
 
 const CACHE_PREFIX = "api_cache_";
 const CACHE_EXPIRY = 1000 * 60 * 5;

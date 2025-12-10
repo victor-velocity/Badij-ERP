@@ -156,7 +156,7 @@ export default function InventoryManagement() {
                     <button
                         onClick={handleRetry}
                         disabled={retrying}
-                        className="bg-[#b88b1b] text-white px-6 py-2 rounded-lg hover:bg-[#9a7516] disabled:opacity-50 flex items-center justify-center mx-auto"
+                        className="bg-[#153087] text-white px-6 py-2 rounded-lg hover:bg-[#9a7516] disabled:opacity-50 flex items-center justify-center mx-auto"
                     >
                         {retrying ? (
                             <>
@@ -193,7 +193,7 @@ export default function InventoryManagement() {
                     <button
                         onClick={() => setActiveTab('products')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'products'
-                                ? 'border-[#b88b1b] text-[#b88b1b]'
+                                ? 'border-[#153087] text-[#153087]'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
@@ -202,7 +202,7 @@ export default function InventoryManagement() {
                     <button
                         onClick={() => setActiveTab('components')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'components'
-                                ? 'border-[#b88b1b] text-[#b88b1b]'
+                                ? 'border-[#153087] text-[#153087]'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
@@ -211,7 +211,7 @@ export default function InventoryManagement() {
                     <button
                         onClick={() => setActiveTab('batches')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'batches'
-                                ? 'border-[#b88b1b] text-[#b88b1b]'
+                                ? 'border-[#153087] text-[#153087]'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >

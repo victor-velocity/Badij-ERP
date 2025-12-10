@@ -8,7 +8,7 @@ import apiService from '@/app/lib/apiService';
 import ProductModal from './ProductModal';
 
 const ITEMS_PER_PAGE = 8;
-const goldColor = '#b88b1b';
+const goldColor = '#153087';
 
 // Skeleton Row Component
 const SkeletonRow = () => (

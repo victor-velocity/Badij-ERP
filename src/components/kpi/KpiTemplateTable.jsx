@@ -306,12 +306,12 @@ const KPITemplatesTable = ({ kpiTemplates = [], loading, setKpiTemplates }) => {
             placeholder="Search by title, dept, role..."
             value={searchQuery}
             onChange={handleSearch}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
             disabled={isLoading}
           />
           <button
             onClick={openCreateModal}
-            className="px-4 py-2 bg-[#b88b1b] text-white rounded-md hover:bg-[#a07a17] disabled:opacity-50"
+            className="px-4 py-2 bg-[#153087] text-white rounded-md hover:bg-[#a07a17] disabled:opacity-50"
             disabled={isLoading}
           >
             Create Template
@@ -409,7 +409,7 @@ const KPITemplatesTable = ({ kpiTemplates = [], loading, setKpiTemplates }) => {
             <button
               key={i + 1}
               onClick={() => handlePageChange(i + 1)}
-              className={`px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-[#b88b1b] text-white' : 'bg-gray-200'}`}
+              className={`px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-[#153087] text-white' : 'bg-gray-200'}`}
             >
               {i + 1}
             </button>
@@ -434,16 +434,16 @@ const KPITemplatesTable = ({ kpiTemplates = [], loading, setKpiTemplates }) => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block font-medium mb-1">Title</label>
-                <input name="title" value={formData.title} onChange={handleFormChange} required className="w-full border rounded border-gray-300 focus:border-[#b88b1b] outline-none focus:outline-[#b88b1b] px-3 py-2" />
+                <input name="title" value={formData.title} onChange={handleFormChange} required className="w-full border rounded border-gray-300 focus:border-[#153087] outline-none focus:outline-[#153087] px-3 py-2" />
               </div>
               <div>
                 <label className="block font-medium mb-1">Description</label>
-                <textarea name="description" value={formData.description} onChange={handleFormChange} className="w-full border rounded resize-none border-gray-300 focus:border-[#b88b1b] outline-none focus:outline-[#b88b1b] px-3 py-2" rows="3" />
+                <textarea name="description" value={formData.description} onChange={handleFormChange} className="w-full border rounded resize-none border-gray-300 focus:border-[#153087] outline-none focus:outline-[#153087] px-3 py-2" rows="3" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-medium mb-1">Weight (0–1)</label>
-                  <input type="number" name="weight" step="0.01" min="0" max="1" value={formData.weight} onChange={handleFormChange} required className="w-full border rounded border-gray-300 focus:border-[#b88b1b] outline-none focus:outline-[#b88b1b] px-3 py-2" />
+                  <input type="number" name="weight" step="0.01" min="0" max="1" value={formData.weight} onChange={handleFormChange} required className="w-full border rounded border-gray-300 focus:border-[#153087] outline-none focus:outline-[#153087] px-3 py-2" />
                 </div>
                 <div>
                   <label className="block font-medium mb-1">Active</label>
@@ -455,7 +455,7 @@ const KPITemplatesTable = ({ kpiTemplates = [], loading, setKpiTemplates }) => {
               </div>
               <div>
                 <label className="block font-medium mb-1">Target Type</label>
-                <select name="target_type" value={formData.target_type} onChange={handleFormChange} className="w-full border rounded border-gray-300 focus:border-[#b88b1b] outline-none focus:outline-[#b88b1b] px-3 py-2">
+                <select name="target_type" value={formData.target_type} onChange={handleFormChange} className="w-full border rounded border-gray-300 focus:border-[#153087] outline-none focus:outline-[#153087] px-3 py-2">
                   <option value="numeric">Numeric</option>
                   <option value="percentage">Percentage</option>
                   <option value="boolean">Yes/No</option>
@@ -465,8 +465,8 @@ const KPITemplatesTable = ({ kpiTemplates = [], loading, setKpiTemplates }) => {
               </div>
               {formData.target_type === 'range' ? (
                 <div className="grid grid-cols-2 gap-4">
-                  <input type="number" name="target_min" placeholder="Min" value={formData.target_value.min || ''} onChange={handleFormChange} required className="border rounded border-gray-300 focus:border-[#b88b1b] outline-none focus:outline-[#b88b1b] px-3 py-2" />
-                  <input type="number" name="target_max" placeholder="Max" value={formData.target_value.max || ''} onChange={handleFormChange} required className="border rounded border-gray-300 focus:border-[#b88b1b] outline-none focus:outline-[#b88b1b] px-3 py-2" />
+                  <input type="number" name="target_min" placeholder="Min" value={formData.target_value.min || ''} onChange={handleFormChange} required className="border rounded border-gray-300 focus:border-[#153087] outline-none focus:outline-[#153087] px-3 py-2" />
+                  <input type="number" name="target_max" placeholder="Max" value={formData.target_value.max || ''} onChange={handleFormChange} required className="border rounded border-gray-300 focus:border-[#153087] outline-none focus:outline-[#153087] px-3 py-2" />
                 </div>
               ) : formData.target_type === 'boolean' ? (
                 <label className="flex items-center gap-2">
@@ -480,13 +480,13 @@ const KPITemplatesTable = ({ kpiTemplates = [], loading, setKpiTemplates }) => {
                   value={formData.target_value.value || ''}
                   onChange={handleFormChange}
                   required
-                  className="w-full border rounded px-3 py-2 border-gray-300 focus:border-[#b88b1b] outline-none focus:outline-[#b88b1b]"
+                  className="w-full border rounded px-3 py-2 border-gray-300 focus:border-[#153087] outline-none focus:outline-[#153087]"
                   placeholder={formData.target_type === 'text' ? 'Text goal' : 'Number'}
                 />
               )}
               <div className="flex justify-end gap-3 pt-4">
                 <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2 bg-gray-300 rounded">Cancel</button>
-                <button type="submit" disabled={isLoading} className="px-5 py-2 bg-[#b88b1b] text-white rounded hover:bg-[#a07a17] disabled:opacity-50">
+                <button type="submit" disabled={isLoading} className="px-5 py-2 bg-[#153087] text-white rounded hover:bg-[#a07a17] disabled:opacity-50">
                   {isLoading ? 'Saving...' : modalMode === 'create' ? 'Create' : 'Update'}
                 </button>
               </div>
@@ -551,7 +551,7 @@ const KPITemplatesTable = ({ kpiTemplates = [], loading, setKpiTemplates }) => {
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <button type="button" onClick={() => setShowAssignmentModal(false)} className="px-5 py-2 bg-gray-300 rounded">Cancel</button>
-                <button type="submit" disabled={isLoading} className="px-5 py-2 bg-[#b88b1b] text-white rounded hover:bg-[#a07a17] disabled:opacity-50">
+                <button type="submit" disabled={isLoading} className="px-5 py-2 bg-[#153087] text-white rounded hover:bg-[#a07a17] disabled:opacity-50">
                   {isLoading ? 'Saving...' : 'Save Assignments'}
                 </button>
               </div>

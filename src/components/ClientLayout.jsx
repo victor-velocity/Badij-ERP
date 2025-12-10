@@ -5,7 +5,7 @@ import { createClient } from "@/app/lib/supabase/client";
 import { toast } from "react-hot-toast";
 
 const INACTIVITY_TIMEOUT = 15 * 60 * 1000;
-const WARNING_BEFORE_LOGOUT = 60 * 1000; // 1 minute before logout
+const WARNING_BEFORE_LOGOUT = 5 *  60 * 1000; // 1 minute before logout
 const TWELVE_HOURS = 12 * 60 * 60 * 1000; // 12 hours
 
 export default function ClientLayout({ children }) {
@@ -159,7 +159,7 @@ export default function ClientLayout({ children }) {
             </p>
             <button
               onClick={handleStayLoggedIn}
-              className="bg-[#b88b1b] hover:bg-[#997417] text-white font-bold text-lg py-4 px-7 rounded-xl transition transform hover:scale-105 shadow-lg"
+              className="bg-[#153087] hover:bg-[#faf714] hover:text-[black] text-white font-bold text-lg py-4 px-7 rounded-xl transition transform hover:scale-105 shadow-lg"
             >
               Stay Logged In
             </button>

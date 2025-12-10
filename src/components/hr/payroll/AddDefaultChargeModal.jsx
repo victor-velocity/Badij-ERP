@@ -66,7 +66,7 @@ const AddDefaultChargeModal = ({ isOpen, onClose, onSuccess }) => {
                                 name="charge_name"
                                 value={formData.charge_name}
                                 onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 required
                             />
                         </div>
@@ -81,7 +81,7 @@ const AddDefaultChargeModal = ({ isOpen, onClose, onSuccess }) => {
                                 value={formData.description}
                                 onChange={handleChange}
                                 rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 required
                             />
                         </div>
@@ -98,7 +98,7 @@ const AddDefaultChargeModal = ({ isOpen, onClose, onSuccess }) => {
                                 onChange={handleChange}
                                 min="0"
                                 step="0.01"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 required
                             />
                         </div>
@@ -115,7 +115,7 @@ const AddDefaultChargeModal = ({ isOpen, onClose, onSuccess }) => {
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-[#b88b1b] text-white font-semibold rounded-lg shadow-md hover:bg-[#a37a1a] disabled:opacity-50"
+                            className="px-4 py-2 bg-[#153087] text-white font-semibold rounded-lg shadow-md hover:bg-[#a37a1a] disabled:opacity-50"
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? 'Adding...' : 'Add Charge'}

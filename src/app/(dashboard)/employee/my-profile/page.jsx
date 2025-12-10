@@ -95,7 +95,7 @@ export default function MyProfile() {
                         <img
                             src={employee.avatar_url}
                             alt={`${employee.first_name} ${employee.last_name}'s avatar`}
-                            className="w-32 h-32 rounded-full object-cover border-4 border-yellow-500 shadow-md mb-3"
+                            className="w-32 h-32 rounded-full object-cover border-4 text-[#153087] shadow-md mb-3"
                         />
                     ) : (
                         <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-5xl font-bold mb-3 border-4 border-gray-300">
@@ -111,7 +111,7 @@ export default function MyProfile() {
                 <div className="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap -mb-px">
                     <button
                         className={`py-3 px-6 text-lg font-medium transition-colors duration-300 ${activeTab === 'personal'
-                            ? 'border-b-2 border-yellow-500 text-yellow-600'
+                            ? 'border-b-2 text-[#153087] text-[#153087]'
                             : 'text-gray-600 hover:text-gray-800'
                             }`}
                         onClick={() => setActiveTab('personal')}
@@ -120,7 +120,7 @@ export default function MyProfile() {
                     </button>
                     <button
                         className={`py-3 px-6 text-lg font-medium transition-colors duration-300 ${activeTab === 'contact'
-                            ? 'border-b-2 border-yellow-500 text-yellow-600'
+                            ? 'border-b-2 text-[#153087] text-[#153087]'
                             : 'text-gray-600 hover:text-gray-800'
                             }`}
                         onClick={() => setActiveTab('contact')}
@@ -129,7 +129,7 @@ export default function MyProfile() {
                     </button>
                     <button
                         className={`py-3 px-6 text-lg font-medium transition-colors duration-300 ${activeTab === 'employment'
-                            ? 'border-b-2 border-yellow-500 text-yellow-600'
+                            ? 'border-b-2 text-[#153087] text-[#153087]'
                             : 'text-gray-600 hover:text-gray-800'
                             }`}
                         onClick={() => setActiveTab('employment')}
@@ -138,7 +138,7 @@ export default function MyProfile() {
                     </button>
                     <button
                         className={`py-3 px-6 text-lg font-medium transition-colors duration-300 ${activeTab === 'guarantor'
-                            ? 'border-b-2 border-yellow-500 text-yellow-600'
+                            ? 'border-b-2 text-[#153087] text-[#153087]'
                             : 'text-gray-600 hover:text-gray-800'
                             }`}
                         onClick={() => setActiveTab('guarantor')}

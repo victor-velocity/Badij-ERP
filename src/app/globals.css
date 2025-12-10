@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+@layer utilities {
+  @keyframes slideInFromLeft {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-left {
+    animation: slideInFromLeft 1s ease-out forwards;
+  }
+}
+
+
 html,
 body {
   box-sizing: border-box;
@@ -182,7 +200,7 @@ img.white-effect {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #b88b1b;
+  background: #153087;
   border-radius: 10px;
 }
 
@@ -196,7 +214,7 @@ img.white-effect {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #b88b1b transparent;
+  scrollbar-color: #153087 transparent;
 }
 
 button {

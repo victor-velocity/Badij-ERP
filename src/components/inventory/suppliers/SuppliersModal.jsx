@@ -7,7 +7,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import apiService from '@/app/lib/apiService';
 import toast from 'react-hot-toast';
 
-const goldColor = '#b88b1b';
+const goldColor = '#153087';
 
 // Supplier Modal Component
 export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
@@ -168,7 +168,7 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
               onChange={handleChange}
               className={`w-full p-2 border rounded focus:ring-2 focus:outline-none ${errors.name
                   ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                  : 'border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b]'
+                  : 'border-gray-400 focus:ring-[#153087] focus:border-[#153087]'
                 }`}
               placeholder="Enter supplier name"
               disabled={isLoading} 
@@ -193,7 +193,7 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
               onChange={handleChange}
               className={`w-full p-2 border rounded focus:ring-2 focus:outline-none ${errors.contact_email
                   ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                  : 'border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b]'
+                  : 'border-gray-400 focus:ring-[#153087] focus:border-[#153087]'
                 }`}
               placeholder="Enter supplier contact email (optional)"
               disabled={isLoading}
@@ -216,7 +216,7 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
               name="contact_phone"
               value={formData.contact_phone}
               onChange={handleChange}
-              className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-2 focus:outline-none"
+              className="w-full p-2 border rounded border-gray-400 focus:ring-[#153087] focus:border-[#153087] focus:ring-2 focus:outline-none"
               placeholder="Enter supplier contact phone (optional)"
               disabled={isLoading}
               required
@@ -235,7 +235,7 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
               value={formData.address}
               onChange={handleChange}
               rows="2"
-              className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-2 focus:outline-none"
+              className="w-full p-2 border rounded border-gray-400 focus:ring-[#153087] focus:border-[#153087] focus:ring-2 focus:outline-none"
               placeholder="Enter supplier address (optional)"
               disabled={isLoading}
               required
@@ -256,7 +256,7 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
               onChange={handleChange}
               className={`w-full p-2 border rounded focus:ring-2 focus:outline-none ${errors.website
                   ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                  : 'border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b]'
+                  : 'border-gray-400 focus:ring-[#153087] focus:border-[#153087]'
                 }`}
               placeholder="Enter supplier website (optional)"
               disabled={isLoading}
@@ -278,7 +278,7 @@ export const SupplierModal = ({ isOpen, onClose, initialData = null }) => {
               value={formData.notes}
               onChange={handleChange}
               rows="2"
-              className="w-full p-2 border rounded border-gray-400 focus:ring-[#b88b1b] focus:border-[#b88b1b] focus:ring-2 focus:outline-none"
+              className="w-full p-2 border rounded border-gray-400 focus:ring-[#153087] focus:border-[#153087] focus:ring-2 focus:outline-none"
               placeholder="Enter any notes (optional)"
               disabled={isLoading}
             ></textarea>

@@ -79,7 +79,7 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
     return (
         <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl max-h-[90vh] overflow-y-auto shadow-2xl w-full max-w-lg p-8 transform transition-all duration-300 scale-100 opacity-100">
-                <h2 className="text-3xl font-extrabold text-gray-900 mb-6 text-center">Edit Payroll for <span className="text-[#b88b1b]">{employee.name}</span></h2>
+                <h2 className="text-3xl font-extrabold text-gray-900 mb-6 text-center">Edit Payroll for <span className="text-[#153087]">{employee.name}</span></h2>
 
                 <div className="space-y-6 mb-8">
                     <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-sm">
@@ -94,7 +94,7 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
                                     id="bonus-price"
                                     value={editedBonusPrice}
                                     onChange={(e) => setEditedBonusPrice(parseFloat(e.target.value) || 0)}
-                                    className="w-36 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b] text-right text-lg font-semibold"
+                                    className="w-36 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087] text-right text-lg font-semibold"
                                 />
                             </div>
                             <div className="flex items-center justify-between">
@@ -104,7 +104,7 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
                                     id="incentives"
                                     value={editedIncentives}
                                     onChange={(e) => setEditedIncentives(parseFloat(e.target.value) || 0)}
-                                    className="w-36 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b] text-right text-lg font-semibold"
+                                    className="w-36 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087] text-right text-lg font-semibold"
                                 />
                             </div>
                             <div className="flex items-center justify-between">
@@ -114,7 +114,7 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
                                     id="compensation-price"
                                     value={editedCompensationPrice}
                                     onChange={(e) => setEditedCompensationPrice(parseFloat(e.target.value) || 0)}
-                                    className="w-36 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b] text-right text-lg font-semibold"
+                                    className="w-36 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087] text-right text-lg font-semibold"
                                 />
                             </div>
                         </div>
@@ -127,7 +127,7 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
                                 <label className="flex items-center flex-grow cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        className="form-checkbox h-5 w-5 text-[#b88b1b] rounded focus:ring-[#b88b1b]"
+                                        className="form-checkbox h-5 w-5 text-[#153087] rounded focus:ring-[#153087]"
                                         checked={editedDeductions.find(d => d.id === 'absentism')?.isChecked || false}
                                         onChange={() => handleDeductionToggle('absentism')}
                                     />
@@ -137,7 +137,7 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
                                     type="number"
                                     value={editedTimesAbsent}
                                     onChange={handleTimesAbsentChange}
-                                    className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#b88b1b] text-right text-md"
+                                    className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#153087] text-right text-md"
                                     min="0"
                                 />
                                 <span className="ml-2 text-gray-500 text-sm">days ({formatCurrency(editedTimesAbsent * ABSENTISM_COST_PER_DAY)})</span>
@@ -148,7 +148,7 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
                                     <label className="flex items-center flex-grow cursor-pointer">
                                         <input
                                             type="checkbox"
-                                            className="form-checkbox h-5 w-5 text-[#b88b1b] rounded focus:ring-[#b88b1b]"
+                                            className="form-checkbox h-5 w-5 text-[#153087] rounded focus:ring-[#153087]"
                                             checked={deduction.isChecked}
                                             onChange={() => handleDeductionToggle(deduction.id)}
                                         />
@@ -158,7 +158,7 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
                                         type="number"
                                         value={deduction.price}
                                         onChange={(e) => handleDeductionPriceChange(deduction.id, e.target.value)}
-                                        className="w-36 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b] text-right text-lg font-semibold"
+                                        className="w-36 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087] text-right text-lg font-semibold"
                                         disabled={!deduction.isChecked}
                                     />
                                 </div>
@@ -187,7 +187,7 @@ export const EditPayrollModal = ({ employee, isOpen, onClose, onSave }) => {
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-6 py-2 bg-[#b88b1b] text-white font-semibold rounded-lg shadow-md hover:bg-[#a37a1a] focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:ring-opacity-75 transition-all duration-200"
+                        className="px-6 py-2 bg-[#153087] text-white font-semibold rounded-lg shadow-md hover:bg-[#a37a1a] focus:outline-none focus:ring-2 focus:ring-[#153087] focus:ring-opacity-75 transition-all duration-200"
                     >
                         Save Changes
                     </button>

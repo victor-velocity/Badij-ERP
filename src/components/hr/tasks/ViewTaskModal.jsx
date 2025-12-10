@@ -76,41 +76,41 @@ const ViewTaskModal = ({ isOpen, onClose, task }) => {
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <p className="text-sm font-medium text-[#b88b1b] mb-1">Task Title:</p>
+                            <p className="text-sm font-medium text-[#153087] mb-1">Task Title:</p>
                             <p className="text-lg text-black font-semibold">{task.title || 'Untitled Task'}</p>
                         </div>
 
                         <div>
-                            <p className="text-sm font-medium text-[#b88b1b] mb-1">Description:</p>
+                            <p className="text-sm font-medium text-[#153087] mb-1">Description:</p>
                             <p className="text-base text-black whitespace-pre-wrap">{task.description || "----"}</p>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <p className="text-sm font-medium text-[#b88b1b] mb-1">Start Date:</p>
+                            <p className="text-sm font-medium text-[#153087] mb-1">Start Date:</p>
                             <p className="text-base text-black font-semibold">{formatDate(task.start_date)}</p>
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-[#b88b1b] mb-1">Due Date:</p>
+                            <p className="text-sm font-medium text-[#153087] mb-1">Due Date:</p>
                             <p className="text-base text-black font-semibold">{formatDate(task.end_date)}</p>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <p className="text-sm font-medium text-[#b88b1b] mb-1">Priority:</p>
+                            <p className="text-sm font-medium text-[#153087] mb-1">Priority:</p>
                             <p className="text-base text-black font-semibold capitalize">{task.priority || 'Not specified'}</p>
                         </div>
 
                         <div>
-                            <p className="text-sm font-medium text-[#b88b1b] mb-1">Status:</p>
+                            <p className="text-sm font-medium text-[#153087] mb-1">Status:</p>
                             {renderBadge(task.status || 'Pending')}
                         </div>
                     </div>
 
                     <div>
-                        <p className="text-sm font-medium text-[#b88b1b] mb-1">Created By:</p>
+                        <p className="text-sm font-medium text-[#153087] mb-1">Created By:</p>
                         <div className="flex items-center">
                             {createdBy.avatar_url ? (
                                 <Image
@@ -136,7 +136,7 @@ const ViewTaskModal = ({ isOpen, onClose, task }) => {
                     </div>
 
                     <div>
-                        <p className="text-sm font-medium text-[#b88b1b] mb-1">
+                        <p className="text-sm font-medium text-[#153087] mb-1">
                             Assigned Employees ({assignedEmployees.length}):
                         </p>
                         {assignedEmployees.length > 0 ? (
@@ -179,7 +179,7 @@ const ViewTaskModal = ({ isOpen, onClose, task }) => {
 
                     {task.task_documents && task.task_documents.length > 0 && (
                         <div>
-                            <p className="text-sm font-medium text-[#b88b1b] mb-1">Attachments:</p>
+                            <p className="text-sm font-medium text-[#153087] mb-1">Attachments:</p>
                             <div className="space-y-2">
                                 {task.task_documents.map((doc, index) => (
                                     <div key={index} className="flex items-center p-2 bg-gray-50 rounded-md">
@@ -202,7 +202,7 @@ const ViewTaskModal = ({ isOpen, onClose, task }) => {
                 <div className="flex justify-end mt-6">
                     <button
                         onClick={onClose}
-                        className="inline-flex justify-center rounded-md border border-transparent bg-[#b88b1b] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:ring-offset-2"
+                        className="inline-flex justify-center rounded-md border border-transparent bg-[#153087] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-[#153087] focus:ring-offset-2"
                     >
                         Close
                     </button>

@@ -183,7 +183,7 @@ const EmployeeKPIAssignmentsTab = () => {
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
-            className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+            className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
           />
           <svg
             className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -421,7 +421,7 @@ const EmployeeKPIAssignmentsTab = () => {
                       value={updateForm.status}
                       onChange={handleUpdateChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#b88b1b]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#153087]"
                     >
                       <option value="">Select Action</option>
                       <option value="Approved">Accept</option>
@@ -437,7 +437,7 @@ const EmployeeKPIAssignmentsTab = () => {
                       onChange={handleUpdateChange}
                       rows={3}
                       placeholder="Add feedback..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#b88b1b]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#153087]"
                     />
                   </div>
 
@@ -452,7 +452,7 @@ const EmployeeKPIAssignmentsTab = () => {
                     <button
                       type="submit"
                       disabled={isUpdating}
-                      className="px-4 py-2 bg-[#b88b1b] text-white rounded-md hover:bg-[#a07a17] disabled:opacity-50"
+                      className="px-4 py-2 bg-[#153087] text-white rounded-md hover:bg-[#a07a17] disabled:opacity-50"
                     >
                       {isUpdating ? 'Saving...' : 'Submit Review'}
                     </button>

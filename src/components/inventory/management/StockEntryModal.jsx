@@ -278,7 +278,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                             name="contents_type"
                             value={formData.contents_type}
                             onChange={handleChange}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#153087]"
                         >
                             <option value="product">Product</option>
                             <option value="component">Component</option>
@@ -296,7 +296,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                             onFocus={() => setShowDropdown(true)}
                             onBlur={handleDropdownBlur}
                             placeholder={`Search ${formData.contents_type}s...`}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             required
                         />
                         {showDropdown && (
@@ -337,7 +337,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                             name="batch_id"
                             value={formData.batch_id}
                             onChange={handleChange}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             required
                             disabled={batchesLoading}
                         >
@@ -372,7 +372,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                                 min="1"
                                 value={formData.quantity_in_box}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 required
                             />
                         </div>
@@ -384,7 +384,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                                 min="1"
                                 value={formData.boxes_count}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 required
                             />
                         </div>
@@ -396,7 +396,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#153087]"
                         >
                             <option value="in_stock">In Stock</option>
                             {/* <option value="sold">Sold</option>
@@ -414,7 +414,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                                 name="location_id"
                                 value={formData.location_id}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 disabled={locationsLoading}
                             >
                                 <option value="">
@@ -433,7 +433,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                                 value={formData.shelf_code}
                                 onChange={handleChange}
                                 placeholder="e.g., A1-02"
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             />
                         </div>
                     </div>
@@ -458,7 +458,7 @@ const StockEntryModal = ({ onClose, onSuccess }) => {
                         <button
                             type="submit"
                             disabled={loading || !formData.contents_id || !formData.batch_id || locationsLoading}
-                            className="px-6 py-2.5 bg-[#b88b1b] text-white rounded-xl font-medium hover:bg-[#9a7516] disabled:opacity-50 transition-all shadow-sm hover:shadow-md"
+                            className="px-6 py-2.5 bg-[#153087] text-white rounded-xl font-medium hover:bg-[#9a7516] disabled:opacity-50 transition-all shadow-sm hover:shadow-md"
                         >
                             {loading ? 'Creating...' : 'Add Stock'}
                         </button>

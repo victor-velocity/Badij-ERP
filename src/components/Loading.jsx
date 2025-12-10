@@ -8,10 +8,10 @@ export default function Loading() {
     return (
         <div className='flex justify-center items-center h-screen'>
             <Image
-                src="/madisonjayng_logo.png"
+                src="/badij_logo.png"
                 width={250}
                 height={250}
-                alt='madisonjay logo'
+                alt='Badij Logo'
                 priority
                 className='zoomAnimation'
             />

@@ -440,7 +440,7 @@ export default function KSS() {
                 <div className="bg-white p-5">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-[#b88b1b]">
+                      <h3 className="text-lg font-bold text-[#153087]">
                         Module {modIdx + 1}: {mod.title}
                       </h3>
                       <p className="text-sm opacity-90 text-gray-900 font-bold">{mod.description}</p>
@@ -543,7 +543,7 @@ export default function KSS() {
             <div className="border-b border-gray-200 pb-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-[#b88b1b]">
+                  <h2 className="text-2xl font-bold text-[#153087]">
                     {selectedModule.title}
                   </h2>
                   {selectedModule.description && (
@@ -710,7 +710,7 @@ export default function KSS() {
                     setLesModal(true);
                     setViewModal(false);
                   }}
-                  className="text-sm font-medium text-[#b88b1b] hover:underline"
+                  className="text-sm font-medium text-[#153087] hover:underline"
                 >
                   + Add Lesson
                 </button>
@@ -729,7 +729,7 @@ export default function KSS() {
                         className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-shadow"
                       >
                         <div className="flex items-center gap-4 flex-1">
-                          <span className="font-bold text-[#b88b1b] text-sm min-w-[40px]">
+                          <span className="font-bold text-[#153087] text-sm min-w-[40px]">
                             {lesIdx + 1}
                           </span>
                           <div className="flex-1 min-w-0">
@@ -744,7 +744,7 @@ export default function KSS() {
                                 href={les.youtube_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-2 inline-flex items-center text-xs text-[#b88b1b] font-medium hover:underline"
+                                className="mt-2 inline-flex items-center text-xs text-[#153087] font-medium hover:underline"
                               >
                                 Watch Video
                               </a>
@@ -805,7 +805,7 @@ export default function KSS() {
                     setQuesModal(true);
                     setViewModal(false);
                   }}
-                  className="text-sm font-medium text-[#b88b1b] hover:underline"
+                  className="text-sm font-medium text-[#153087] hover:underline"
                 >
                   + Add Question
                 </button>
@@ -821,7 +821,7 @@ export default function KSS() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-[#b88b1b] text-sm">
+                            <span className="font-bold text-[#153087] text-sm">
                               Q{qIdx + 1}.
                             </span>
                             <span className="text-xs bg-gray-100 px-2 py-1 rounded">
@@ -897,7 +897,7 @@ export default function KSS() {
                     setAssModal(true);
                     setViewModal(false);
                   }}
-                  className="text-sm font-medium text-[#b88b1b] hover:underline"
+                  className="text-sm font-medium text-[#153087] hover:underline"
                 >
                   + Assign Module
                 </button>

@@ -36,31 +36,32 @@ export default function LoginPage() {
         case 'user':
           router.push('/employee');
           break;
-        case 'manager':
-          const { data: employeeData, error: employeeError } = await supabase
-            .from('employees')
-            .select("*")
-            .eq('user_id', user.id)
-            .single();
+        // case 'manager':
+        //   const { data: employeeData, error: employeeError } = await supabase
+        //     .from('employees')
+        //     .select("*")
+        //     .eq('user_id', user.id)
+        //     .single();
 
-          if (employeeError) {
-            console.error("Error fetching employee data:", employeeError);
-            toast.error("Could not retrieve manager information");
-            await supabase.auth.signOut();
-            router.push('/login');
-            return;
-          } else {
-            if (employeeData.department_id === "10d06661-6324-41e8-84d4-41917293e448") {
-              router.push('/inventory')
-            } else if (employeeData.department_id === "0bb5e550-b36b-4249-9608-b0463cd884c0") {
-              router.push('/sales')
-            } else {
-              toast.error("Could not retrieve manager information");
-              await supabase.auth.signOut();
-              router.push('/login');
-            }
-          }
-          break;
+        //   if (employeeError) {
+        //     console.error("Error fetching employee data:", employeeError);
+        //     toast.error("Could not retrieve manager information");
+        //     await supabase.auth.signOut();
+        //     router.push('/login');
+        //     return;
+        //   } else {
+        //     if (employeeData.department_id === "10d06661-6324-41e8-84d4-41917293e448") {
+        //       router.push('/inventory')
+        //     } else if (employeeData.department_id === "0bb5e550-b36b-4249-9608-b0463cd884c0") {
+        //       router.push('/sales')
+        //     } else {
+        //       toast.error("Could not retrieve manager information");
+        //       await supabase.auth.signOut();
+        //       router.push('/login');
+        //     }
+        //   }
+        //   break;
+        // default:
         default:
           toast.error("Role not found. Try logging in again.")
           await supabase.auth.signOut();
@@ -149,10 +150,17 @@ export default function LoginPage() {
 
   return (
     <section className="flex justify-center items-center h-screen">
-      <div className="flex justify-center items-center flex-nowrap gap-7 w-full max-w-[1200px] banner-width p-5">
+      <div className="flex justify-center items-center flex-nowrap w-full max-w-[1200px] banner-width p-5">
         <LoginBanner />
-        <div className="w-1/2 login-div h-full">
-          <h4 className="text-xl font-medium text-[#cd9e27]">Madison Jay</h4>
+        <div
+          className="
+            w-1/2 login-div h-full 
+            border border-solid border-[#DDD9D9] 
+            rounded-tr-3xl rounded-br-3xl 
+            p-7 shadow-lg
+          "
+        >
+          <h4 className="text-xl font-medium text-[#153087]">Welcome to Badij</h4>
           <div className="my-4">
             <h2 className="text-2xl font-bold">Sign In</h2>
             <p className="text-[16px] text-[#878484]">
@@ -177,7 +185,7 @@ export default function LoginPage() {
                   setShowCredentialErrorBox(false);
                 }}
                 className={`border border-solid ${isEmailInvalid ? "border-red-500" : "border-[#DDD9D9]"
-                  } p-2 text-sm rounded-lg w-full mt-2 mb-4 pr-10 focus:ring focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b]`}
+                  } p-2 text-sm rounded-lg w-full mt-2 mb-4 pr-10 focus:ring focus:outline-none focus:ring-[#153087] focus:border-[#153087]`}
               />
               <label htmlFor="password">
                 Password <span className="text-red-600">*</span>
@@ -194,7 +202,7 @@ export default function LoginPage() {
                     if (isPasswordInvalid) setIsPasswordInvalid(false);
                     setShowCredentialErrorBox(false);
                   }}
-                  className={`border border-solid focus:ring focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] ${isPasswordInvalid ? "border-red-500" : "border-[#DDD9D9]"
+                  className={`border border-solid focus:ring focus:outline-none focus:ring-[#153087] focus:border-[#153087] ${isPasswordInvalid ? "border-red-500" : "border-[#DDD9D9]"
                     } p-2 text-sm rounded-lg w-full mt-2 mb-3 pr-10 `}
                 />
                 <span
@@ -231,14 +239,14 @@ export default function LoginPage() {
                   </label>
                 </div>
                 <Link href="/forgot-password">
-                  <p className="text-[#b88b1b] text-sm hover:text-[#b88b1b99] transition-all cursor-pointer">
+                  <p className="text-[#153087] text-sm hover:text-[#15308799] transition-all cursor-pointer">
                     Forgot Password?
                   </p>
                 </Link>
               </div>
               <button
                 type="submit"
-                className={`${loading ? "bg-[#b88b1b99] cursor-not-allowed" : "bg-[#b88b1b] cursor-pointer hover:bg-[#ad841a]"} rounded-xl px-4 py-3 w-full mt-8 text-white`}
+                className={`${loading ? "bg-[#15308799] cursor-not-allowed" : "bg-[#153087] cursor-pointer hover:bg-[#faf714] hover:text-[black]"} rounded-xl px-4 py-3 w-full mt-8 text-white transition-all hover:text-[#153087] font-medium`}
                 disabled={loading}
               >
                 {loading ? "Signing In..." : "Sign In"}

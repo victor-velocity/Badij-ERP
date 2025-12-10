@@ -6,7 +6,7 @@ import { createClient } from '@/app/lib/supabase/client';
 
 const supabase = createClient();
 
-const goldColor = '#b88b1b';
+const goldColor = '#153087';
 
 const ComponentModal = ({ type, component, onClose, onSave }) => {
     const [formData, setFormData] = useState({
@@ -135,7 +135,7 @@ const ComponentModal = ({ type, component, onClose, onSave }) => {
                                 name="sku" 
                                 value={formData.sku} 
                                 onChange={handleChange} 
-                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] transition duration-200" 
+                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#153087] focus:border-[#153087] transition duration-200" 
                                 required 
                                 disabled={saving || uploading}
                             />
@@ -147,7 +147,7 @@ const ComponentModal = ({ type, component, onClose, onSave }) => {
                                 name="name" 
                                 value={formData.name} 
                                 onChange={handleChange} 
-                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] transition duration-200" 
+                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#153087] focus:border-[#153087] transition duration-200" 
                                 required 
                                 disabled={saving || uploading}
                             />
@@ -158,7 +158,7 @@ const ComponentModal = ({ type, component, onClose, onSave }) => {
                                 name="description" 
                                 value={formData.description} 
                                 onChange={handleChange} 
-                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] transition duration-200" 
+                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#153087] focus:border-[#153087] transition duration-200" 
                                 rows="3"
                                 disabled={saving || uploading}
                             />
@@ -171,7 +171,7 @@ const ComponentModal = ({ type, component, onClose, onSave }) => {
                                 value={formData.color || ''}
                                 onChange={handleChange}
                                 placeholder="e.g. Black, Blue Mesh, White"
-                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] transition duration-200"
+                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#153087] focus:border-[#153087] transition duration-200"
                                 disabled={saving || uploading}
                             />
                         </div>
@@ -181,7 +181,7 @@ const ComponentModal = ({ type, component, onClose, onSave }) => {
                                 type="file" 
                                 accept="image/*"
                                 onChange={handleImageChange}
-                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b] transition duration-200 file:bg-[#b88b1b] file:p-3 file:text-white file:mr-4" 
+                                className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-[#153087] focus:border-[#153087] transition duration-200 file:bg-[#153087] file:p-3 file:text-white file:mr-4" 
                                 disabled={saving || uploading}
                             />
                             {formData.component_image && (

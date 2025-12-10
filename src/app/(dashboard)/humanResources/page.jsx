@@ -175,7 +175,7 @@ export default function HRManagerDashboardPage() {
       <div className="flex justify-between items-center my-5 flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold">HR Dashboard</h1>
-          <p className="text-[#A09D9D] font-medium mt-2">Welcome to Madison Jay dashboard</p>
+          <p className="text-[#A09D9D] font-medium mt-2">Welcome to Badij Technologies dashboard</p>
         </div>
         <span className="rounded-[20px] px-3 py-2 border-[0.5px] border-solid border-[#DDD9D9] text-[#A09D9D]">
           {currentDateTime}

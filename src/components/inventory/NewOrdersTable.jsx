@@ -9,7 +9,7 @@ export function NewOrdersTable() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const goldColor = "#b88b1b";
+    const goldColor = "#153087";
 
     useEffect(() => {
         const fetchProcessingOrders = async () => {
@@ -70,7 +70,7 @@ export function NewOrdersTable() {
             <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                 <div className="flex items-center gap-3">
                     <div className="p-3 bg-amber-100 rounded-xl">
-                        <FontAwesomeIcon icon={faBoxOpen} className="w-6 h-6 text-[#b88b1b]" />
+                        <FontAwesomeIcon icon={faBoxOpen} className="w-6 h-6 text-[#153087]" />
                     </div>
                     <div>
                         <h2 className="text-xl font-bold text-gray-800">New Orders to Process</h2>
@@ -79,7 +79,7 @@ export function NewOrdersTable() {
                 </div>
                 <button
                     onClick={handleSeeAllOrders}
-                    className="text-sm font-medium text-[#b88b1b] hover:text-[#8a6d15] transition-colors underline-offset-2 hover:underline"
+                    className="text-sm font-medium text-[#153087] hover:text-[#8a6d15] transition-colors underline-offset-2 hover:underline"
                 >
                     See all →
                 </button>
@@ -116,7 +116,7 @@ export function NewOrdersTable() {
                                 className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-all group border border-gray-100"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-[#b88b1b] to-[#9a7516] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-[#153087] to-[#9a7516] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
                                         {order.invoice.slice(-3)}
                                     </div>
                                     <div>
@@ -132,7 +132,7 @@ export function NewOrdersTable() {
 
                                 <button
                                     onClick={() => handleProcessOrder(order.id)}
-                                    className="px-5 py-2.5 bg-[#b88b1b] text-white font-medium rounded-lg hover:bg-[#9a7516] transition-all transform hover:scale-105 shadow-md group-hover:shadow-lg"
+                                    className="px-5 py-2.5 bg-[#153087] text-white font-medium rounded-lg hover:bg-[#9a7516] transition-all transform hover:scale-105 shadow-md group-hover:shadow-lg"
                                 >
                                     Process
                                 </button>

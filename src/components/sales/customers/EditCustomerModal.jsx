@@ -88,9 +88,9 @@ const EditCustomerModal = ({ isOpen, onClose, customer }) => {
         <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center z-50">
             <div className="bg-white max-h-[90vh] overflow-y-auto rounded-lg shadow-lg p-6 w-full max-w-md">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold text-[#b88b1b]">Edit Customer</h2>
+                    <h2 className="text-lg font-bold text-[#153087]">Edit Customer</h2>
                     <button onClick={onClose} disabled={isLoading}>
-                        <FontAwesomeIcon icon={faTimes} className={`text-gray-600 hover:text-[#b88b1b] ${isLoading ? 'opacity-50' : ''}`} />
+                        <FontAwesomeIcon icon={faTimes} className={`text-gray-600 hover:text-[#153087] ${isLoading ? 'opacity-50' : ''}`} />
                     </button>
                 </div>
                 <form onSubmit={handleSubmit}>
@@ -101,7 +101,7 @@ const EditCustomerModal = ({ isOpen, onClose, customer }) => {
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             required
                             disabled={isLoading}
                         />
@@ -113,7 +113,7 @@ const EditCustomerModal = ({ isOpen, onClose, customer }) => {
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             disabled={isLoading}
                         />
                     </div>
@@ -124,7 +124,7 @@ const EditCustomerModal = ({ isOpen, onClose, customer }) => {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             required
                             disabled={isLoading}
                         />
@@ -136,7 +136,7 @@ const EditCustomerModal = ({ isOpen, onClose, customer }) => {
                             name="address"
                             value={formData.address}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             disabled={isLoading}
                         />
                     </div>
@@ -147,7 +147,7 @@ const EditCustomerModal = ({ isOpen, onClose, customer }) => {
                             name="state"
                             value={formData.state}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             disabled={isLoading}
                         />
                     </div>
@@ -157,7 +157,7 @@ const EditCustomerModal = ({ isOpen, onClose, customer }) => {
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             disabled={isLoading}
                         >
                             <option value="active">Active</option>
@@ -175,7 +175,7 @@ const EditCustomerModal = ({ isOpen, onClose, customer }) => {
                         </button>
                         <button
                             type="submit"
-                            className={`px-4 py-2 bg-[#b88b1b] text-white rounded-md hover:bg-[#886817] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`px-4 py-2 bg-[#153087] text-white rounded-md hover:bg-[#886817] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                             disabled={isLoading}
                         >
                             {isLoading ? (

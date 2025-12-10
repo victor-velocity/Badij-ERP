@@ -195,7 +195,7 @@ export default function TaskPage() {
                     type="text"
                     name="search"
                     id="search"
-                    className="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#b88b1b] sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#153087] sm:text-sm sm:leading-6"
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
@@ -278,7 +278,7 @@ export default function TaskPage() {
                     {renderSearchBar('Search tasks...', searchTerm, handleSearchChange)}
                     <button
                         onClick={() => setIsAddTaskModalOpen(true)}
-                        className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#b88b1b] hover:bg-[#a67c18] outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
+                        className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#153087] hover:bg-[#a67c18] outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087]"
                     >
                         Add new task
                     </button>

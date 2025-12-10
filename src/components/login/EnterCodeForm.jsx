@@ -151,17 +151,17 @@ export default function EnterCodeFormContent() {
 
 
     return (
-        <section className="flex justify-center items-center h-[100vh]">
+        <section className="flex justify-center items-center h-screen">
             <div className="flex justify-center items-center flex-nowrap gap-7 w-full max-w-[1200px] banner-width p-5">
                 <LoginBanner />
                 <div className="w-1/2 login-div h-[480px]">
                     <div className='flex flex-col justify-between h-full'>
                         <div>
-                            <h4 className="text-xl font-medium text-[#cd9e27]">Madison Jay</h4>
+                            <h4 className="text-xl font-medium text-[#153087]">Badij Technologies</h4>
                             <div className="my-4">
                                 <h2 className="text-2xl font-bold">Verify Code</h2>
                                 <p className="text-[16px] text-[#878484]">
-                                    Please enter the 6-digit code sent to: <span className="font-semibold text-[#cd9e27]">{emailFromQuery || 'your email'}</span>
+                                    Please enter the 6-digit code sent to: <span className="font-semibold text-[#153087]">{emailFromQuery || 'your email'}</span>
                                 </p>
                             </div>
                             <div>
@@ -176,7 +176,7 @@ export default function EnterCodeFormContent() {
                                                 value={digit}
                                                 onChange={(e) => handleOtpChange(e, index)}
                                                 onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                                                className="w-12 h-12 text-center text-2xl font-bold border border-solid border-[#DDD9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b]"
+                                                className="w-12 h-12 text-center text-2xl font-bold border border-solid border-[#DDD9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087] focus:border-[#153087]"
                                                 inputMode="numeric"
                                                 pattern="[0-9]*"
                                                 disabled={loading}
@@ -186,7 +186,7 @@ export default function EnterCodeFormContent() {
 
                                     <button
                                         type="button"
-                                        className={`${loading ? "bg-[#b88b1b99] cursor-not-allowed" : "bg-[#b88b1b] cursor-pointer hover:bg-[#ad841a]"} rounded-xl px-4 py-3 w-full mt-8 text-white`}
+                                        className={`${loading ? "bg-[#15308799] cursor-not-allowed" : "bg-[#153087] cursor-pointer hover:bg-[#faf714] hover:text-[black] hover:text-black"} transition-all font-semibold rounded-xl px-4 py-3 w-full mt-8 text-white`}
                                         onClick={() => {
                                             if (!loading && otpDigits.join('').length === 6) {
                                                 setAutoVerifyAttempted(false);
@@ -204,12 +204,12 @@ export default function EnterCodeFormContent() {
                                 <p className="mt-4 text-center flex justify-center gap-2 items-center text-sm">
                                     <span className='text-gray-400'>Didn't receive the code?</span>
                                     {resendTimer > 0 ? (
-                                        <span className="font-medium text-[#b88b1b] opacity-80">
+                                        <span className="font-medium text-[#153087] opacity-80">
                                             Resend in {formatTime(resendTimer)}
                                         </span>
                                     ) : (
                                         <span
-                                            className={`${resendLoading ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer text-[#b88b1b] hover:opacity-80'}`}
+                                            className={`${resendLoading ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer text-[#153087] hover:opacity-80'}`}
                                             onClick={handleResendCode}
                                             disabled={resendLoading}
                                         >
@@ -218,7 +218,7 @@ export default function EnterCodeFormContent() {
                                     )}
                                 </p>
 
-                                <p className="mt-4 text-center flex justify-center gap-2 items-center text-sm text-[#b88b1b] hover:opacity-80">
+                                <p className="mt-4 text-center flex justify-center gap-2 items-center text-sm text-[#153087] hover:opacity-80">
                                     <FontAwesomeIcon icon={faArrowLeft} />
                                     <Link href="/forgot-password" className="font-medium">
                                         Back to enter email
@@ -228,10 +228,10 @@ export default function EnterCodeFormContent() {
                         </div>
                         {/* Pagination dots */}
                         <div className='pagination flex gap-3 justify-center items-center mt-8'>
-                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
-                            <div className='w-[12px] h-[12px] bg-[#b88b1b] rounded-full'></div>
-                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
-                            <div className='w-[12px] h-[12px] bg-[#ddd9d9] rounded-full'></div>
+                            <div className='w-3 h-3 bg-[#ddd9d9] rounded-full'></div>
+                            <div className='w-3 h-3 bg-[#153087] rounded-full'></div>
+                            <div className='w-3 h-3 bg-[#ddd9d9] rounded-full'></div>
+                            <div className='w-3 h-3 bg-[#ddd9d9] rounded-full'></div>
                         </div>
                     </div>
                 </div>

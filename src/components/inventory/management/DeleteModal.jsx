@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-const goldColor = '#b88b1b';
+const goldColor = '#153087';
 
 const DeleteModal = ({ product, onClose, onDelete }) => {
     const [deleting, setDeleting] = useState(false);

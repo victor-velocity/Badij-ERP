@@ -4,13 +4,14 @@
 import React, { useState, useEffect } from "react";
 import apiService from "@/app/lib/apiService";
 import Image from "next/image";
-import { faLocation, faPhone } from "@fortawesome/free-solid-svg-icons";
+import { faLocation, faPhone, faSquareEnvelope } from "@fortawesome/free-solid-svg-icons";
 import {
   faFileAlt,
   faDownload,
   faSignature,
   faFolderOpen,
-  faExternalLinkAlt
+  faExternalLinkAlt,
+  faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -140,7 +141,7 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
         </button>
 
         {/* Header */}
-        <div className="bg-linear-to-r from-[#b88b1b] to-[#d4a53b] text-white p-6 rounded-t-2xl">
+        <div className="bg-linear-to-r from-[#153087] to-[#d4a53b] text-white p-6 rounded-t-2xl">
           {isLoading ? (
             <div className="flex items-center gap-4">
               <SkeletonAvatar />
@@ -172,7 +173,7 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
           {/* Personal Info */}
           <section>
             <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-              <svg className="w-5 h-5 mr-2 text-[#b88b1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 mr-2 text-[#153087]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               Personal Information
@@ -234,7 +235,7 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
           {(rawEmployee.guarantor_name || rawEmployee.guarantor_phone_number) && !isLoading && (
             <section>
               <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <svg className="w-5 h-5 mr-2 text-[#b88b1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-2 text-[#153087]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Guarantor
@@ -301,14 +302,30 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
           ) : null}
 
           {/* Payment History */}
-          {loadingHistory ? (
-            <section>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <svg className="w-5 h-5 mr-2 text-[#b88b1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Payment History Section */}
+          <section>
+            <div className="flex justify-between items-center mb-6 gap-5 flex-wrap">
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                <svg className="w-5 h-5 mr-2 text-[#153087]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Payment History
               </h3>
+
+              {/* Print ID Card Button - Always visible */}
+              <button
+                onClick={() => setShowIdCard(true)}
+                className="flex items-center gap-2 bg-[#153087] hover:bg-[#d4a53b] text-white font-medium py-2 px-4 rounded-lg shadow-lg transition transform hover:scale-105"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h10m-9 4h8a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Print ID Card
+              </button>
+            </div>
+
+            {/* Conditional Content Below */}
+            {loadingHistory ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-4 animate-pulse">
@@ -325,26 +342,7 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
                   </div>
                 ))}
               </div>
-            </section>
-          ) : paymentHistory.length > 0 ? (
-            <section>
-              <div className="flex justify-between items-center mb-6 gap-5 flex-wrap">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-[#b88b1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Payment History
-                </h3>
-                <button
-                  onClick={() => setShowIdCard(true)}
-                  className="flex items-center gap-2 bg-[#b88b1b] hover:bg-[#d4a53b] text-white font-medium py-2 px-4 rounded-lg shadow-lg transition transform hover:scale-105 mr-3 "
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h10m-9 4h8a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  Print ID Card
-                </button>
-              </div>
+            ) : paymentHistory.length > 0 ? (
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {paymentHistory.map((p, i) => (
                   <div
@@ -368,23 +366,15 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
                   </div>
                 ))}
               </div>
-            </section>
-          ) : !loadingHistory ? (
-            <section>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <svg className="w-5 h-5 mr-2 text-[#b88b1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Payment History
-              </h3>
+            ) : (
               <p className="text-gray-500 italic">No payment history available.</p>
-            </section>
-          ) : null}
+            )}
+          </section>
 
           {/* Signature & Documents Section */}
           <section>
             <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-              <FontAwesomeIcon icon={faFileAlt} className="w-5 h-5 mr-2 text-[#b88b1b]" />
+              <FontAwesomeIcon icon={faFileAlt} className="w-5 h-5 mr-2 text-[#153087]" />
               Signature & Uploaded Documents
             </h3>
 
@@ -430,7 +420,7 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
               {rawEmployee.employee_documents && rawEmployee.employee_documents.length > 0 && !isLoading && (
                 <div>
                   <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-                    <FontAwesomeIcon icon={faFolderOpen} className="w-5 h-5 mr-2 text-[#b88b1b]" />
+                    <FontAwesomeIcon icon={faFolderOpen} className="w-5 h-5 mr-2 text-[#153087]" />
                     Other Documents ({rawEmployee.employee_documents.length})
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -496,9 +486,9 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
                       alt={fullName} width={100} height={100} className="w-18 h-18 rounded-full absolute top-[50.4px] left-[22.45px] translate-x-1/2 object-cover" />
                     <Image src='/logo-icon.jpg' width={100} height={100} alt="id card front page" className="w-7 absolute top-[50.4px] right-6 translate-x-1/2" />
                     <div className="absolute translate-x-1/2 -left-1/2 top-32 w-full">
-                      <h2 className="text-center font-bold text-xl text-[#b88b1b]">{fullName || "Employee Name"}</h2>
+                      <h2 className="text-center font-bold text-xl text-[#153087]">{fullName || "Employee Name"}</h2>
                       <h4 className="text-center text-[14px] font-semibold">{rawEmployee.position || "Position"}</h4>
-                      <hr className="w-[80%] text-[#b88b1b] mx-auto h-0.5 mt-2" />
+                      <hr className="w-[80%] text-[#153087] mx-auto h-0.5 mt-2" />
                     </div>
                     <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
                       <img
@@ -522,14 +512,16 @@ const EmployeeDetailModal = ({ isOpen, onClose, employee: rawEmployee, router })
 
                   {/* BACK */}
                   <div className="h-[85mm] w-[50mm] bg-cover bg-center relative" style={{ backgroundImage: 'url("/id-card-02.svg")' }}>
-                    <Image src='/madisonjayng_logo.png' width={100} height={100} alt="id card front page" className="w-32 absolute top-[54px] -left-[37px] translate-x-1/2" />
-                    <div className="absolute mx-2 top-24 w-[96%]">
-                      <p className="text-[11.7px] text-gray-700">This is a property of <strong>Madison Jay</strong> and if found, kindly return <br /> to the address below or <br /> contact:</p>
-                      <p className="text-[11px] text-gray-700 mt-2"><strong> <FontAwesomeIcon icon={faPhone} /> </strong> 09046746391, 08167392756</p>
-                      <p className="text-[11px] text-gray-700 mt-2"><strong> <FontAwesomeIcon icon={faLocation} /> </strong> Alhaji Kanke CLose, Ikoyi, Lagos.</p>
+                    <Image src='/badij_logo.png' width={100} height={100} alt="id card front page" className="w-24 absolute top-[54px] -left-[13px] translate-x-1/2" />
+                    <div className="absolute mx-2 top-[94px] w-[96%]">
+                      <p className="text-[10.4px] text-gray-700">This is property of <strong>Badij Technologies</strong>. If found, kindly return to the address below or contact:</p>
+                      <p className="text-[11px] text-gray-700 mt-2"><strong> <FontAwesomeIcon icon={faPhone} /> </strong> 0816-254-7995</p>
+                      <p className="text-[11px] text-gray-700 mt-1"><strong> <FontAwesomeIcon icon={faSquareEnvelope} /> </strong> info@madisonjayng.com</p>
+                      <p className="text-[10.6px] text-gray-700 mt-1"><strong> <FontAwesomeIcon icon={faLocation} /> </strong> 13, Alhaji Kanke Close, Off Awolowo Road, Ikoyi - Lagos.</p>
                     </div>
 
                     <div className="absolute w-full bottom-10">
+                      <Image src='/id-signature.png' width={100} height={100} alt="Signature" className="w-20 h-12 mx-auto object-contain relative top-[6px]" />
                       <hr className="w-[80%] mx-auto" />
                       <p className="text-center font-bold text-[14px] text-gray-500">Supervisor</p>
                     </div>

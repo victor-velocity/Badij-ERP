@@ -288,7 +288,7 @@ export default function EmployeeKSS() {
      RENDER
      ------------------------------------------------- */
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-14 mt-5 px-4">
         <div>
@@ -382,7 +382,7 @@ export default function EmployeeKSS() {
                             className="flex items-center justify-between p-4 bg-white rounded-lg border mb-3"
                           >
                             <div className="flex items-center gap-4 flex-1 min-w-0">
-                              <span className="font-bold text-[#b88b1b] text-sm min-w-[40px]">
+                              <span className="font-bold text-[#153087] text-sm min-w-[40px]">
                                 {modIdx + 1}.{i + 1}
                               </span>
                               <div className="flex-1 min-w-0">
@@ -401,7 +401,7 @@ export default function EmployeeKSS() {
                                       e.preventDefault();
                                       handleVideoClick(les.id);
                                     }}
-                                    className="mt-2 inline-flex items-center text-xs text-[#b88b1b] font-medium hover:underline"
+                                    className="mt-2 inline-flex items-center text-xs text-[#153087] font-medium hover:underline"
                                   >
                                     <FontAwesomeIcon icon={faPlayCircle} className="mr-1" />
                                     Watch Video
@@ -475,7 +475,7 @@ export default function EmployeeKSS() {
                               disabled={!isCompleted}
                               className={`text-sm font-medium transition ${
                                 isCompleted
-                                  ? "text-[#b88b1b] hover:underline"
+                                  ? "text-[#153087] hover:underline"
                                   : "text-gray-400 cursor-not-allowed"
                               }`}
                             >
@@ -508,7 +508,7 @@ export default function EmployeeKSS() {
               return (
                 <div key={q.id} className="p-4 bg-gray-50 rounded-lg">
                   <p className="font-medium mb-3">
-                    <span className="text-[#b88b1b] font-bold">Q{i + 1}.</span> {q.question_text}
+                    <span className="text-[#153087] font-bold">Q{i + 1}.</span> {q.question_text}
                   </p>
 
                   {/* Multiple Choice */}

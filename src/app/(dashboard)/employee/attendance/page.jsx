@@ -412,13 +412,13 @@ const AttendancePage = () => {
           <div className="flex items-center space-x-2">
             <button
               onClick={prevMonth}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 hover:bg-[#b88b1b] hover:text-white"
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 hover:bg-[#faf714] hover:text-[black] hover:text-white"
             >
               <FontAwesomeIcon icon={faChevronLeft} />
             </button>
             <button
               onClick={nextMonth}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 hover:bg-[#b88b1b] hover:text-white"
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 hover:bg-[#faf714] hover:text-[black] hover:text-white"
             >
               <FontAwesomeIcon icon={faChevronRight} />
             </button>
@@ -432,7 +432,7 @@ const AttendancePage = () => {
               placeholder="Search…"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="py-2 px-4 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+              className="py-2 px-4 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153087]"
             />
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -442,7 +442,7 @@ const AttendancePage = () => {
           <button
             onClick={fetchAttendance}
             disabled={loading}
-            className="bg-[#b88b1b] text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[#916e17] disabled:opacity-50"
+            className="bg-[#153087] text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[#916e17] disabled:opacity-50"
           >
             <FontAwesomeIcon icon={faRefresh} spin={loading} />
             <span>{loading ? "Loading..." : "Refresh"}</span>

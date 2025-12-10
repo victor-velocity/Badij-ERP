@@ -73,7 +73,7 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onSuccess }) {
                         <input
                             type="text"
                             id="shiftName"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
@@ -90,7 +90,7 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onSuccess }) {
                             type="time"
                             id="startTime"
                             step="1"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             value={startTime}
                             onChange={(e) => setStartTime(e.target.value)}
                             required
@@ -107,7 +107,7 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onSuccess }) {
                             type="time"
                             id="endTime"
                             step="1"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b] sm:text-sm text-black bg-white"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#153087] focus:border-[#153087] sm:text-sm text-black bg-white"
                             value={endTime}
                             onChange={(e) => setEndTime(e.target.value)}
                             required
@@ -120,7 +120,7 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onSuccess }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]"
+                            className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087]"
                             disabled={loading}
                         >
                             Cancel
@@ -128,7 +128,7 @@ export default function CreateShiftTypeModal({ isOpen, onClose, onSuccess }) {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b] disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#153087] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? "Creating..." : "Create Shift Type"}
                         </button>

@@ -71,7 +71,7 @@ const AddDeductionModal = ({ isOpen, onClose, defaultCharges, employeeId, onSucc
 
     if (!isOpen) return null;
 
-    const selectedCharge = defaultCharges.find(charge => charge.id === selectedChargeId);
+    const selectedCharge = defaultCharges?.find(charge => charge.id === selectedChargeId) || null;
     const totalFee = selectedCharge ? selectedCharge.penalty_fee * instances : 0;
 
     return (
@@ -90,17 +90,18 @@ const AddDeductionModal = ({ isOpen, onClose, defaultCharges, employeeId, onSucc
                         </label>
                         <select
                             id="charge-select"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             value={selectedChargeId}
                             onChange={(e) => setSelectedChargeId(e.target.value)}
                             required
                         >
                             <option value="">-- Choose a charge --</option>
-                            {defaultCharges.map(charge => (
-                                <option key={charge.id} value={charge.id}>
-                                    {charge.charge_name} ({formatCurrency(charge.penalty_fee)})
-                                </option>
-                            ))}
+                            {Array.isArray(defaultCharges) &&
+                                defaultCharges.map(charge => (
+                                    <option key={charge.id} value={charge.id}>
+                                        {charge.charge_name} ({formatCurrency(charge.penalty_fee)})
+                                    </option>
+                                ))}
                         </select>
                     </div>
                     <div className="mb-4">
@@ -110,7 +111,7 @@ const AddDeductionModal = ({ isOpen, onClose, defaultCharges, employeeId, onSucc
                         <input
                             type="number"
                             id="instances-input"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             value={instances}
                             onChange={(e) => setInstances(parseInt(e.target.value) || 0)}
                             min="1"
@@ -124,7 +125,7 @@ const AddDeductionModal = ({ isOpen, onClose, defaultCharges, employeeId, onSucc
                         </label>
                         <textarea
                             id="reason-input"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
                             placeholder="Enter the reason for this deduction"
@@ -150,7 +151,7 @@ const AddDeductionModal = ({ isOpen, onClose, defaultCharges, employeeId, onSucc
                         </button>
                         <button
                             type="submit"
-                            className={`px-4 py-2 text-white bg-[#b88b1b] rounded-lg font-semibold hover:bg-[#a37a1a] transition-colors
+                            className={`px-4 py-2 text-white bg-[#153087] rounded-lg font-semibold hover:bg-[#a37a1a] transition-colors
                                 ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                             disabled={isSaving}
                         >

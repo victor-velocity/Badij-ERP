@@ -75,7 +75,7 @@ export default function TopNavBar({ onMobileMenuToggle, profile }) {
                 <div className="flex items-center">
                     <button
                         onClick={onMobileMenuToggle}
-                        className="md:hidden p-2 rounded-md  focus:outline-none focus:ring-2 focus:ring-[#b88b1b] mr-4"
+                        className="md:hidden p-2 rounded-md  focus:outline-none focus:ring-2 focus:ring-[#153087] mr-4"
                         aria-label="Open mobile navigation"
                     >
                         <FontAwesomeIcon icon={faBars} className="text-gray-600 text-xl" />

@@ -231,7 +231,7 @@ const EmployeeListTable = () => {
                 key={index}
                 onClick={() => typeof number === 'number' && paginate(number)}
                 className={`px-4 py-2 rounded-md mx-1 text-sm font-medium transition-colors
-                    ${number === currentPage ? 'bg-white border border-solid border-[#b88b1b]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+                    ${number === currentPage ? 'bg-white border border-solid border-[#153087]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
                     ${number === '...' ? 'cursor-default bg-transparent hover:bg-transparent' : ''}`}
                 disabled={number === '...'}
             >
@@ -313,7 +313,7 @@ const EmployeeListTable = () => {
                             <input
                                 type="text"
                                 placeholder="Search..."
-                                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 value={searchTerm}
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value);
@@ -325,7 +325,7 @@ const EmployeeListTable = () => {
                     </div>
                     <button
                         onClick={() => setIsAddEmployeeModalOpen(true)}
-                        className="flex items-center px-4 py-2 bg-[#b88b1b] text-white rounded-lg hover:bg-[#997417] transition-colors shadow-md cursor-pointer"
+                        className="flex items-center px-4 py-2 bg-[#153087] text-white rounded-lg hover:bg-[#faf714] hover:text-[black] transition-colors shadow-md cursor-pointer"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
@@ -399,7 +399,7 @@ const EmployeeListTable = () => {
                     <button
                         onClick={() => paginate(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:text-white hover:bg-[#b88b1b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:text-white hover:bg-[#faf714] hover:text-[black] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         &lt;
                     </button>
@@ -407,7 +407,7 @@ const EmployeeListTable = () => {
                     <button
                         onClick={() => paginate(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:text-white hover:bg-[#b88b1b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:text-white hover:bg-[#faf714] hover:text-[black] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         &gt;
                     </button>

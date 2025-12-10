@@ -236,7 +236,7 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                                 type="text"
                                 id="title"
                                 name="title"
-                                className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2"
+                                className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2"
                                 placeholder="Write the task title here"
                                 value={formData.title}
                                 onChange={handleChange}
@@ -253,7 +253,7 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                                 id="description"
                                 name="description"
                                 rows="3"
-                                className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2"
+                                className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2"
                                 placeholder="Add a detailed description for the task..."
                                 value={formData.description}
                                 onChange={handleChange}
@@ -268,7 +268,7 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                             <select
                                 id="priority"
                                 name="priority"
-                                className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2"
+                                className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2"
                                 value={formData.priority}
                                 onChange={handleChange}
                                 disabled={isSubmitting}
@@ -307,7 +307,7 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                             <div className="relative">
                                 <input
                                     type="text"
-                                    className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 pr-10"
+                                    className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2 pr-10"
                                     placeholder="Search and select employees"
                                     value={searchTerm}
                                     onChange={(e) => {
@@ -352,7 +352,7 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                                         type="date"
                                         id="start_date"
                                         name="start_date"
-                                        className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm pr-10 p-2"
+                                        className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#153087] focus:ring-[#153087] sm:text-sm pr-10 p-2"
                                         value={formData.start_date}
                                         onChange={handleChange}
                                         required
@@ -372,7 +372,7 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                                         type="date"
                                         id="end_date"
                                         name="end_date"
-                                        className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm pr-10 p-2"
+                                        className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-[#153087] focus:ring-[#153087] sm:text-sm pr-10 p-2"
                                         value={formData.end_date}
                                         onChange={handleChange}
                                         required
@@ -402,7 +402,7 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                                     <div className="flex text-sm text-gray-600 justify-center">
                                         <label
                                             htmlFor="file-upload"
-                                            className="relative cursor-pointer rounded-md bg-white font-medium text-[#b88b1b] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#b88b1b] focus-within:ring-offset-2 hover:text-[#a67c18]"
+                                            className="relative cursor-pointer rounded-md bg-white font-medium text-[#153087] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#153087] focus-within:ring-offset-2 hover:text-[#a67c18]"
                                         >
                                             <span>Upload files</span>
                                             <input
@@ -451,14 +451,14 @@ const AddTaskModal = ({ isOpen, onClose, onAddTask }) => {
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:ring-offset-2"
+                                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#153087] focus:ring-offset-2"
                                 disabled={isSubmitting}
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="inline-flex justify-center rounded-md border border-transparent bg-[#b88b1b] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:ring-offset-2"
+                                className="inline-flex justify-center rounded-md border border-transparent bg-[#153087] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-[#153087] focus:ring-offset-2"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? 'Creating task...' : 'Create task'}

@@ -17,7 +17,7 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
         key={page}
         onClick={() => onPageChange(page)}
         className={`w-8 h-8 flex items-center justify-center rounded-lg font-semibold transition-colors duration-200 
-          ${currentPage === page ? 'bg-[#b88b1b] text-white' : 'text-gray-600 hover:bg-gray-200'}`}
+          ${currentPage === page ? 'bg-[#153087] text-white' : 'text-gray-600 hover:bg-gray-200'}`}
       >
         {page}
       </button>
@@ -31,7 +31,7 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
           key={1}
           onClick={() => onPageChange(1)}
           className={`w-8 h-8 flex items-center justify-center rounded-lg font-semibold transition-colors duration-200 
-            ${currentPage === 1 ? 'bg-[#b88b1b] text-white' : 'text-gray-600 hover:bg-gray-200'}`}
+            ${currentPage === 1 ? 'bg-[#153087] text-white' : 'text-gray-600 hover:bg-gray-200'}`}
         >
           1
         </button>
@@ -44,7 +44,7 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
           key={totalPages}
           onClick={() => onPageChange(totalPages)}
           className={`w-8 h-8 flex items-center justify-center rounded-lg font-semibold transition-colors duration-200 
-            ${currentPage === totalPages ? 'bg-[#b88b1b] text-white' : 'text-gray-600 hover:bg-gray-200'}`}
+            ${currentPage === totalPages ? 'bg-[#153087] text-white' : 'text-gray-600 hover:bg-gray-200'}`}
         >
           {totalPages}
         </button>

@@ -345,7 +345,7 @@ const TasksTable = ({ tasks, searchTerm, onUpdateTask, loading, error }) => {
                           <button 
                             onClick={() => handleStatusUpdate(task, nextStatus)}
                             disabled={isUpdating}
-                            className="px-3 py-1 text-sm font-medium text-white bg-[#b88b1b] rounded-md hover:bg-[#a67c15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-3 py-1 text-sm font-medium text-white bg-[#153087] rounded-md hover:bg-[#a67c15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isUpdating ? 'Updating...' : submitButtonText}
                           </button>
@@ -600,7 +600,7 @@ const ViewTaskModal = ({ isOpen, onClose, task, creatorName, onStatusUpdate, upd
               <button
                 onClick={handleStatusUpdate}
                 disabled={isUpdating}
-                className="px-6 py-2 text-sm font-medium text-white bg-[#b88b1b] rounded-md hover:bg-[#a67c15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 text-sm font-medium text-white bg-[#153087] rounded-md hover:bg-[#a67c15] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isUpdating ? 'Updating...' : getSubmitButtonText(currentStatus)}
               </button>

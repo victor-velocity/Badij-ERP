@@ -60,7 +60,7 @@ export default function QuestionForm({ initialData, moduleId, onSuccess }) {
         <textarea
           value={questionText}
           onChange={(e) => setQuestionText(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none "
+          className="w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#153087] outline-none "
           rows={3}
           required
         />
@@ -73,7 +73,7 @@ export default function QuestionForm({ initialData, moduleId, onSuccess }) {
         <select
           value={questionType}
           onChange={(e) => setQuestionType(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
+          className="w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#153087] outline-none"
         >
           <option value="multiple_choice">Multiple Choice</option>
           <option value="short_answer">Short Answer</option>
@@ -94,7 +94,7 @@ export default function QuestionForm({ initialData, moduleId, onSuccess }) {
                   value={value}
                   onChange={(e) => setOptions({ ...options, [key]: e.target.value })}
                   placeholder={`Option ${key}`}
-                  className="flex-1 w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
+                  className="flex-1 w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#153087] outline-none"
                   required
                 />
               </div>
@@ -111,7 +111,7 @@ export default function QuestionForm({ initialData, moduleId, onSuccess }) {
           <select
             value={correctAnswer}
             onChange={(e) => setCorrectAnswer(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
+            className="w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#153087] outline-none"
             required
           >
             <option value="">Select correct option</option>
@@ -127,7 +127,7 @@ export default function QuestionForm({ initialData, moduleId, onSuccess }) {
             value={correctAnswer}
             onChange={(e) => setCorrectAnswer(e.target.value)}
             placeholder="e.g., 42"
-            className="w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#b88b1b] outline-none"
+            className="w-full px-3 py-2 border border-gray-300 shadow-sm mt-2 rounded-md focus:ring-2 focus:ring-[#153087] outline-none"
             required
           />
         )}

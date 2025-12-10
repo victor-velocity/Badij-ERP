@@ -177,7 +177,7 @@ export default function StocksTable({
                                             {item.type === 'product' && item.components_needed.length > 0 && (
                                                 <button
                                                     onClick={() => toggleExpanded(item.id)}
-                                                    className="text-[#b88b1b] hover:text-[#69500f] p-1 rounded hover:bg-amber-100"
+                                                    className="text-[#153087] hover:text-[#69500f] p-1 rounded hover:bg-amber-100"
                                                     title={expanded[item.id] ? "Hide Components" : "Show Components"}
                                                 >
                                                     <FontAwesomeIcon icon={expanded[item.id] ? faChevronUp : faChevronDown} />
@@ -239,7 +239,7 @@ export default function StocksTable({
                                 onClick={() => handlePageChange(page)}
                                 className={`px-3 py-2 border rounded-md text-sm ${
                                     currentPage === page
-                                        ? 'bg-[#b88b1b] text-white border-[#b88b1b]'
+                                        ? 'bg-[#153087] text-white border-[#153087]'
                                         : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                                 }`}
                             >

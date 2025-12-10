@@ -36,7 +36,7 @@ export async function POST(request) {
     await pRetry(
       () =>
         transporter.sendMail({
-          from: '"Madison Jay" <sales@madisonjayng.com>',
+          from: '"Badij Technologies" <sales@madisonjayng.com>',
           to: customerEmail,
           subject: `Invoice #${orderNumber} – ₦${Number(totalAmount).toLocaleString()}`,
           html: `
@@ -44,7 +44,7 @@ export async function POST(request) {
             <p>Thank you for your order! Your invoice is attached.</p>
             <p><strong>Order #:</strong> ${orderNumber}</p>
             <p><strong>Total:</strong> ₦${Number(totalAmount).toLocaleString()}</p>
-            <p>Best regards,<br/>Madison Jay</p>
+            <p>Best regards,<br/>Badij Technologies</p>
           `,
           attachments: [
             {

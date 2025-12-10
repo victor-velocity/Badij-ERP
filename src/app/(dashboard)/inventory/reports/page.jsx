@@ -189,7 +189,7 @@ const ReportsPage = () => {
                             name="type"
                             value={filters.type}
                             onChange={handleFilterChange}
-                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#b88b1b] focus:ring-1 focus:ring-[#b88b1b] px-3 py-3 focus:ring-opacity-50"
+                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#153087] focus:ring-1 focus:ring-[#153087] px-3 py-3 focus:ring-opacity-50"
                         >
                             <option value="">All Types</option>
                             <option value="inbound">Inbound</option>
@@ -203,7 +203,7 @@ const ReportsPage = () => {
                             name="batch_number"
                             value={filters.batch_number}
                             onChange={handleFilterChange}
-                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#b88b1b] focus:ring-1 focus:ring-[#b88b1b] px-3 py-3 focus:ring-opacity-50"
+                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#153087] focus:ring-1 focus:ring-[#153087] px-3 py-3 focus:ring-opacity-50"
                             placeholder="Enter batch number"
                         />
                     </div>
@@ -214,7 +214,7 @@ const ReportsPage = () => {
                             name="created_by"
                             value={filters.created_by}
                             onChange={handleFilterChange}
-                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#b88b1b] focus:ring-1 focus:ring-[#b88b1b] px-3 py-3 focus:ring-opacity-50"
+                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#153087] focus:ring-1 focus:ring-[#153087] px-3 py-3 focus:ring-opacity-50"
                             placeholder="Enter employee name"
                         />
                     </div>
@@ -225,7 +225,7 @@ const ReportsPage = () => {
                             name="start_date"
                             value={filters.start_date}
                             onChange={handleFilterChange}
-                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#b88b1b] focus:ring-1 focus:ring-[#b88b1b] px-3 py-3 focus:ring-opacity-50"
+                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#153087] focus:ring-1 focus:ring-[#153087] px-3 py-3 focus:ring-opacity-50"
                         />
                     </div>
                     <div>
@@ -235,7 +235,7 @@ const ReportsPage = () => {
                             name="end_date"
                             value={filters.end_date}
                             onChange={handleFilterChange}
-                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#b88b1b] focus:ring-1 focus:ring-[#b88b1b] px-3 py-3 focus:ring-opacity-50"
+                            className="mt-1 block w-full rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#153087] focus:ring-1 focus:ring-[#153087] px-3 py-3 focus:ring-opacity-50"
                         />
                     </div>
                 </div>
@@ -314,7 +314,7 @@ const ReportsPage = () => {
                                         <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={transaction.notes}>{transaction.notes}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.order_id || 'N/A'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 transition-all">
-                                            <button onClick={() => handleViewMore(transaction)} className="text-[#b88b1b] hover:text-[#775a12]">
+                                            <button onClick={() => handleViewMore(transaction)} className="text-[#153087] hover:text-[#775a12]">
                                                 <FontAwesomeIcon icon={faEye} className="h-5 w-5" />
                                             </button>
                                         </td>
@@ -329,7 +329,7 @@ const ReportsPage = () => {
                             <select
                                 value={itemsPerPage}
                                 onChange={handleItemsPerPageChange}
-                                className="rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#b88b1b] focus:ring-1 focus:ring-[#b88b1b] p-2 focus:ring-opacity-50"
+                                className="rounded-md border-[#e8e8e8] border border-solid shadow-sm focus:border-[#153087] focus:ring-1 focus:ring-[#153087] p-2 focus:ring-opacity-50"
                             >
                                 <option value={10}>10</option>
                                 <option value={25}>25</option>
@@ -459,7 +459,7 @@ const ReportsPage = () => {
                             </div>
                         )}
                         <button
-                            className="bg-[#b88b1b] transition-all float-right text-white px-4 py-2 rounded hover:bg-[#977215]"
+                            className="bg-[#153087] transition-all float-right text-white px-4 py-2 rounded hover:bg-[#977215]"
                             onClick={() => setSelectedDetails(null)}
                         >
                             Close

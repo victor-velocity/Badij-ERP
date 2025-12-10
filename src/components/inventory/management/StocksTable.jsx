@@ -111,7 +111,7 @@ const AddComponentModal = ({
               }}
               onFocus={() => setShowDropdown(true)}
               onBlur={() => setTimeout(() => setShowDropdown(false), 180)}
-              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-[#b88b1b] focus:outline-none"
+              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-[#153087] focus:outline-none"
               placeholder="Search by name or SKU..."
               required
             />
@@ -157,7 +157,7 @@ const AddComponentModal = ({
                   quantity: parseInt(e.target.value) || 1,
                 }))
               }
-              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-[#b88b1b] focus:outline-none"
+              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-[#153087] focus:outline-none"
               required
             />
           </div>
@@ -173,7 +173,7 @@ const AddComponentModal = ({
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-[#b88b1b] text-white rounded hover:bg-[#9a7716] disabled:opacity-60"
+              className="px-4 py-2 bg-[#153087] text-white rounded hover:bg-[#9a7716] disabled:opacity-60"
             >
               {loading ? "Adding..." : "Add Component"}
             </button>
@@ -392,7 +392,7 @@ export default function StocksTable({
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => handleAddComponent(item.id)}
-                            className="bg-[#b88b1b] text-white p-2 rounded-lg text-xs hover:bg-[#9a7716] flex items-center"
+                            className="bg-[#153087] text-white p-2 rounded-lg text-xs hover:bg-[#9a7716] flex items-center"
                             title="Add Component"
                           >
                             <FontAwesomeIcon icon={faPlus} />
@@ -400,7 +400,7 @@ export default function StocksTable({
                           {item.components_needed.length > 0 && (
                             <button
                               onClick={() => toggleExpanded(item.id)}
-                              className="text-[#b88b1b] hover:text-[#9a7716] p-1 rounded hover:bg-amber-100"
+                              className="text-[#153087] hover:text-[#9a7716] p-1 rounded hover:bg-amber-100"
                               title={expanded[item.id] ? "Hide Components" : "Show Components"}
                             >
                               <FontAwesomeIcon
@@ -513,7 +513,7 @@ export default function StocksTable({
                 onClick={() => handlePageChange(page)}
                 className={`px-3 py-2 border rounded-md text-sm ${
                   currentPage === page
-                    ? "bg-[#b88b1b] text-white border-[#b88b1b]"
+                    ? "bg-[#153087] text-white border-[#153087]"
                     : "border-gray-300 text-gray-700 hover:bg-gray-50"
                 }`}
               >

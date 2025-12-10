@@ -16,7 +16,7 @@ const DefaultChargesModal = ({ charges, isOpen, onClose, refreshCharges }) => {
                     </h2>
 
                     <div className="space-y-4 mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                        {charges.length > 0 ? (
+                        {(charges ?? []).length > 0 ? (
                             charges.map(charge => (
                                 <div key={charge.id} className="flex flex-col border-b border-gray-200 pb-4 last:border-0">
                                     <div className="flex justify-between items-start">
@@ -44,7 +44,7 @@ const DefaultChargesModal = ({ charges, isOpen, onClose, refreshCharges }) => {
                     <div className="mt-8 flex justify-end gap-4">
                         <button
                             onClick={() => setShowAddForm(true)}
-                            className="px-4 py-2 bg-[#b88b1b] text-white font-semibold rounded-lg shadow-md hover:bg-[#a37a1a]"
+                            className="px-4 py-2 bg-[#153087] text-white font-semibold rounded-lg shadow-md hover:bg-[#a37a1a]"
                         >
                             Add New Charge
                         </button>

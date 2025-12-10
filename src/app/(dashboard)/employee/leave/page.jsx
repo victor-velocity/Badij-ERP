@@ -149,7 +149,7 @@ const LeaveRequests = () => {
                 onClick={() => typeof n === 'number' && paginate(n)}
                 disabled={n === '...'}
                 className={`px-4 py-2 rounded-md mx-1 text-sm font-medium transition-colors
-          ${n === currentPage ? 'bg-white border border-[#b88b1b]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+          ${n === currentPage ? 'bg-white border border-[#153087]' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
           ${n === '...' ? 'cursor-default bg-transparent hover:bg-transparent' : ''}`}
             >
                 {n}
@@ -192,7 +192,7 @@ const LeaveRequests = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
                     <LeaveSummaryCard title="Total Requests" count={leaveStats.total} icon={faCalendarAlt} iconColor="text-blue-600" backgroundColor="bg-blue-50" />
                     <LeaveSummaryCard title="Approved" count={leaveStats.approved} icon={faCheckCircle} iconColor="text-green-600" backgroundColor="bg-green-50" />
-                    <LeaveSummaryCard title="Pending" count={leaveStats.pending} icon={faClock} iconColor="text-yellow-600" backgroundColor="bg-yellow-50" />
+                    <LeaveSummaryCard title="Pending" count={leaveStats.pending} icon={faClock} iconColor="text-[#153087]" backgroundColor="bg-yellow-50" />
                     <LeaveSummaryCard title="Rejected" count={leaveStats.rejected} icon={faTimesCircle} iconColor="text-red-600" backgroundColor="bg-red-50" />
                 </div>
 
@@ -202,7 +202,7 @@ const LeaveRequests = () => {
                     ) : (
                         <div className="text-lg font-semibold text-gray-800">
                             Available Leave:{' '}
-                            <span className="text-[#b88b1b] font-bold">
+                            <span className="text-[#153087] font-bold">
                                 {leaveBalance !== null ? `${leaveBalance} day${leaveBalance !== 1 ? 's' : ''}` : '–'}
                             </span>
                         </div>
@@ -237,7 +237,7 @@ const LeaveRequests = () => {
                         ) : (
                             <button
                                 onClick={() => setIsModalOpen(true)}
-                                className="px-6 py-2 rounded-md bg-[#b88b1b] text-white font-medium hover:bg-[#a07a16] transition-colors w-full sm:w-auto"
+                                className="px-6 py-2 rounded-md bg-[#153087] text-white font-medium hover:bg-[#a07a16] transition-colors w-full sm:w-auto"
                             >
                                 Request New Leave
                             </button>
@@ -305,7 +305,7 @@ const LeaveRequests = () => {
                         <button
                             onClick={() => paginate(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:text-white hover:bg-[#b88b1b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:text-white hover:bg-[#faf714] hover:text-[black] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             &lt;
                         </button>
@@ -313,7 +313,7 @@ const LeaveRequests = () => {
                         <button
                             onClick={() => paginate(currentPage + 1)}
                             disabled={currentPage === totalPages || totalPages === 0}
-                            className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:text-white hover:bg-[#b88b1b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:text-white hover:bg-[#faf714] hover:text-[black] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             &gt;
                         </button>

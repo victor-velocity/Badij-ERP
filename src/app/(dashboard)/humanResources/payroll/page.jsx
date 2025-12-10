@@ -336,7 +336,7 @@ export default function PayrollPage() {
                         <p className='text-[#A09D9D] text-[16px] font-medium'>Your next payroll is</p>
                         <p className='text-black font-medium text-xl my-4'>{payPeriod}</p>
                         <p className='text-[#A09D9D] text-[16px] font-medium'>Click prepare payroll to begin running payroll for this period</p>
-                        <Link href="/humanResources/payroll/prepare-payroll" className='inline-block mt-4 bg-[#b88b1b] text-white px-6 py-2 rounded-lg hover:bg-[#b88b1b]/90 transition-colors duration-300'>Prepare Payroll</Link>
+                        <Link href="/humanResources/payroll/prepare-payroll" className='inline-block mt-4 bg-[#153087] text-white px-6 py-2 rounded-lg hover:bg-[#faf714] hover:text-[black]/90 transition-colors duration-300'>Prepare Payroll</Link>
                     </>
                 )}
             </div>
@@ -365,7 +365,7 @@ export default function PayrollPage() {
                         <input
                             type="text"
                             placeholder="Search..."
-                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:border-[#b88b1b]"
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087] focus:border-[#153087]"
                             value={searchTerm}
                             onChange={handleSearchChange}
                             disabled={loading}
@@ -518,7 +518,7 @@ export default function PayrollPage() {
                                     key={`page-${number}-${index}`}
                                     onClick={() => typeof number === 'number' && paginate(number)}
                                     className={`px-4 py-2 text-sm font-medium rounded-lg ${currentPage === number
-                                        ? 'bg-[#b88b1b] text-white'
+                                        ? 'bg-[#153087] text-white'
                                         : typeof number === 'number'
                                             ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                             : 'text-gray-500 cursor-default'

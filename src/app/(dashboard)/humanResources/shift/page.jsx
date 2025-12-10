@@ -236,7 +236,7 @@ export default function ShiftPage() {
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                 <FontAwesomeIcon icon={faMagnifyingGlass} className="h-5 w-5 text-gray-400" />
             </div>
-            <input type="text" className="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#b88b1b] sm:text-sm sm:leading-6 focus:border-0"
+            <input type="text" className="block w-full rounded-md border-0 py-1.5 pl-10 pr-3 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#153087] sm:text-sm sm:leading-6 focus:border-0"
                    placeholder="Search shifts..." value={searchTerm} onChange={handleSearchChange} />
         </div>
     );
@@ -295,15 +295,15 @@ export default function ShiftPage() {
                 <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
                     {renderSearchBar()}
                     <button onClick={()=>{ setEmployeeToUpdateShift({employee:{id:null,name:'',email:'',avatar_url:''},originalScheduleData:null}); setIsAssignShiftModalOpen(true); }}
-                            className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b] w-full md:w-auto">
+                            className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#153087] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087] w-full md:w-auto">
                         Assign Shift
                     </button>
                     <button onClick={()=>setIsCreateShiftTypeModalOpen(true)}
-                            className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b] w-full md:w-auto">
+                            className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#153087] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087] w-full md:w-auto">
                         Create Shift Type
                     </button>
                     <button onClick={()=>setIsManageShiftTypesModalOpen(true)}
-                            className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b] w-full md:w-auto">
+                            className="whitespace-nowrap px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#153087] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087] w-full md:w-auto">
                         Manage Shift Types
                     </button>
                 </div>

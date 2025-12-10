@@ -83,7 +83,7 @@ const TopSellingProducts = () => {
                   {index + 1}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-800 group-hover:text-yellow-600 transition">
+                  <p className="font-medium text-gray-800 group-hover:text-[#153087] transition">
                     {product.name}
                   </p>
                   <p className="text-xs text-gray-500">

@@ -316,7 +316,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                     id="title"
                     value={formData.title}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2 border"
                     required
                 />
             </div>
@@ -328,7 +328,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                     value={formData.description}
                     onChange={handleChange}
                     rows="3"
-                    className="mt-1 block w-full rounded-md border-gray-300 resize-none focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 resize-none focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2 border"
                 ></textarea>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -340,7 +340,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                         id="start_date"
                         value={formData.start_date}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 border"
+                        className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2 border"
                     />
                 </div>
                 <div>
@@ -351,7 +351,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                         id="end_date"
                         value={formData.end_date}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 border"
+                        className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2 border"
                     />
                 </div>
             </div>
@@ -362,7 +362,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                     id="priority"
                     value={formData.priority}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 border"
+                    className="mt-1 block w-full rounded-md border-gray-300 focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2 border"
                 >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -382,7 +382,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                 <div className="relative">
                     <input
                         type="text"
-                        className="block w-full rounded-md border border-gray-300 focus:border-[#b88b1b] focus:ring-[#b88b1b] sm:text-sm p-2 pr-10"
+                        className="block w-full rounded-md border border-gray-300 focus:border-[#153087] focus:ring-[#153087] sm:text-sm p-2 pr-10"
                         placeholder="Search employee to assign"
                         value={employeeSearchTerm}
                         onChange={handleEmployeeSearchChange}
@@ -509,7 +509,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                     />
                     <label
                         htmlFor="file-upload"
-                        className="cursor-pointer text-[#b88b1b] hover:text-[#a67c18] font-medium"
+                        className="cursor-pointer text-[#153087] hover:text-[#a67c18] font-medium"
                     >
                         <FontAwesomeIcon icon={faUpload} className="mr-2" />
                         Select files to upload
@@ -561,7 +561,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                                         href={doc.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-[#b88b1b] hover:text-[#a67c18]"
+                                        className="text-[#153087] hover:text-[#a67c18]"
                                     >
                                         View
                                     </a>
@@ -602,7 +602,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                                                 type="button"
                                                 onClick={() => setActiveSection(section)}
                                                 className={`py-2 px-1 border-b-2 font-medium text-sm ${activeSection === section
-                                                    ? 'border-[#b88b1b] text-[#b88b1b]'
+                                                    ? 'border-[#153087] text-[#153087]'
                                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                                     }`}
                                             >
@@ -626,7 +626,7 @@ const UpdateTaskModal = ({ show, task, onCancel }) => {
                         <button
                             type="submit"
                             className={`w-full inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white sm:ml-3 sm:w-auto sm:text-sm
-                                ${isSaving ? 'bg-[#b88b1b] cursor-not-allowed' : 'bg-[#b88b1b] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#b88b1b]'}
+                                ${isSaving ? 'bg-[#153087] cursor-not-allowed' : 'bg-[#153087] hover:bg-[#a67c18] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#153087]'}
                             `}
                             disabled={isSaving}
                         >

@@ -112,7 +112,7 @@ const EditDeductionModal = ({
                             type="number"
                             id="instances"
                             name="instances"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             value={formData.instances}
                             onChange={handleChange}
                             min="1"
@@ -129,7 +129,7 @@ const EditDeductionModal = ({
                             type="number"
                             id="pardoned_fee"
                             name="pardoned_fee"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             value={formData.pardoned_fee}
                             onChange={handleChange}
                             min="0"
@@ -146,7 +146,7 @@ const EditDeductionModal = ({
                         <textarea
                             id="reason"
                             name="reason"
-                            className="w-full px-3 py-2 border resize-none border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="w-full px-3 py-2 border resize-none border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             value={formData.reason}
                             onChange={handleChange}
                             placeholder="Enter reason"
@@ -181,7 +181,7 @@ const EditDeductionModal = ({
                         </button>
                         <button
                             type="submit"
-                            className={`px-4 py-2 text-white bg-[#b88b1b] rounded-lg font-semibold hover:bg-[#a37a1a] transition-colors
+                            className={`px-4 py-2 text-white bg-[#153087] rounded-lg font-semibold hover:bg-[#a37a1a] transition-colors
                   ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                             disabled={isSaving}
                         >

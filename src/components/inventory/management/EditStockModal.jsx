@@ -279,7 +279,7 @@ const EditStockModal = ({ stock, onClose, onSuccess, importBatches = [] }) => {
                             name="contents_type"
                             value={formData.contents_type}
                             onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             required
                         >
                             <option value="">Select type</option>
@@ -301,7 +301,7 @@ const EditStockModal = ({ stock, onClose, onSuccess, importBatches = [] }) => {
                                 onChange={handleSearchChange}
                                 onFocus={() => setShowDropdown(true)}
                                 onBlur={handleDropdownBlur}
-                                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 placeholder={`Search ${formData.contents_type}s by name or SKU...`}
                                 required
                             />
@@ -363,7 +363,7 @@ const EditStockModal = ({ stock, onClose, onSuccess, importBatches = [] }) => {
                             name="batch_id"
                             value={formData.batch_id}
                             onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             required
                         >
                             <option value="">Select an import batch</option>
@@ -387,7 +387,7 @@ const EditStockModal = ({ stock, onClose, onSuccess, importBatches = [] }) => {
                             min="1"
                             value={formData.quantity_in_box}
                             onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             required
                         />
                     </div>
@@ -402,7 +402,7 @@ const EditStockModal = ({ stock, onClose, onSuccess, importBatches = [] }) => {
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                         >
                             <option value="in_stock">In Stock</option>
                             <option value="sold">Sold</option>
@@ -422,7 +422,7 @@ const EditStockModal = ({ stock, onClose, onSuccess, importBatches = [] }) => {
                                 name="location_id"
                                 value={formData.location_id}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             >
                                 <option value="">Select location</option>
                                 {locations.map((location) => (
@@ -443,7 +443,7 @@ const EditStockModal = ({ stock, onClose, onSuccess, importBatches = [] }) => {
                                 name="shelf_code"
                                 value={formData.shelf_code}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 placeholder="e.g., A1-02"
                             />
                         </div>
@@ -473,7 +473,7 @@ const EditStockModal = ({ stock, onClose, onSuccess, importBatches = [] }) => {
                         <button
                             type="submit"
                             disabled={loading || !formData.content_id || !formData.batch_id || !formData.contents_type}
-                            className="px-4 py-2 bg-[#b88b1b] text-white rounded-md transition-all hover:bg-[#856515] disabled:opacity-50"
+                            className="px-4 py-2 bg-[#153087] text-white rounded-md transition-all hover:bg-[#856515] disabled:opacity-50"
                         >
                             {loading ? 'Updating...' : 'Update Stock Entry'}
                         </button>

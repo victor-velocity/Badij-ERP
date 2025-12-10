@@ -218,7 +218,7 @@ const Attendance = () => {
       <div className="mt-6 text-right">
         <button
           onClick={() => router.push('/humanResources/attendance')}
-          className="text-[#b88b1b] font-medium hover:underline text-sm"
+          className="text-[#153087] font-medium hover:underline text-sm"
         >
           See all attendance records
         </button>

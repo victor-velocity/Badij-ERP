@@ -127,7 +127,7 @@ const InventoryEmployees = () => {
                     placeholder="Search by name..."
                     value={searchQuery}
                     onChange={handleSearch}
-                    className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                    className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#153087]"
                 />
             </div>
 
@@ -186,7 +186,7 @@ const InventoryEmployees = () => {
                         <button
                             onClick={() => paginate(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className={`px-4 py-2 rounded-lg ${currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-[#b88b1b] text-white hover:bg-[#8a7412]'}`}
+                            className={`px-4 py-2 rounded-lg ${currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-[#153087] text-white hover:bg-[#8a7412]'}`}
                         >
                             Previous
                         </button>
@@ -194,7 +194,7 @@ const InventoryEmployees = () => {
                             <button
                                 key={i + 1}
                                 onClick={() => paginate(i + 1)}
-                                className={`px-4 py-2 rounded-lg ${currentPage === i + 1 ? 'bg-[#b88b1b] text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+                                className={`px-4 py-2 rounded-lg ${currentPage === i + 1 ? 'bg-[#153087] text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
                             >
                                 {i + 1}
                             </button>
@@ -202,7 +202,7 @@ const InventoryEmployees = () => {
                         <button
                             onClick={() => paginate(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className={`px-4 py-2 rounded-lg ${currentPage === totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-[#b88b1b] text-white hover:bg-[#8a7412]'}`}
+                            className={`px-4 py-2 rounded-lg ${currentPage === totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-[#153087] text-white hover:bg-[#8a7412]'}`}
                         >
                             Next
                         </button>

@@ -10,7 +10,7 @@ import apiService from '@/app/lib/apiService';
 import toast from 'react-hot-toast';
 
 const ITEMS_PER_PAGE = 8;
-const goldColor = '#b88b1b';
+const goldColor = '#153087';
 
 // Skeleton Loading Components
 const TableSkeleton = () => {

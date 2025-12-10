@@ -93,7 +93,7 @@ export default function TopNavBar({ onMobileMenuToggle, profile }) {
                 <div className="flex items-center">
                     <button
                         onClick={onMobileMenuToggle}
-                        className="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b] mr-4"
+                        className="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087] mr-4"
                         aria-label="Open mobile navigation"
                     >
                         <FontAwesomeIcon icon={faBars} className="text-gray-600 text-xl" />
@@ -134,7 +134,7 @@ export default function TopNavBar({ onMobileMenuToggle, profile }) {
                                     />
                                 </div>
                             ) : (
-                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#b88b1b] to-[#d4a53b] flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#153087] to-[#d4a53b] flex items-center justify-center text-white font-bold text-lg shadow-md">
                                     {profile.username?.charAt(0).toUpperCase() || '?'}
                                 </div>
                             )}

@@ -53,7 +53,7 @@ const PayslipConfirmationModal = ({ employee, isOpen, onClose, onConfirm }) => {
         <div className="fixed inset-0 bg-[#000000aa] flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto w-full max-w-lg p-8">
                 <h2 className="text-2xl font-extrabold text-gray-900 mb-6 text-center">
-                    Confirm Payslip for <span className="text-[#b88b1b]">{employee.name}</span>
+                    Confirm Payslip for <span className="text-[#153087]">{employee.name}</span>
                 </h2>
 
                 {/* Income Section */}
@@ -138,7 +138,7 @@ const PayslipConfirmationModal = ({ employee, isOpen, onClose, onConfirm }) => {
                     <button
                         onClick={handleConfirm}
                         disabled={isLoading}
-                        className="px-6 py-2 bg-[#b88b1b] text-white font-semibold rounded-lg shadow-md hover:bg-[#a37a1a] focus:outline-none focus:ring-2 focus:ring-[#b88b1b] focus:ring-opacity-75 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2 bg-[#153087] text-white font-semibold rounded-lg shadow-md hover:bg-[#a37a1a] focus:outline-none focus:ring-2 focus:ring-[#153087] focus:ring-opacity-75 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? (
                             <span className="flex items-center justify-center">

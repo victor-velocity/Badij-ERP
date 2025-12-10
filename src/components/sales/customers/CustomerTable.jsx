@@ -124,14 +124,14 @@ const CustomerListTable = () => {
                         <input
                             type="text"
                             placeholder="Search customers"
-                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b] min-w-[200px]"
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087] min-w-[200px]"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="px-4 py-2 bg-[#b88b1b] hover:bg-[#886817] transition-all text-white rounded-md whitespace-nowrap"
+                        className="px-4 py-2 bg-[#153087] hover:bg-[#886817] transition-all text-white rounded-md whitespace-nowrap"
                     >
                         <FontAwesomeIcon icon={faPlus} className="mr-2" />
                         Add Customer
@@ -201,7 +201,7 @@ const CustomerListTable = () => {
                 <button
                     onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1 || isLoading}
-                    className="px-3 py-1 bg-[#b88b1b] text-white rounded-md disabled:opacity-50 whitespace-nowrap"
+                    className="px-3 py-1 bg-[#153087] text-white rounded-md disabled:opacity-50 whitespace-nowrap"
                 >
                     Previous
                 </button>
@@ -210,7 +210,7 @@ const CustomerListTable = () => {
                         key={page}
                         onClick={() => paginate(page)}
                         disabled={isLoading}
-                        className={`px-3 py-1 mx-1 rounded-md ${currentPage === page ? 'bg-[#b88b1b] text-white' : 'bg-gray-200 text-gray-700'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`px-3 py-1 mx-1 rounded-md ${currentPage === page ? 'bg-[#153087] text-white' : 'bg-gray-200 text-gray-700'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         {page}
                     </button>
@@ -218,7 +218,7 @@ const CustomerListTable = () => {
                 <button
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages || isLoading}
-                    className="px-3 py-1 bg-[#b88b1b] text-white rounded-md disabled:opacity-50 whitespace-nowrap"
+                    className="px-3 py-1 bg-[#153087] text-white rounded-md disabled:opacity-50 whitespace-nowrap"
                 >
                     Next
                 </button>

@@ -158,13 +158,13 @@ const DocumentsPage = () => {
               <input
                 type="text"
                 placeholder="Search documents..."
-                className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <button
-              className="flex items-center gap-2 bg-[#b88b1b] text-white px-4 py-2 rounded-md hover:bg-[#8d6b14] transition-colors"
+              className="flex items-center gap-2 bg-[#153087] text-white px-4 py-2 rounded-md hover:bg-[#faf714] hover:text-[black] transition-colors"
               onClick={() => setIsUploadModalOpen(true)}
               disabled={!currentEmployee || loading}
             >

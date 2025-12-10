@@ -84,7 +84,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
         <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
                 <div className="flex justify-center items-center">
-                    <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-[#b88b1b]" />
+                    <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-[#153087]" />
                     <span className="ml-3 text-gray-600">Loading order details...</span>
                 </div>
             </div>
@@ -98,7 +98,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
                     <p className="text-red-500 mb-4">Order details not found</p>
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-[#b88b1b] text-white rounded-md hover:bg-[#8b6a15] transition-colors"
+                        className="px-4 py-2 bg-[#153087] text-white rounded-md hover:bg-[#8b6a15] transition-colors"
                     >
                         Close
                     </button>
@@ -122,7 +122,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
                             </div>
                             <div className="text-right">
                                 <p className="text-xl font-bold">STATUS: {formattedOrder.status?.toUpperCase()}</p>
-                                <p className="text-2xl font-bold text-[#b88b1b]">
+                                <p className="text-2xl font-bold text-[#153087]">
                                     TOTAL: ₦{formattedOrder.total_amount?.toLocaleString()}
                                 </p>
                             </div>
@@ -246,7 +246,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
             <div className="fixed inset-0 bg-[#000000aa] bg-opacity-50 flex justify-center items-center z-50 p-4">
                 <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                     {/* Header - unchanged */}
-                    <div className="bg-gradient-to-r from-[#b88b1b] to-[#d4af37] p-6 rounded-t-lg">
+                    <div className="bg-gradient-to-r from-[#153087] to-[#d4af37] p-6 rounded-t-lg">
                         <div className="flex justify-between items-start">
                             <div>
                                 <h2 className="text-2xl font-bold text-white">Order Details</h2>
@@ -280,7 +280,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
 
                             <div className="bg-gray-50 p-4 rounded-lg border border-gray-300 shadow-md">
                                 <p className="text-sm text-gray-600">Total Amount</p>
-                                <p className="text-2xl font-bold text-[#b88b1b] mt-1">
+                                <p className="text-2xl font-bold text-[#153087] mt-1">
                                     ₦{formattedOrder.total_amount?.toLocaleString()}
                                 </p>
                             </div>
@@ -294,7 +294,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
                         {/* Customer Information */}
                         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
                             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                <FontAwesomeIcon icon={faUser} className="text-[#b88b1b] mr-2" />
+                                <FontAwesomeIcon icon={faUser} className="text-[#153087] mr-2" />
                                 Customer Information
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -319,7 +319,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
                         {/* Order Items */}
                         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
                             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                <FontAwesomeIcon icon={faBox} className="text-[#b88b1b] mr-2" />
+                                <FontAwesomeIcon icon={faBox} className="text-[#153087] mr-2" />
                                 Order Items ({formattedOrder.items.length})
                             </h3>
                             <div className="overflow-x-auto">
@@ -345,7 +345,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
                                                     <p className="font-medium">{item.quantity}</p>
                                                 </td>
                                                 <td className="py-3 px-4 text-right">
-                                                    <p className="font-bold text-[#b88b1b]">
+                                                    <p className="font-bold text-[#153087]">
                                                         ₦{item.total.toLocaleString()}
                                                     </p>
                                                 </td>
@@ -384,7 +384,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
                                         <tr className="bg-gray-50">
                                             <td colSpan="3" className="py-3 px-4 text-right font-semibold text-gray-800">Grand Total:</td>
                                             <td className="py-3 px-4 text-right">
-                                                <p className="text-xl font-bold text-[#b88b1b]">
+                                                <p className="text-xl font-bold text-[#153087]">
                                                     ₦{formattedOrder.total_amount.toLocaleString()}
                                                 </p>
                                             </td>
@@ -398,7 +398,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="bg-white border border-gray-200 rounded-lg p-6">
                                 <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="text-[#b88b1b] mr-2" />
+                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="text-[#153087] mr-2" />
                                     Delivery Information
                                 </h3>
                                 <div className="space-y-3">
@@ -418,7 +418,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
 
                             <div className="bg-white border border-gray-200 rounded-lg p-6">
                                 <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                    <FontAwesomeIcon icon={faStickyNote} className="text-[#b88b1b] mr-2" />
+                                    <FontAwesomeIcon icon={faStickyNote} className="text-[#153087] mr-2" />
                                     Additional Information
                                 </h3>
                                 <div className="space-y-3">
@@ -450,7 +450,7 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
                             </button>
                             <button
                                 onClick={handlePrint}
-                                className="px-6 py-2 bg-[#b88b1b] text-white rounded-md hover:bg-[#8b6a15] transition-colors flex items-center"
+                                className="px-6 py-2 bg-[#153087] text-white rounded-md hover:bg-[#8b6a15] transition-colors flex items-center"
                             >
                                 <FontAwesomeIcon icon={faPrint} className="mr-2" />
                                 Print Details
@@ -512,8 +512,8 @@ const ViewOrderModal = ({ isOpen, onClose, order, customer, createdBy }) => {
                         background-color: #1f2937 !important;
                         color: white !important;
                     }
-                    .text-[#b88b1b] {
-                        color: #b88b1b !important;
+                    .text-[#153087] {
+                        color: #153087 !important;
                     }
                 }
             `}</style>

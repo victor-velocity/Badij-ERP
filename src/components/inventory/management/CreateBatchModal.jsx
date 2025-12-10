@@ -181,7 +181,7 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
                                 onChange={handleSearchChange}
                                 onFocus={() => setShowDropdown(true)}
                                 onBlur={handleDropdownBlur}
-                                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                                 placeholder="Search suppliers by name, email, or phone..."
                                 required
                             />
@@ -244,7 +244,7 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
                             required
                             value={formData.batch_number}
                             onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             placeholder="Enter batch number"
                         />
                     </div>
@@ -259,7 +259,7 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
                             name="expected_date"
                             value={formData.expected_date}
                             onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                         />
                     </div>
 
@@ -272,7 +272,7 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                         >
                             <option value="in_transit">In Transit</option>
                             <option value="processing">Processing</option>
@@ -292,7 +292,7 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
                                 required
                                 value={formData.received_date}
                                 onChange={handleChange}
-                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             />
                             <p className="text-xs text-gray-500 mt-1">Required when status is "Processing"</p>
                         </div>
@@ -307,7 +307,7 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
                             name="notes"
                             value={formData.notes}
                             onChange={handleChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             rows="3"
                             placeholder="Additional notes..."
                         />
@@ -325,7 +325,7 @@ const CreateBatchModal = ({ onClose, onSuccess }) => {
                         <button
                             type="submit"
                             disabled={loading || !formData.supplier_id || !formData.batch_number}
-                            className="px-4 py-2 bg-[#b88b1b] text-white rounded-md transition-all hover:bg-[#b88b1b] disabled:opacity-50"
+                            className="px-4 py-2 bg-[#153087] text-white rounded-md transition-all hover:bg-[#faf714] hover:text-[black] disabled:opacity-50"
                         >
                             {loading ? 'Creating...' : 'Create'}
                         </button>

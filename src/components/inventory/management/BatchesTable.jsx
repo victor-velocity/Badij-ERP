@@ -198,7 +198,7 @@ export default function BatchesTable({ onDataChange }) {
                 <h3 className="text-lg font-semibold text-gray-900">Import Batches</h3>
                 <button
                     onClick={() => setShowCreateModal(true)}
-                    className="bg-[#b88b1b] text-white px-4 py-2 rounded-lg transition-all hover:bg-[#856515] flex items-center"
+                    className="bg-[#153087] text-white px-4 py-2 rounded-lg transition-all hover:bg-[#856515] flex items-center"
                 >
                     <FontAwesomeIcon icon={faPlus} className="mr-2" />
                     Add Batch

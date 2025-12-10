@@ -75,7 +75,7 @@ const StockManagement = () => {
                             <select
                                 value={filter}
                                 onChange={(e) => setFilter(e.target.value)}
-                                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             >
                                 <option value="all">All Items</option>
                                 <option value="product">Products</option>
@@ -90,7 +90,7 @@ const StockManagement = () => {
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search by name or SKU..."
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#b88b1b]"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#153087]"
                             />
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,7 +103,7 @@ const StockManagement = () => {
                     {/* Right: Add Stock Button */}
                     <button
                         onClick={() => setIsStockEntryModalOpen(true)}
-                        className="flex items-center gap-2 bg-[#b88b1b] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#9a7516] transition-all shadow-sm hover:shadow-md"
+                        className="flex items-center gap-2 bg-[#153087] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#9a7516] transition-all shadow-sm hover:shadow-md"
                     >
                         <FontAwesomeIcon icon={faPlus} />
                         Add Stock

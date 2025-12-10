@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faExclamationTriangle, faTrash } from '@fortawesome/free-solid-svg-icons';
 import toast from 'react-hot-toast';
 
-const goldColor = '#b88b1b';
+const goldColor = '#153087';
 
 export const DeleteModal = ({ 
   isOpen, 

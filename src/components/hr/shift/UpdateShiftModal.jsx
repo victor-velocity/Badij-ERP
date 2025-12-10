@@ -121,7 +121,7 @@ const UpdateShiftModal = ({
                 <div className="p-6 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-gradient-to-r from-[#b88b1b] to-[#a67c18] rounded-xl flex items-center justify-center">
+                            <div className="w-12 h-12 bg-gradient-to-r from-[#153087] to-[#a67c18] rounded-xl flex items-center justify-center">
                                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
@@ -161,7 +161,7 @@ const UpdateShiftModal = ({
                                     value={formData.employeeId || ''}
                                     onChange={handleEmployeeChange}
                                     disabled={isSubmitting}
-                                    className={`pl-10 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#b88b1b] focus:border-transparent transition-all duration-200 ${
+                                    className={`pl-10 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#153087] focus:border-transparent transition-all duration-200 ${
                                         errors.employeeId 
                                             ? 'border-red-300 focus:ring-red-500' 
                                             : 'border-gray-200 hover:border-gray-300'
@@ -212,7 +212,7 @@ const UpdateShiftModal = ({
                                 value={formData.shiftTypeId}
                                 onChange={handleShiftTypeChange}
                                 disabled={isSubmitting}
-                                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#b88b1b] focus:border-transparent transition-all duration-200 ${
+                                className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#153087] focus:border-transparent transition-all duration-200 ${
                                     errors.shiftTypeId 
                                         ? 'border-red-300 focus:ring-red-500' 
                                         : 'border-gray-200 hover:border-gray-300'
@@ -249,7 +249,7 @@ const UpdateShiftModal = ({
                                         if (errors.startDate) setErrors(prev => ({ ...prev, startDate: '' }));
                                     }}
                                     disabled={isSubmitting}
-                                    className={`pl-11 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#b88b1b] focus:border-transparent transition-all duration-200 ${
+                                    className={`pl-11 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#153087] focus:border-transparent transition-all duration-200 ${
                                         errors.startDate 
                                             ? 'border-red-300 focus:ring-red-500' 
                                             : 'border-gray-200 hover:border-gray-300'
@@ -272,7 +272,7 @@ const UpdateShiftModal = ({
                                         if (errors.endDate) setErrors(prev => ({ ...prev, endDate: '' }));
                                     }}
                                     disabled={isSubmitting}
-                                    className={`pl-11 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#b88b1b] focus:border-transparent transition-all duration-200 ${
+                                    className={`pl-11 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#153087] focus:border-transparent transition-all duration-200 ${
                                         errors.endDate 
                                             ? 'border-red-300 focus:ring-red-500' 
                                             : 'border-gray-200 hover:border-gray-300'
@@ -298,7 +298,7 @@ const UpdateShiftModal = ({
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex-1 px-6 py-3 bg-gradient-to-r from-[#b88b1b] to-[#a67c18] text-white rounded-xl hover:from-[#a67c18] hover:to-[#9b7216] focus:outline-none focus:ring-2 focus:ring-[#b88b1b] font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            className="flex-1 px-6 py-3 bg-gradient-to-r from-[#153087] to-[#a67c18] text-white rounded-xl hover:from-[#a67c18] hover:to-[#9b7216] focus:outline-none focus:ring-2 focus:ring-[#153087] font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         >
                             {isSubmitting ? (
                                 <>

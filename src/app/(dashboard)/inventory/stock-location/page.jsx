@@ -171,7 +171,7 @@ export default function StockLocationsPage() {
                     id="location-select"
                     value={selectedLocationId}
                     onChange={handleLocationChange}
-                    className="block w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#b88b1b] focus:border-[#b88b1b]"
+                    className="block w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#153087] focus:border-[#153087]"
                 >
                     <option value="">Select a location</option>
                     {locations.map((location) => (
@@ -184,7 +184,7 @@ export default function StockLocationsPage() {
 
             {loading && selectedLocationId && (
                 <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b88b1b] mx-auto"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#153087] mx-auto"></div>
                     <p className="mt-2 text-gray-600">Loading location data...</p>
                 </div>
             )}
